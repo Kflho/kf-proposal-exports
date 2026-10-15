@@ -32,10 +32,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nested_box import BLUE, FACE, INK, LH, PAD_X, PAD_Y, TAG_GAP  # noqa: E402
 
+INK_TAG = "#2F6FB0"          # 小标题颜色
 LEAF_FILL = '#E8F1FA'      # 叶子默认底色（浅主色）
 LEAF_STROKE_W = 2          # 叶子描边宽，与 lines.to_svg 的默认线宽一致
 LEAF_RX = 8                # 圆角半径
-LINE_H_FACTOR = 0.35       # 基线相对行盒中线的下沉系数（近似视觉居中）
+LINE_H_FACTOR = 0.35       # 兼容旧调用
+ASC, DESC = 0.88, 0.22     # 字面升部/降部（em）：用于**墨迹**居中       # 基线相对行盒中线的下沉系数（近似视觉居中）
 LINK_W = 2                 # 折线默认线宽
 LABEL_FS = 12.5            # 折线标注字号
 LABEL_DY = 6               # 标注相对折点的上浮量
@@ -59,26 +61,27 @@ def leaf_svg(lf):
     """一个叶子：圆角矩形 + 垂直居中的文字块（tag 行粗体在最前）。"""
     fill = getattr(lf, 'fill_color', LEAF_FILL)
     stroke = getattr(lf, 'stroke_color', BLUE)
-    ink = getattr(lf, 'ink', INK)
+    ink_color = getattr(lf, 'ink', INK)
     fs = getattr(lf, 'fs_v', 15)
     tfs = getattr(lf, 'tfs_v', fs)
     tag = getattr(lf, 'tag', None)
     rows = list(getattr(lf, 'lines', None) or [])
     if not rows:                       # 没 measure 过就退回原始 text
         rows = str(getattr(lf, 'text', '')).split('\n')
-    blk = (tfs * LH + TAG_GAP if tag else 0) + len(rows) * fs * LH
-    cy = lf.y + max(PAD_Y, (lf.h - blk) / 2)
+    n_b = len(rows)
+    # 墨迹高：标题行 + 正文各行（行距 fs*LH），首末行按字面升降部计
+    ink = ((tfs * (ASC + DESC) + TAG_GAP) if tag else 0) \
+          + ((n_b - 1) * fs * LH if n_b else 0) + fs * (ASC + DESC)
+    cy = lf.y + (lf.h - ink) / 2          # 按墨迹高居中：上下留白相等
     out = [f'  <rect x="{lf.x:g}" y="{lf.y:g}" width="{lf.w:g}" height="{lf.h:g}"'
-           f' rx="{LEAF_RX}" fill="{fill}" stroke="{stroke}"'
-           f' stroke-width="{LEAF_STROKE_W}"/>']
+           f' rx="{LEAF_RX}" fill="{fill}" stroke="{stroke}" stroke-width="2"/>']
+    cx = lf.x + PAD_X          # 左对齐（与既有版式一致）
     if tag:
-        out.append(_text(lf.x + PAD_X, cy + tfs * (LH / 2 + LINE_H_FACTOR), tag, ink, tfs, True))
-        cy += tfs * LH + TAG_GAP
-    for t in rows:
-        out.append(_text(lf.x + PAD_X, cy + fs * (LH / 2 + LINE_H_FACTOR), t, ink, fs))
-        cy += fs * LH
+        out.append(_text(cx, cy + ASC * tfs, tag, ink if False else INK_TAG, tfs, True))
+        cy += tfs * (ASC + DESC) + TAG_GAP
+    for i, t in enumerate(rows):
+        out.append(_text(cx, cy + ASC * fs + i * fs * LH, t, ink_color, fs))
     return out
-
 
 def _link_parts(link):
     """折线的两种写法归一成 (点列表, 颜色, 线宽, 要不要箭头, 标注)。"""
