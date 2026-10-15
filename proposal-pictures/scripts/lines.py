@@ -204,6 +204,22 @@ def merge(srcs, dst, sside=None, dside=None, gap=40, label=None):
     return lines, lab
 
 
+def route(pa, pb, trunk=None, tol=1.0):
+    """给定两个端点，**能直就直**（同高走水平直线、同列走竖直直线），否则走直角折线。
+
+    trunk 为干线坐标（水平连接给 x，垂直连接给 横线 y）；缺省取两端点中点。
+    供 ports() 取好均匀分布点之后调用。
+    """
+    (x0, y0), (x1, y1) = pa, pb
+    if abs(y0 - y1) < tol or abs(x0 - x1) < tol:
+        return [(pa, pb)]
+    if abs(y0 - y1) <= abs(x0 - x1):          # 以水平为主：竖干线
+        tx = trunk if trunk is not None else (x0 + x1) / 2
+        return [(pa, (tx, y0), (tx, y1), pb)]
+    ty = trunk if trunk is not None else (y0 + y1) / 2
+    return [(pa, (x0, ty), (x1, ty), pb)]
+
+
 def ports(node, side, n, inset=1.0):
     """R1：在 node 的某条边上取 **n 个均匀分布**的引出/引入点。
 
@@ -247,6 +263,35 @@ def connect_many(srcs, dsts, sside=None, dside=None, label=None):
             else:
                 segs += elbow(a, b, sside, dside)[0]
     return segs, label
+
+
+def place_label(segment, text, fs=12, gap=6, side='above', avail=None, wrap=None):
+    """**标注贴自己那一段**：返回 (x, y, anchor, lines)。
+
+    · 水平段：整块置于线上方 gap 像素（anchor=middle，x 取段中点）
+    · 竖直段：置于线右侧 gap 像素（anchor=start）
+    · wrap = 折行函数（如 _wrap_dp.wrap_dp 的偏函数），avail 为可用宽度
+    """
+    (x0, y0), (x1, y1) = segment[0], segment[-1]
+    lines = [text]
+    if wrap and avail:
+        lines = wrap(text, fs, avail) or [text]
+    horiz = abs(y1 - y0) <= abs(x1 - x0)
+    if horiz:
+        x = (x0 + x1) / 2
+        # 让出下行部（0.25em）：否则文字盒底会压线
+        y = min(y0, y1) - gap - fs * 0.25
+        anchor = 'middle'
+    else:
+        x = max(x0, x1) + gap
+        y = (y0 + y1) / 2
+        anchor = 'start'
+    if side == 'below' and horiz:
+        y = max(y0, y1) + gap + fs
+    if side == 'left' and not horiz:
+        x = min(x0, x1) - gap
+        anchor = 'end'
+    return x, y, anchor, lines
 
 
 def to_svg(segments, color=BLUE, width=2, arrow=True, label=None, label_pos=None):
