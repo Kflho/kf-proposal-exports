@@ -1,0 +1,15 @@
+# 生成物 / 中间产物
+__pycache__/
+*.pyc
+
+# 切图与渲染产物
+out/
+*.png
+!assets/*.png
+
+# 备份文件：本仓库用 git 兜底，不落 .bak
+*.bak
+*.bak_*
+*.orig
+*.rej
+*~

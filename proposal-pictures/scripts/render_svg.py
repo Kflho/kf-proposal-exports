@@ -91,9 +91,30 @@ def main() -> int:
             src = make_crop(src, a.crop, a.scale, tmpdir)
         else:
             raw = open(src, encoding="utf-8").read()
-            m = re.search(r'width="([\d.]+)"\s+height="([\d.]+)"', raw)
-            base = (float(m.group(1)), float(m.group(2))) if m else (1600.0, 900.0)
+            # 宽高可能带单位（pt / px / mm …）：pt 按 96dpi 折算成 px（1pt = 96/72 px）
+            m = re.search(r'width="([\d.]+)\s*(pt|px|mm|cm|in)?"\s+'
+                          r'height="([\d.]+)\s*(pt|px|mm|cm|in)?"', raw)
+            if m:
+                k = {"pt": 96 / 72, "px": 1.0, "mm": 96 / 25.4, "cm": 96 / 2.54,
+                     "in": 96.0, None: 1.0}
+                base = (float(m.group(1)) * k[m.group(2) or None],
+                        float(m.group(3)) * k[m.group(4) or None])
+                if (m.group(2) or "") == "pt" or (m.group(4) or "") == "pt":
+                    print(f"   SVG 尺寸 {m.group(1)}{m.group(2) or ''}×{m.group(3)}"
+                          f"{m.group(4) or ''} → {base[0]:.0f}×{base[1]:.0f} px @96dpi")
+            else:
+                # 退路：用 viewBox 尺寸
+                vb = re.search(r'viewBox="[\d.-]+ [\d.-]+ ([\d.]+) ([\d.]+)"', raw)
+                base = (float(vb.group(1)), float(vb.group(2))) if vb else (1600.0, 900.0)
             size = f"{int(base[0] * a.scale)},{int(base[1] * a.scale)}"
+            # --scale 必须同时放大 SVG 自身宽高，否则只是把窗口撑大、内容仍按原尺寸画（缩在角落）
+            if a.scale != 1.0:
+                scaled = re.sub(r'(<svg[^>]*?)width="[\d.]+\s*(pt|px|mm|cm|in)?"',
+                                rf'\g<1>width="{int(base[0] * a.scale)}"', raw, count=1)
+                scaled = re.sub(r'(<svg[^>]*?)height="[\d.]+\s*(pt|px|mm|cm|in)?"',
+                                rf'\g<1>height="{int(base[1] * a.scale)}"', scaled, count=1)
+                src = os.path.join(tmpdir, "scaled.svg")
+                open(src, "w", encoding="utf-8").write(scaled)
         if a.crop:
             x, y, w, h = (float(v) for v in a.crop.split())
             size = a.size.replace("x", ",") if a.size else f"{int(w * a.scale)},{int(h * a.scale)}"

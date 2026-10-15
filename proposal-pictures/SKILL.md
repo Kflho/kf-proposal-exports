@@ -127,10 +127,65 @@ python scripts/audit_text.py 图1_总体框架.svg                        # ④ 
 - **成对约束成对写**：`虚警率 ≤5%（与检测概率成对约束，其门限待任务书给定）`。
 - 承接的系统级指标要**写明由谁考核**：`支撑的系统级指标（由项目集成与硬件环节考核）：…`。
 
+## 设计语言（学术规范，出图前先读）
+
+> 完整口径见 **`references/design-tokens.md`**；唯一真源是 **`scripts/tokens.py`**——改配色/字号/线宽只改它。
+
+依据 Nature 官方图规范与 Wong 无障碍色板（[出处](https://research-figure-guide.nature.com/figures/preparing-figures-our-specifications/)）。要点：
+
+| 维度 | 规范 |
+| --- | --- |
+| **按成品尺寸设计** | SVG 坐标 = 交付 pt（1:1）。`gv_figure.py --fit "11.2x6.3"` 自动迭代缩尺，`tokens.py` 里的字号即最终字号 |
+| **色彩** | Wong 色板语义化：结构 `#0072B2`／产出 `#E69F00`／验证 `#009E73`；**文字一律黑或白**，颜色只用于框线、色块、键线 |
+| **禁用** | 彩色文字、红绿组合、图案填充、投影、背景网格、装饰性图标 |
+| **字号** | 正文 6.5 / 小标题 7 / 面板号 8（粗体）/ 标题 9 pt；**最小 5、最大 7**（标题与面板号除外） |
+| **线宽** | 只用三档：框 0.8 / 连线 0.6 / 强调 1.2 pt |
+| **交付** | 矢量优先（SVG/EMF，文字可编辑不转曲）；位图 ≥300 dpi；进 PPT 前确认**比例与图片框一致** |
+| **版式** | 面板字母序、最小化空白、内容决定面板大小；图注不是可选项 |
+
+```bash
+# 出图（成品 1:1 + 300dpi + 自动缩尺）
+python scripts/gv_figure.py 图1_gv.py --out 图1.svg --fit "11.2x6.3" \
+       --png 图1.png --dpi 300
+```
+
+## 出图方式：首选 Graphviz
+
+> **画图先想 Graphviz，不要自己写布局。** 布局（分层、正交路由、cluster 嵌套、边上标注避让）
+> 是成熟引擎的强项；自己写只会更差。本 skill 只负责**样式与文案规范**（配色、字号、
+> 中文断行、验收）。
+
+**安装**（一次即可）：`winget install Graphviz.Graphviz`（或 `choco install graphviz -y`；
+macOS `brew install graphviz`）。装完新开终端确认 `dot -V`。
+
+**两条路径**：
+
+| 图形 | 用什么 | 写法 |
+| --- | --- | --- |
+| **关系图**（框架图、路线图：框 + 箭头 + 分支/汇合 + 并列嵌套） | Graphviz `dot` 图 | `rankdir` / `rank=same` 分层；`subgraph cluster_x` 表并列嵌套；边上直接写 `label=` 自动避让 |
+| **表格式版式**（研究计划表：多行 × 多列、行底色不同） | Graphviz **HTML-like TABLE** | 一个节点，`label=<<TABLE><TR><TD>…>>`；`COLSPAN` / `WIDTH` / `BGCOLOR` 控版式 |
+
+**中文断行**：Graphviz 自带折行是贪心的、对中文不友好——所以用 `scripts/gv_figure.py`
+（内部调 `_wrap_dp.py` 做 DP 断行），把断好的行用 `<BR/>` 交给 Graphviz，断点可控。
+
+```bash
+# 声明式出图：写一份 spec.py（含 GV 源码 + WRAP 占位符），一条命令出 SVG+PNG
+python scripts/gv_figure.py 图1_gv.py --out 图1.svg --png 图1.png --report
+python scripts/render_svg.py 图1.svg --png 图1@2x.png --scale 2   # 也可再用浏览器渲染
+python scripts/check_overlap.py 图1.svg                            # 几何自检
+python scripts/update_pptx_images.py 三图.pptx --map "ppt/media/image1.png=图1.png" --apply
+```
+
+**Graphviz 输出的 SVG 很干净**（实测 13 KB：无 `<style>`、无 `@font-face`、无 base64），
+可直接手改，也可原样进 PPT。
+
 ## 脚本
 
 | 脚本 | 用途 | 关键参数 |
 | --- | --- | --- |
+| `scripts/tokens.py` | **设计令牌唯一真源**：Wong 色板、成品 pt 字号档、线宽、间距（见 `references/design-tokens.md`） | 被各 spec `import` |
+| `scripts/gv_figure.py` | **首选**：声明式出图（调 `dot`）+ 中文 DP 断行 + **按成品尺寸迭代缩尺** | `spec.py --out 图.svg --fit 11.2x6.3 [--png 图.png] [--dpi 300] [--report]` |
+| `scripts/_wrap_dp.py` | 中文断行器（DP：标点不入行首 / 行宽均衡 / 末行不过短） | 被 `gv_figure.py`、`layout_flow.py` 调用 |
 | `scripts/render_svg.py` | 无头浏览器渲染 SVG → PNG，支持裁切放大 | `--png out.png` `--crop "x y w h"` `--scale 2` `--size 1600x900` |
 | `scripts/check_overlap.py` | 文字包围盒 vs 线段/折线/矩形边框，报越界与压线 | `paths...` `--pad 12` `--json` |
 | `scripts/check_consistency.py` | **视觉语言一致性**：同尺寸单元格逐格比对锚点/字号/分隔线，另出字号档位、锚点分布、线宽、图元统计 | `paths...` `--min-cells 2` `--json` |
@@ -138,8 +193,29 @@ python scripts/audit_text.py 图1_总体框架.svg                        # ④ 
 | `scripts/check_connectors.py` | **连线端点贴合**：每个端点距最近方框边界的像素距离，悬空即报并给吸附坐标（端点接在母线上视为合规） | `paths...` `--tol 1.5` `--min-len 60` |
 | `scripts/check_symbols.py` | 禁用符号/记法扫描（可自定义规则表） | `paths...` `--rules file.json` |
 | `scripts/audit_text.py` | 导出每个 text 的坐标/字号/锚点/字数 | `path` `--md out.md` |
+| `scripts/update_pptx_images.py` | **换图**：把 pptx 内嵌图片换成新渲染的 PNG，幻灯片 XML／版式／几何位置逐字节不动（直接改写 zip 内 media，不用 python-pptx 重存） | `pptx --list`｜`pptx --map "条目=新图" --apply`｜`--map-file f.txt` |
+| `scripts/layout_flow.py` | 遗留：自写网格引擎（行带/列带）。**新图不要用**——Graphviz 的 HTML TABLE 覆盖同等能力；仅在改造既有图时作参考 | `cases.py --out 图.svg --apply` |
+| `scripts/layout_flow.py` | **从内容生成图**（"行 × 栏"式流程/路线图）：先按字数算断行与框高，再排版；自带生成前断言与生成后回读 | `cases.py --out 图.svg [--apply] [--report]` |
 
 脚本只做机械判定，**结论一律以"命中 0 + 目视通过"共同成立为准**。
+
+> **从内容生成图（`layout_flow.py`）**：手改坐标改不动的图用它。把文案写进一份
+> `cases.py`（`ROWS` 列表 + 版面常量），脚本负责：按字数断行 → 由行数反推框高 →
+> 按基线网格放文字 → 四行间距 → 三列对齐 → 连线（x=列心，y 贯通行间空隙）→ 白底。
+> 三道关：**生成前断言**（超宽 / 行首标点 / 框越界 / 竖排标签超条）、
+> **生成后回读**（连线竖直、x=列心、y 贴合上下框、白底覆盖、无 `foreignObject`）。
+> 改文案只改 `cases.py` 重跑，不要再手改 SVG 坐标。规则要点：
+> - 行型三选：`full` 通栏整段｜`cols` 三列（带栏标题）｜`seg` 通栏分三段、各居中于列心
+> - 段落写成**一整段**（不要在句号处拆成多个字符串，否则会各自断行、长短不齐）
+> - 格内要"一条一行"时在文案里写 `\n`（硬换行优先于 DP 断行）
+> - 左侧**大标题**用 `MAIN_TITLE`（漏了整幅会显得缺一块）
+> - 断行器 `_wrap_dp.py` 是动态规划：代价 = 标点孤行 1000 + 行宽不满平方×0.002 + 末行过短 400
+
+> **交付物是 PPT 时的收尾**：本 skill 出 SVG，而申报书常要交 PPT。流程是
+> `render_svg.py` 出 PNG → `update_pptx_images.py` 换图。换图前先 `--list` 看清包内
+> 条目与尺寸，再干跑一次确认清单（脚本会**报出尺寸变化**：若新图与包内旧图尺寸不一致，
+> PPT 里会被拉伸，须先把渲染尺寸对齐——`render_svg.py` 的窗口按 `viewBox × scale` 取整，
+> 与旧图差几个像素是常见的，例如 `viewBox 878` 出 1756 而旧图是 1760）。
 
 ## 输出格式（交付物）
 
