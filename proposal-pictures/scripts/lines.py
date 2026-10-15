@@ -204,6 +204,51 @@ def merge(srcs, dst, sside=None, dside=None, gap=40, label=None):
     return lines, lab
 
 
+def ports(node, side, n, inset=1.0):
+    """R1：在 node 的某条边上取 **n 个均匀分布**的引出/引入点。
+
+    位置为 k/(n+1) 分位（k=1..n）：n=2 → 三等分点；n=3 → 四等分点。
+    inset 用于把点从边端点向内收一点，避免压到圆角。
+    """
+    if n <= 0:
+        return []
+    if side in 'lr':
+        x = node.x + node.w if side == 'r' else node.x
+        lo, hi = node.y + inset, node.y + node.h - inset
+        return [(x, lo + (hi - lo) * (k + 1) / (n + 1)) for k in range(n)]
+    y = node.y + node.h if side == 'b' else node.y
+    lo, hi = node.x + inset, node.x + node.w - inset
+    return [(lo + (hi - lo) * (k + 1) / (n + 1), y) for k in range(n)]
+
+
+def connect_many(srcs, dsts, sside=None, dside=None, label=None):
+    """多源→多目标：源侧与目标侧都按 R1 均匀分布，每条按 R2 能直就直。
+
+    返回 (segments, label)；适用于"若干框并到一框"或"一框分到若干框"的场合。
+    """
+    segs = []
+    sside = sside or 'r'
+    dside = dside or 'l'
+    if len(srcs) == 1:                       # 一源多目标：源侧走 branch（干线+支线）
+        return branch(srcs[0], dsts, sside=sside, dside=dside, label=label)
+    if len(dsts) == 1:                       # 多源一目标：目标侧走 merge
+        return merge(srcs, dsts[0], sside=sside, dside=dside, label=label)
+    # 多对多：两侧均匀取点，逐条连（能直就直）
+    ps = ports(srcs[0], sside, len(srcs)) if len(srcs) > 1 else [None]
+    pd = ports(dsts[0], dside, len(dsts)) if len(dsts) > 1 else [None]
+    for i, a in enumerate(srcs):
+        for j, b in enumerate(dsts):
+            if i != j and len(srcs) == len(dsts):
+                continue
+            sp = ps[i] if ps[i] else _pt(a, sside)
+            dp = pd[j] if pd[j] else _pt(b, dside)
+            if abs(sp[1] - dp[1]) < 1.0 or (sside in 'lr' and a.y <= dp[1] <= a.y + a.h):
+                segs.append([sp, dp])
+            else:
+                segs += elbow(a, b, sside, dside)[0]
+    return segs, label
+
+
 def to_svg(segments, color=BLUE, width=2, arrow=True, label=None, label_pos=None):
     """把线段集合渲染成 SVG 片段（最后一段带箭头）。
 
