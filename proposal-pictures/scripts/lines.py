@@ -268,7 +268,7 @@ def connect_many(srcs, dsts, sside=None, dside=None, label=None):
 def place_label(segment, text, fs=12, gap=6, side='above', avail=None, wrap=None):
     """**标注贴自己那一段**：返回 (x, y, anchor, lines)。
 
-    · 水平段：整块置于线上方 gap 像素（anchor=middle，x 取段中点）
+    · 水平段：**x 取段中点、anchor=middle**，整块置于线上方 gap 像素（并让出 0.25em 下行部）
     · 竖直段：置于线右侧 gap 像素（anchor=start）
     · wrap = 折行函数（如 _wrap_dp.wrap_dp 的偏函数），avail 为可用宽度
     """
@@ -280,7 +280,8 @@ def place_label(segment, text, fs=12, gap=6, side='above', avail=None, wrap=None
     if horiz:
         x = (x0 + x1) / 2
         # 让出下行部（0.25em）：否则文字盒底会压线
-        y = min(y0, y1) - gap - fs * 0.25
+        # 保守让出近一行高度：保证文字盒整体（含下行部）都落在线上方
+        y = min(y0, y1) - gap - fs * 0.9
         anchor = 'middle'
     else:
         x = max(x0, x1) + gap
