@@ -71,10 +71,36 @@ def straight(a, b, sa=None, sb=None, label=None):
     return [(_pt(a, sa), _pt(b, sb))], label
 
 
+def connect(a, b, sa=None, sb=None, label=None, tol=0.5):
+    """**首选**连线方式：能直连就直连，否则退化为直角折线。
+
+    直连的判据（横向为例）：把源框那条边的中点，沿边滑动到目标框边点的 y，
+    若该 y 落在源框的纵向范围内（即"源框那条边上确实存在这个高度"），
+    则一根水平直线即可连接，不需要拐弯。
+    """
+    sa2, sb2 = (sa, sb) if (sa and sb) else _auto_sides(a, b)
+    p1 = _pt(b, sb2)
+    if sa2 in 'lr':
+        if a.y - tol <= p1[1] <= a.y + a.h + tol:          # 目标高度落在源框范围内
+            return [((a.x + a.w if sa2 == 'r' else a.x, p1[1]), p1)], label
+    elif sa2 in 'tb':
+        if a.x - tol <= p1[0] <= a.x + a.w + tol:
+            return [((p1[0], a.y + a.h if sa2 == 'b' else a.y), p1)], label
+    return elbow(a, b, sa2, sb2, label)
+
+
 def elbow(a, b, sa=None, sb=None, label=None, trunk='auto'):
-    """直角折线：自动选拐点。"""
+    """直角折线：自动选拐点。
+
+    先判断能否**直连**：两侧边点已经对齐（横向同 y / 纵向同 x）时，
+    直接给一根直线——这是最常见的观感问题（能直却硬折一个弯）。
+    """
     sa, sb = (sa, sb) if (sa and sb) else _auto_sides(a, b)
     p0, p1 = _pt(a, sa), _pt(b, sb)
+    if sa in 'lr' and sb in 'lr' and abs(p0[1] - p1[1]) < 1.0:
+        return [(p0, p1)], label
+    if sa in 'tb' and sb in 'tb' and abs(p0[0] - p1[0]) < 1.0:
+        return [(p0, p1)], label
     horiz = sa in 'lr' and sb in 'lr'
     if horiz:
         if trunk == 'auto':
@@ -114,7 +140,12 @@ def branch(src, dsts, sside=None, dside=None, gap=40, label=None):
         nearest = min(_pt(d, dside)[0] for d in dsts)
         mx = (p0[0] + nearest) / 2
         ys = sorted(_pt(d, dside)[1] for d in dsts)
-        lines.append([(p0[0], p0[1]), (mx, p0[1]), (mx, ys[-1])])
+        # 引出点取**支线跨度的中点**（干线上下对称），并夹在源框该边的纵向范围内
+        y_mid = (ys[0] + ys[-1]) / 2
+        y_feed = min(max(y_mid, src.y + 1.0), src.y + src.h - 1.0)
+        lines.append([(p0[0], y_feed), (mx, y_feed)])         # 引出段
+        lines.append([(mx, min(y_feed, ys[0])), (mx, max(y_feed, ys[-1]))])   # 干线
+
         for d in dsts:
             pt = _pt(d, dside)
             lines.append([(mx, pt[1]), pt])
@@ -126,7 +157,10 @@ def branch(src, dsts, sside=None, dside=None, gap=40, label=None):
         nearest = min(d.y if sside == 'b' else d.y + d.h for d in dsts)
         my = (p0[1] + nearest) / 2
         xs = sorted(_pt(d, dside)[0] for d in dsts)
-        lines.append([(p0[0], p0[1]), (p0[0], my), (xs[-1], my)])
+        x_lo, x_hi = min([p0[0]] + xs), max([p0[0]] + xs)
+        lines.append([(p0[0], p0[1]), (p0[0], my)])
+        lines.append([(x_lo, my), (x_hi, my)])
+
         for d in dsts:
             pt = _pt(d, dside)
             lines.append([(pt[0], my), pt])
@@ -150,7 +184,8 @@ def merge(srcs, dst, sside=None, dside=None, gap=40, label=None):
         for s in srcs:
             pt = _pt(s, 'r' if dside == 'l' else 'l')
             lines.append([pt, (mx, pt[1])])
-        lines.append([(mx, ys[0]), (mx, ys[-1])])
+        y_lo, y_hi = min([p1[1]] + ys), max([p1[1]] + ys)
+        lines.append([(mx, y_lo), (mx, y_hi)])
         lines.append([(mx, p1[1]), p1])
         if lab:
             slot = p1[0] - farthest
