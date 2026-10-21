@@ -28,6 +28,11 @@ import re
 import sys
 from pathlib import Path
 
+try:  # Windows 控制台默认 GBK，打印 ✓ 会崩
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _wrap_dp import wrap_dp, char_w          # noqa: E402
 

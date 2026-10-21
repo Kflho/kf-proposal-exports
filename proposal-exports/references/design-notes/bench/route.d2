@@ -1,0 +1,41 @@
+direction: down
+title: 组网协作调度技术路线 {
+  shape: text
+  style.font-size: 28
+}
+
+r1: 前期调研 {
+  direction: down
+  a: "研究背景：遮挡导致单站测距掉点"
+  b: "研究现状：国内外机构、成果、应用、论文与专利"
+}
+
+r2: 研究内容 {
+  direction: right
+  a: "4-1 联合资源分配"
+  b: "4-2 遮挡检测与替补"
+  c: "4-3 外场验证"
+}
+
+r3: 课题分解 {
+  a: "研究内容 → 目标与子课题；目标可量化、可验证"
+}
+
+r4: 实验验证 {
+  direction: right
+  a: "遮挡 30% 有提升"
+  b: "500 次蒙特卡洛"
+  c: "3 个真实场景"
+}
+
+r5: 结论 {
+  a: "8 站、100 ms 下可用率 96%；50% 遮挡需加站"
+}
+
+r1 -> r2 -> r3 -> r4 -> r5
+
+style: {
+  fill: "#E8F1FA"
+  stroke: "#2F6FB0"
+  font-size: 18
+}

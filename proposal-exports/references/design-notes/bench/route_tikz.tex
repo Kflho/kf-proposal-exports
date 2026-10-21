@@ -1,0 +1,61 @@
+\documentclass[border=0pt]{standalone}
+\usepackage{ctex}
+\setCJKmainfont{Microsoft YaHei}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
+\definecolor{kfblue}{HTML}{2F6FB0}
+\definecolor{kflight}{HTML}{E8F1FA}
+\definecolor{kfink}{HTML}{1F2937}
+
+\begin{document}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (0,0) rectangle (16,9);
+  \tikzset{
+    box/.style={draw=kfblue, fill=kflight, rounded corners=2pt, align=center,
+                font=\small, inner sep=4pt, text=kfink},
+    strip/.style={fill=kfblue, rounded corners=2pt},
+    arrow/.style={-{Stealth[length=2mm]}, draw=kfblue, thick},
+  }
+
+  \node[font=\Large\bfseries, text=kfink] at (8,8.65) {组网协作调度技术路线};
+
+  % 行 1：前期调研
+  \fill[strip] (0.20,7.10) rectangle (0.95,8.20);
+  \node[text=white, rotate=90, font=\small] at (0.575,7.65) {前期调研};
+  \node[box, text width=14.3cm, minimum height=1.10cm] at (8.35,7.65)
+    {研究背景：遮挡导致单站测距掉点\\[2pt]
+     研究现状：国内外机构、成果、应用、论文与专利};
+
+  % 行 2：研究内容（三栏）
+  \fill[strip] (0.20,5.50) rectangle (0.95,6.60);
+  \node[text=white, rotate=90, font=\small] at (0.575,6.05) {研究内容};
+  \node[box, minimum width=4.55cm, minimum height=1.10cm] at (3.40,6.05) {4-1 联合资源分配};
+  \node[box, minimum width=4.55cm, minimum height=1.10cm] at (8.35,6.05) {4-2 遮挡检测与替补};
+  \node[box, minimum width=4.55cm, minimum height=1.10cm] at (13.30,6.05) {4-3 外场验证};
+
+  % 行 3：课题分解
+  \fill[strip] (0.20,3.90) rectangle (0.95,5.00);
+  \node[text=white, rotate=90, font=\small] at (0.575,4.45) {课题分解};
+  \node[box, text width=14.3cm, minimum height=1.10cm] at (8.35,4.45)
+    {研究内容 → 目标与子课题；目标可量化、可验证};
+
+  % 行 4：实验验证（三栏）
+  \fill[strip] (0.20,2.30) rectangle (0.95,3.40);
+  \node[text=white, rotate=90, font=\small] at (0.575,2.85) {实验验证};
+  \node[box, minimum width=4.55cm, minimum height=1.10cm] at (3.40,2.85) {遮挡 30\% 有提升};
+  \node[box, minimum width=4.55cm, minimum height=1.10cm] at (8.35,2.85) {500 次蒙特卡洛};
+  \node[box, minimum width=4.55cm, minimum height=1.10cm] at (13.30,2.85) {3 个真实场景};
+
+  % 行 5：结论
+  \fill[strip] (0.20,0.70) rectangle (0.95,1.80);
+  \node[text=white, rotate=90, font=\small] at (0.575,1.25) {结论};
+  \node[box, text width=14.3cm, minimum height=1.10cm] at (8.35,1.25)
+    {8 站、100 ms 下可用率 96\%；50\% 遮挡需加站};
+
+  % 行间箭头
+  \foreach \y in {7.10,5.50,3.90,2.30} {
+    \draw[arrow] (8.35,\y) -- (8.35,\y-0.50);
+  }
+\end{tikzpicture}
+\end{document}

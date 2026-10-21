@@ -1,0 +1,37 @@
+digraph route {
+  graph [rankdir=TB, bgcolor="white", nodesep=0.45, ranksep=0.55, size="16,9!", ratio=fill, margin=0.25];
+  node [shape=plaintext, fontname="Microsoft YaHei", fontsize=16];
+  edge [color="#2F6FB0", arrowsize=0.7];
+
+  r1 [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2F6FB0">
+      <TR><TD COLSPAN="2" BGCOLOR="#F4F7FC"><B>前期调研</B></TD></TR>
+      <TR><TD>研究背景：遮挡导致单站测距掉点</TD><TD>研究现状：国内外机构、成果、应用、论文与专利</TD></TR>
+    </TABLE>>];
+
+  r2 [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2F6FB0">
+      <TR><TD COLSPAN="3" BGCOLOR="#F4F7FC"><B>研究内容</B></TD></TR>
+      <TR><TD>4-1 联合资源分配</TD><TD>4-2 遮挡检测与替补</TD><TD>4-3 外场验证</TD></TR>
+    </TABLE>>];
+
+  r3 [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2F6FB0">
+      <TR><TD BGCOLOR="#F4F7FC"><B>课题分解</B></TD></TR>
+      <TR><TD>研究内容 → 目标与子课题；目标可量化、可验证</TD></TR>
+    </TABLE>>];
+
+  r4 [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2F6FB0">
+      <TR><TD COLSPAN="3" BGCOLOR="#F4F7FC"><B>实验验证</B></TD></TR>
+      <TR><TD>遮挡 30% 有提升</TD><TD>500 次蒙特卡洛</TD><TD>3 个真实场景</TD></TR>
+    </TABLE>>];
+
+  r5 [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2F6FB0">
+      <TR><TD BGCOLOR="#F4F7FC"><B>结论</B></TD></TR>
+      <TR><TD>8 站、100 ms 下可用率 96%；50% 遮挡需加站</TD></TR>
+    </TABLE>>];
+
+  r1 -> r2 -> r3 -> r4 -> r5;
+}

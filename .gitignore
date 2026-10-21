@@ -1,11 +1,22 @@
 # 生成物 / 中间产物
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # 切图与渲染产物
 out/
 *.png
 !assets/*.png
+!assets/**/*.png
+!proposal-exports/assets/**/*.png
+!proposal-exports/references/design-notes/bench/*.png
+
+# 页片：公式产物与 node 依赖
+node_modules/
+proposal-exports/assets/deck/formulas/
+
+# 开发草稿（测试记录、失败版本）
+dev/
 
 # 备份文件：本仓库用 git 兜底，不落 .bak
 *.bak

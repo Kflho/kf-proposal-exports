@@ -1,116 +1,91 @@
-# sk_03 · Proposal Pictures
+# kf-proposal-exports
 
-中文技术申报书 / 技术方案**配图标配**（SVG 优先，可导入 PPT 编辑）的 Claude Code skill 仓库。
+中文技术申报书 / 技术方案 / 答辩材料的**配图 + 页片 + 文字**交付规范（skill：`kf-proposal-exports`，目录 `proposal-exports/`）。
 
-> 本仓库把一套实际项目里打磨出来的画图规范固化成可复用 skill：**三类图的版式 + 样式令牌 + 文字与符号规范 + 指标表述规范 + 几何自检脚本 + 图↔文↔方案一致性核对**。
+> 当前状态：v2.0.0。图流程可用（模板优先，D2 备选，Graphviz 退役）；页片流程可用（Python + Node + PowerPoint）；
+> 文字检查可用。`pytest` 31 项全绿。
 
-## 安装
-
-**项目级**（推荐，随项目走）：
-
-```bash
-mkdir -p <项目>/.claude/skills
-cp -r proposal-pictures <项目>/.claude/skills/
-```
-
-**用户级**（所有项目可用）：
+## 快速开始
 
 ```bash
-# macOS / Linux
-mkdir -p ~/.claude/skills && cp -r proposal-pictures ~/.claude/skills/
-# Windows PowerShell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
-Copy-Item -Recurse proposal-pictures "$env:USERPROFILE\.claude\skills\"
+# ---- 配图：拷模板 → 改文案 → 自检 → 目视 ----
+cp proposal-exports/assets/template.svg 图1.svg
+python proposal-exports/scripts/render_svg.py 图1.svg --png out/图1.png
+python proposal-exports/scripts/check_overlap.py 图1.svg
+python proposal-exports/scripts/check_symbols.py 图1.svg
+
+# ---- 页片：公式 → 生成 → 自检 → 预览 ----
+cd proposal-exports
+npm i pptxgenjs          # 一次
+python scripts/formula_png.py assets/deck/formulas.example.json --out assets/deck/formulas
+node assets/deck/gen_deck.js --out out/deck.pptx
+python scripts/deck_check.py out/deck.pptx --strict --require-notes
+python scripts/text_check.py out/deck.pptx
+python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 ```
 
-装好后，Claude Code 会在命中触发词（画图 / 配图 / 技术路线图 / 检查图片文字 …）时自动加载 `proposal-pictures/SKILL.md`。
+## 安装与依赖
 
-## 仓库结构
+| 能力 | 依赖 | 说明 |
+| --- | --- | --- |
+| 配图 | Python 3.10+（标准库） + Edge/Chrome（渲染 PNG） | 模板与检查脚本无第三方依赖 |
+| 关系图（可选） | D2：`winget install Terrastruct.D2` | 仅用于临时关系图，不作为申报版式图 |
+| 存量图（可选） | Graphviz：`winget install Graphviz.Graphviz` | 只用于改造旧 `.dot` 图 |
+| 公式 | TeX Live（`pdflatex`、`pdftoppm`）+ `pip install pillow` | 输出透明 PNG + `sizes.json` |
+| 页片生成 | Node 18+ + `npm i pptxgenjs` | 模板 `assets/deck/gen_deck.js` |
+| 页片检查 | `pip install python-pptx pillow` | `deck_check.py`、`text_check.py` |
+| 页片预览 | Windows + PowerPoint + `pip install pywin32` | 无 Office 时用官方 `pptx` skill 的 soffice 路线 |
 
-```
-sk_03/
-├── README.md                     本文件
-├── LICENSE.txt                   使用许可
-└── proposal-pictures/             ← skill 本体（可整个拷进 .claude/skills/）
-    ├── SKILL.md                  入口：触发条件、五步工作流、硬规则、自检脚本用法
-    ├── references/               按需加载的细节（渐进披露）
-    │   ├── figure-types.md       三类图版式 + 连线规范（§5）+ 设计系统（§6）
-    │   ├── style-tokens.md       配色、字体、字号、圆角、箭头、安全边距
-    │   ├── text-norms.md         文字规范：术语、称谓、符号禁用表、换行、全半角
-    │   ├── indicator-wording.md  指标表述规范：单位、基线、限定条件、成对约束、口径
-    │   ├── verification.md       五步自检流程与脚本用法、验收清单
-    │   └── case-notes.md         案例复盘：10 类真实事故 + 教训 + 外部同类 skill 调研
-    ├── scripts/                  纯标准库 Python（出图靠 Graphviz，无需第三方 Python 包）
-    │   ├── gv_figure.py          ★首选：声明式出图（调 Graphviz dot），含中文 DP 断行回填
-    │   ├── _wrap_dp.py           中文断行器（DP：标点不入行首/行宽均衡/末行不过短）
-    │   ├── audit_text.py         列出 SVG 里每个 text 的坐标/字号/锚点/文字
-    │   ├── check_overlap.py      文字包围盒 vs 线段/矩形边框：越界与压线检测
-    │   ├── check_consistency.py  视觉语言一致性：同类单元格锚点/字号/分隔线是否同一处理
-    │   ├── check_connectors.py   连线端点贴合：端点距方框边界的像素距离，悬空即报
-    │   ├── check_symbols.py      禁用符号与记法扫描（↓ / ＋ / · / >>> / @1 km …）
-    │   ├── render_svg.py         Edge/Chrome 无头渲染整图或裁切放大（用于目视验收）
-    │   ├── update_pptx_images.py 把 pptx 内嵌图片换成新渲染的 PNG，其余条目逐字节不动
-    │   └── layout_flow.py        遗留：自写网格引擎（新图请改用 Graphviz HTML TABLE）
-    └── assets/
-        └── template.svg          起手模板：调色板 + 箭头 marker + 标题条骨架
-```
+## 用法（三个场景）
 
-> **画图先想 Graphviz。** 布局（分层 / 正交路由 / cluster 并列嵌套 / 边上标注避让）交给成熟引擎，
-> 本 skill 只管样式与文案规范。装一次：`winget install Graphviz.Graphviz`（macOS `brew install graphviz`）。
-> 关系图用 `dot` 图；表格式版式（多行 × 多列）用 **HTML-like TABLE**。见 `SKILL.md`「出图方式」。
+**1. 画申报结构图**：三类版式（总体框架 / 技术路线 / 研究计划矩阵）见 `references/figure-types.md`。
+起手拷 `assets/template.svg`，只改文案与坐标；画完跑 5 个检查脚本，再渲染看图。
+版式与文字规则在 `SKILL.md` 的硬规则 1–15。
 
-## 30 秒上手
+**2. 把讲稿做成 PPT**：先写页计划（每页一句结论 + 证据 + 口播），再套 `assets/deck/gen_deck.js` 的
+版式函数；公式走 `formula_png.py`；生成后跑 `deck_check.py` + `text_check.py` + 预览。
+细节见 `references/ppt-deck.md`，文案规则见 `references/text-quality.md`。
+
+**3. 改已有页片**：换图用 `scripts/update_pptx_images.py`（版式逐字节不动）；
+图片被拉伸用 `scripts/fit_pptx_frames.py`；结构性编辑（加页/删页/改 XML）走官方 `pptx` skill。
+
+## 输出
+
+- 图：`*.svg`（自包含，可进 PPT/WPS）+ `out/*.png`（目视/汇报用）；
+- 公式：`out/<名字>.png`（默认透明）+ `out/sizes.json`；
+- 页片：`*.pptx`（可编辑，含每页 speaker notes）+ `preview/slide-XX.png`；
+- 检查报告：`deck_check.py` / `text_check.py` 的终端输出或 `--json`。
+
+脚本不覆盖输入文件；`update_pptx_images.py` 只有加 `--apply` 才写盘。
+
+## 验证
 
 ```bash
-# 1) 渲染出来看
-python proposal-pictures/scripts/render_svg.py 图1.svg --png out.png
-
-# 2) 几何自检（越界 / 压线）
-python proposal-pictures/scripts/check_overlap.py pictures/*.svg
-
-# 3) 连线端点贴合（有没有没接在框上）
-python proposal-pictures/scripts/check_connectors.py pictures/*.svg
-
-# 4) 视觉语言一致性（同类元素是否同一处理）
-python proposal-pictures/scripts/check_consistency.py pictures/*.svg
-
-# 4) 符号与记法检查
-python proposal-pictures/scripts/check_symbols.py pictures/*.svg
-
-# 5) 文字清单（人工核对措辞与对齐）
-python proposal-pictures/scripts/audit_text.py 图1.svg
-
-# 6) 交付 PPT 时换图（先 --list 看清条目，再干跑，最后 --apply）
-python proposal-pictures/scripts/update_pptx_images.py 三图.pptx --list
-python proposal-pictures/scripts/update_pptx_images.py 三图.pptx \
-    --map "ppt/media/image1.png=out/图1.png" --apply
-
-# 7) 从内容生成"行 × 栏"式图（文案写在 cases.py；改文案只改它，勿手改坐标）
-python proposal-pictures/scripts/layout_flow.py cases_图3.py \
-    --out pictures/图3.svg --apply --report
+cd proposal-exports
+python -m pytest -q          # 31 项：公式/页片检查/文字检查/结构回归
 ```
 
-## 起手模板长这样
+成功判据：`pytest` 全绿；`deck_check.py` 0 error；`text_check.py` 0 error；预览逐页目视通过。
 
-![模板预览](proposal-pictures/assets/template_preview.png)
+## 已知限制
 
-（`proposal-pictures/assets/template.svg` 渲染结果：标题条 + 上级通栏 + 层次带与模块 + 支撑产出框 + 兄弟部分 + 底部指标通栏 + 图注）
+- 页片预览依赖 Windows + PowerPoint；其他平台需改用官方 `pptx` skill 的 LibreOffice 路线；
+- `deck_check.py` 的文字溢出是**估算**（Pillow 量字宽），不是 PowerPoint 的真实排版，`--strict` 下可能误报；
+- 文字检查只抓高置信度问题（禁用词、标题像话题、句子过长），**不能判断标题有没有洞察**；
+- D2 的样式语法随版本变化（本轮遇到过 `font-family`/`stroke-width` 报错），升级后需重测模板；
+- 图流程的"手写 SVG"仍要用坐标改版，复杂关系图（>15 节点）建议拆图而不是硬塞。
 
-## 这套规范解决什么问题
+## 文档
 
-| 常见事故 | 本 skill 的对应手段 |
+| 文档 | 内容 |
 | --- | --- |
-| **连线没接在方框上（端点悬空几像素）** | check_connectors.py：算出每个端点到最近方框边界的距离，>1.5px 即报并给吸附坐标 |
-| 文字压线 / 撑出方框 | `check_overlap.py` 几何自检（文字盒 vs 线段与矩形边框） |
-| 相邻两根 `tspan` 在某些查看器里拼成一串 | `text-norms.md`：跨行一律拆成独立 `<text>`，行尾补标点 |
-| 图上用了 `↓≥10%` 这类自创记法 | `text-norms.md` 符号禁用表 + `check_symbols.py` |
-| 图与正文/技术方案指标写法不一致 | `indicator-wording.md`：单位、基线、限定条件、成对约束 |
-| 图上写了做不到的承诺 | `indicator-wording.md`「不画大饼」条款：承诺必有依据与限定 |
-| **格子空一半、文字挤成一团、断句把词切开** | `layout_flow.py`：先按字数定断行与框高再排版，段落不手断（DP 断行避免标点孤行与末行过短） |
-| **图里丢了左侧大标题 / 白底 / 连线** | `layout_flow.py` 的生成前断言与生成后回读（白底覆盖、连线 x=列心且 y 贴合上下框、禁 `foreignObject`） |
-| 导师/模板给的示例被擅自改写 | `SKILL.md` 硬规则：示例原样使用，差异只进对照表 |
-| 目视漏检（人眼看不出 7px 净距） | 几何自检 + 裁切放大目视（`render_svg.py --crop`） |
+| [`proposal-exports/SKILL.md`](proposal-exports/SKILL.md) | 入口：触发、两条工作流、硬规则、脚本表 |
+| [`references/figure-types.md`](proposal-exports/references/figure-types.md) | 三类图版式、连线规范、设计系统 |
+| [`references/ppt-deck.md`](proposal-exports/references/ppt-deck.md) | 页片五步流程、令牌、四条本地纪律、质检 |
+| [`references/text-quality.md`](proposal-exports/references/text-quality.md) | action title、禁用词、句式与口播规范 |
+| [`references/design-notes/`](proposal-exports/references/design-notes/) | 设计记录：PPT 接入、出图引擎选型（含视觉调研协议） |
+| [`references/case-notes.md`](proposal-exports/references/case-notes.md) | 真实返工复盘与外部 skill 调研 |
 
 ## 许可
 
-见 `LICENSE.txt`。
+见 [`LICENSE.txt`](LICENSE.txt)。

@@ -1,39 +1,65 @@
 ---
-name: proposal-pictures
-description: "中文技术申报书/技术方案的配图规范与校验（SVG 优先，可导入 PPT 编辑）：三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范，以及几何自检（文字越界/压线/拼串、禁用符号）、视觉语言一致性自检（同类元素锚点/字号/分隔线）与图↔文↔技术方案一致性核对。Triggers on: 画图, 画个图, 配图, 申报书配图, 技术路线图, 总体框架图, 研究计划图, 帮我画图, 检查图片, 检查图片文字, 文字重叠, 图片压线, 文字越界, 有的居中有的不居中, 视觉语言混乱, 连线混乱, 图不符合规范, 图片文字错乱, 图与正文不一致, draw diagram, proposal figure, technical roadmap figure, framework figure, check svg text, svg overlap, visual consistency, diagram conventions, 図の作成, 図のチェック, 図の文字, 그림 그리기, 그림 검사, 도표 작성, dibujar diagrama, revisar figura svg, convenciones de figuras."
+name: kf-proposal-exports
+description: "中文技术申报书/方案/答辩的**两类交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes."
 metadata:
-  version: "1.1.6"
-  last_updated: "2026-10-15"
+  version: "2.0.0"
+  last_updated: "2026-10-16"
   status: active
   data_access_level: raw
   task_type: open-ended
   related_skills:
+    - kf-personal-development
+    - pptx
     - academic-paper
     - academic-paper-reviewer
 ---
 
-# Proposal Pictures v1.0.0 — 中文申报书配图规范与校验
+# Proposal Exports v2.0.0 — 中文申报材料：配图 + 页片
 
-把手写的"看着差不多就行"变成**可机器校验**的图画流程：结构先定、文案先定、画完必自检、交付必目视。
+把手写的"看着差不多就行"变成**可机器校验**的交付流程：结构与文案先定、画完必自检、交付必目视。
 
-本 skill 面向中文技术申报书 / 技术方案 / 项目答辩材料的配图，产物为**自包含 SVG**（可导入 PPT/WPS 再编辑，
-或在 PPT 里按同一套版式用原生形状重画）。所有脚本为纯标准库 Python，无第三方依赖。
+本 skill 面向中文技术申报书 / 技术方案 / 项目答辩材料，管**两类交付物**：
+
+| 交付物 | 产物 | 规则与检查 |
+| --- | --- | --- |
+| **配图** | 自包含 SVG（可导入 PPT/WPS 再编辑），或 PNG | 本文件 + `references/figure-types.md`、5 个 SVG 检查脚本 |
+| **页片（PPT）** | 可编辑 `.pptx` + 每页口播备注 + 预览 PNG | `references/ppt-deck.md` + `deck_check.py`、`render_pptx_png.py` |
+| **文字**（页片标题/要点/报告段落） | 页计划、标题序列、正文 | `references/text-quality.md` + `text_check.py` |
+
+依赖说明：图流程以纯标准库 Python 为主（出图默认手写 SVG / 模板；TikZ 需 TeX Live，
+D2 只做关系草图，Graphviz 只在遗留图里用，Mermaid 只做文档草图）；
+页片流程需要 Node（`pptxgenjs`）、`python-pptx`、`Pillow`，预览需要 Windows + PowerPoint（COM），
+公式需要 TeX Live（`pdflatex`/`pdftoppm`）。脚本缺依赖时直接报错并给安装命令，不静默降级。
 
 ## Quick Start
 
 ```bash
-# 起手：拷模板，改文案
+# ---- 配图：拷模板 → 改文案 → 自检 → 目视 ----
 cp assets/template.svg 图1_总体框架.svg
+python scripts/render_svg.py 图1_总体框架.svg --png out/f1.png     # 渲染
+python scripts/check_overlap.py 图1_总体框架.svg                    # 几何：越界/压线
+python scripts/check_symbols.py 图1_总体框架.svg                    # 记法：禁用符号
+python scripts/audit_text.py 图1_总体框架.svg                       # 文字清单
 
-# 画完：三步自检（缺一不可）
-python scripts/render_svg.py 图1_总体框架.svg --png /tmp/f1.png     # ① 渲染
-python scripts/check_overlap.py 图1_总体框架.svg                     # ② 几何：越界/压线
-python scripts/check_symbols.py 图1_总体框架.svg                     # ③ 记法：禁用符号
-python scripts/audit_text.py 图1_总体框架.svg                        # ④ 文字清单（人工核措辞）
+# ---- 页片：公式 → 生成 → 静态自检 → 文字自检 → 预览 ----
+python scripts/formula_png.py assets/deck/formulas.example.json --out assets/deck/formulas
+node assets/deck/gen_deck.js --out out/deck.pptx
+python scripts/deck_check.py out/deck.pptx --strict --require-notes
+python scripts/text_check.py out/deck.pptx
+python scripts/render_pptx_png.py out/deck.pptx --out out/preview
+
+# ---- 路线图：拷案例 → 改 ROWS → 生成 → 5 项检查 → 渲染 ----
+python scripts/layout_flow.py assets/deck/cases_route.py --out out/route.svg --apply
+python scripts/render_svg.py out/route.svg --png out/route.png
+python scripts/check_overlap.py out/route.svg
+python scripts/check_connectors.py out/route.svg
+python scripts/check_consistency.py out/route.svg
+python scripts/check_spacing.py out/route.svg
+python scripts/check_symbols.py out/route.svg
 ```
 
-然后**必须自己看一眼**渲染出的 PNG（`read_image` 或任何看图工具）。脚本只做机械检查，
-看不出"这段话在图上说不通"。
+两条流程最后都必须**自己看一眼**渲染结果（PNG/预览图）。脚本只做机械检查，
+看不出"这段话在图上说不通""这一页到底想说什么"。
 
 ## Trigger Conditions
 
@@ -44,12 +70,29 @@ python scripts/audit_text.py 图1_总体框架.svg                        # ④ 
 - 要核对**图 ↔ 正文 ↔ 技术方案**三方是否一致（数字、术语、称谓、限定条件）
 - 要把导师/模板给的示例图落到自己的图上
 - 要把图导出/嵌入 PPT、Word，或转 PNG 做汇报
+- 要做汇报/答辩/组会**页片**：把讲稿落成 PPT、补标题与口播、把图/公式排进去
+- 要检查**页片或报告的文字**：标题像话题、要点太多、句子太长、AI 腔、口播超长
 
 ### 不触发
 
 - 纯粹的数据可视化（折线/柱状/散点）→ 用 matplotlib / 统计可视化规范
 - 照片、渲染图、界面截图
-- 只改文档正文、不涉及图（→ 用写作/评审类 skill）
+- 仓库 README、用法/API 文档、代码注释、commit/release 文案 →
+  `kf-personal-development` 的 `readme.md` / `text-review.md`
+- 长篇论文/公文写作（页片与申报材料之外的体裁）→ 用写作/评审类 skill
+
+## 页片与文字工作流（详见 `references/ppt-deck.md`、`text-quality.md`）
+
+| 步 | 做什么 | 产出 | 卡点 |
+| --- | --- | --- | --- |
+| 1 页计划 | 每页一句**结论**作标题；列证据（图/公式/表）与口播 | `deck-plan.md` | 标题写话题 = 返工（见 `text-quality.md`） |
+| 2 定令牌 | 选浅/深色、字号、边距；拷 `assets/deck/gen_deck.js` | `gen_deck.js` 常量段 | 一页一个样 |
+| 3 备素材 | 公式走 `formula_png.py`；图走本 skill 的图流程；表用原生表格 | PNG + `sizes.json` | 公式白底、图被拉伸 |
+| 4 生成 | `node gen_deck.js` | `.pptx` + 每页 notes | 中文标点孤行、下标写成 `u_r` |
+| 5 自检 | `deck_check.py` → `text_check.py` → `render_pptx_png.py` → 逐页目视 | 报告 + 预览 PNG | 三项全过才算交付 |
+
+> **页片交付三件套**：`deck_check.py` 0 error、`text_check.py` 0 error、预览逐页看过。
+> 缺一项就算没做完。
 
 ## 五步工作流（顺序不可颠倒）
 
@@ -96,8 +139,18 @@ python scripts/audit_text.py 图1_总体框架.svg                        # ④ 
     几何自检全绿）。
 15. **先查证，不要重复造轮子**：① 术语查 [术语在线 termonline.cn](https://www.termonline.cn/about)（全国科技名词委）
     → 单位查 GB 3100~3102 → 图表格式看目标期刊/出版社规范；② 图形语言与检查清单先看已有 skill
-    （`artifact-diagramming`、`opum-ai/diagram-skills`、`excalidraw-skill` 等）；③ 已有标准/工具能覆盖的，
+    （`artifact-diagramming`、`opum-ai/diagram-skills`、`excalidraw-skill` 等）；
+    页片生成/编辑先看官方 `pptx` skill（pptxgenjs、OOXML、validate）；③ 已有标准/工具能覆盖的，
     就**引用它**，不要自建一套并行的规则表。自建的规则只保留"权威来源查不到"的部分，并标注"项目内约定"。
+16. **页片标题写结论（action title）**：一句话、带判断、≤30 汉字；不写"背景/方法/结果"这类话题标签；
+    全册标题连读要能讲完故事（读不通就改标题，不许靠正文补）。规则见 `references/text-quality.md`。
+17. **文案禁用 AI 腔与套话**：禁用词、套话开头和翻译腔模式见 `assets/text/banned.json`，
+    正文不重复列举；报告段落同样适用。`text_check.py` 命中 0 error 为准。
+18. **页片自检三件套 + 目视**：`deck_check.py`（几何/图片比例/备注/占位符）、`text_check.py`（标题/句子/禁用词）、
+    `render_pptx_png.py`（预览）三项全过，再逐页看图。只看生成代码不算验收。
+19. **图引擎选型按场景**：三类申报图默认模板/`layout_flow.py`（16:9 成品、可校验）；
+    TeX 用户可用 TikZ 做精确版式，但不进 5 个 SVG 检查链；临时关系图可用 D2；
+    Graphviz 只用于存量图；Mermaid 只做文档草图（理由见「出图方式」）。
 
 ## 三类图的版式（详见 references/figure-types.md）
 
@@ -149,53 +202,79 @@ python scripts/gv_figure.py 图1_gv.py --out 图1.svg --fit "11.2x6.3" \
        --png 图1.png --dpi 300
 ```
 
-## 出图方式：首选 Graphviz
+## 出图方式：模板优先，TikZ 可选，D2 备选，Graphviz 退役
 
-> **画图先想 Graphviz，不要自己写布局。** 布局（分层、正交路由、cluster 嵌套、边上标注避让）
-> 是成熟引擎的强项；自己写只会更差。本 skill 只负责**样式与文案规范**（配色、字号、
-> 中文断行、验收）。
+> **2026-10 实测后的调整。** 自动布局引擎优化的是"图读得懂"，不是"版面像设计过的"：
+> 同一份三层流程，Graphviz 出成 611×1607 的竖条、D2 默认方向出成 2893×468 的横幅，
+> Mermaid 出成 1004×1600 的竖版，都不符合 16:9 页片；中文字距、留白、分组关系全由引擎决定。
+> 而 `assets/template.svg` 在 1600×900 上**直接就是成品**，还能被 5 个检查脚本逐项验。
+> 所以：**默认用模板 / 网格引擎；TikZ 给需要精确版式的 TeX 用户；D2 只做临时关系图；
+> Graphviz 只改存量图；Mermaid 只做文档草图。**
 
-**安装**（一次即可）：`winget install Graphviz.Graphviz`（或 `choco install graphviz -y`；
-macOS `brew install graphviz`）。装完新开终端确认 `dot -V`。
-
-**两条路径**：
-
-| 图形 | 用什么 | 写法 |
+| 场景 | 用什么 | 为什么 |
 | --- | --- | --- |
-| **关系图**（框架图、路线图：框 + 箭头 + 分支/汇合 + 并列嵌套） | Graphviz `dot` 图 | `rankdir` / `rank=same` 分层；`subgraph cluster_x` 表并列嵌套；边上直接写 `label=` 自动避让 |
-| **表格式版式**（研究计划表：多行 × 多列、行底色不同） | Graphviz **HTML-like TABLE** | 一个节点，`label=<<TABLE><TR><TD>…>>`；`COLSPAN` / `WIDTH` / `BGCOLOR` 控版式 |
+| 三类申报图（总体框架、技术路线、研究计划矩阵） | `assets/template.svg` 手改，或 `layout_flow.py` 从内容生成 | 版式即坐标，检查脚本能验；天然 16:9 |
+| 精确版面、TeX 工程 | TikZ（`xelatex` + `ctex`） | 1600×900 可精确控制；但坐标手写、5 个 SVG 检查不适用 |
+| 临时关系图 / 结构示意（≤15 节点，不要求像素级） | **D2**（`winget install Terrastruct.D2`） | ELK 布局 + 现代主题，出图快；导出后仍需 `render_svg.py` 与检查 |
+| 存量 `.dot` 图改造 | Graphviz（保留，不推荐新图） | 旧图迁移用；新图不要从这里开始 |
+| README / 文档里的流程草图 | Mermaid（`@mermaid-js/mermaid-cli`） | 文本即图，改起来快；竖版、断行密，不进页片 |
 
-**中文断行**：Graphviz 自带折行是贪心的、对中文不友好——所以用 `scripts/gv_figure.py`
-（内部调 `_wrap_dp.py` 做 DP 断行），把断好的行用 `<BR/>` 交给 Graphviz，断点可控。
+**D2 的用法**（装一次）：
 
 ```bash
-# 声明式出图：写一份 spec.py（含 GV 源码 + WRAP 占位符），一条命令出 SVG+PNG
-python scripts/gv_figure.py 图1_gv.py --out 图1.svg --png 图1.png --report
-python scripts/render_svg.py 图1.svg --png 图1@2x.png --scale 2   # 也可再用浏览器渲染
-python scripts/check_overlap.py 图1.svg                            # 几何自检
-python scripts/update_pptx_images.py 三图.pptx --map "ppt/media/image1.png=图1.png" --apply
+winget install Terrastruct.D2
+d2 --theme 0 --layout elk 关系图.d2 关系图.svg
+python scripts/render_svg.py 关系图.svg --png out/关系图.png --size 1600x900
+python scripts/check_overlap.py 关系图.svg        # 文字压线仍可查
 ```
 
-**Graphviz 输出的 SVG 很干净**（实测 13 KB：无 `<style>`、无 `@font-face`、无 base64），
-可直接手改，也可原样进 PPT。
+> D2 输出是"关系图"，不是"申报版式图"。放进页片时按示意图用（`render_svg.py --size 1600x900`
+> 缩放到画布），不要把 D2 图当总体框架图交。
+
+**TikZ 的用法**（TeX 用户，需 TeX Live）：
+
+```bash
+xelatex -interaction=nonstopmode 路线图.tex
+pdftoppm -png -r 200 -scale-to-x 1600 -scale-to-y 900 路线图.pdf 路线图
+```
+
+起手模板见 `references/design-notes/bench/route_tikz.tex`。坐标手写，改文案要同步改节点宽度；
+交付前目视，不进 5 个 SVG 检查链。
+
+**Mermaid 的用法**（只做文档草图）：
+
+```bash
+npm install @mermaid-js/mermaid-cli
+mmdc -i 流程.mmd -o 流程.png --size 1600x900
+```
+
+样例见 `references/design-notes/bench/route_mermaid.mmd`。竖版输出、长句断行密，不要直接进页片。
+
+**Graphviz 的写法**（只给存量图参考）：`rankdir` / `rank=same` 分层，`subgraph cluster_x` 表并列，
+边上 `label=` 自动避让；中文断行仍用 `scripts/gv_figure.py`（内部 `_wrap_dp.py` 做 DP 断行）。
+装了 Graphviz 才能用这条路：`winget install Graphviz.Graphviz`。
 
 ## 脚本
 
 | 脚本 | 用途 | 关键参数 |
 | --- | --- | --- |
 | `scripts/tokens.py` | **设计令牌唯一真源**：Wong 色板、成品 pt 字号档、线宽、间距（见 `references/design-tokens.md`） | 被各 spec `import` |
-| `scripts/gv_figure.py` | **首选**：声明式出图（调 `dot`）+ 中文 DP 断行 + **按成品尺寸迭代缩尺** | `spec.py --out 图.svg --fit 11.2x6.3 [--png 图.png] [--dpi 300] [--report]` |
+| `scripts/layout_flow.py` | **首选（图）**：从内容生成"行 × 栏"式图，自带生成前断言与生成后回读 | `cases.py --out 图.svg [--apply] [--report]` |
+| `scripts/gv_figure.py` | 遗留/备选：声明式 Graphviz 出图 + 中文 DP 断行（需装 `dot`） | `spec.py --out 图.svg --fit 11.2x6.3 [--png]` |
 | `scripts/_wrap_dp.py` | 中文断行器（DP：标点不入行首 / 行宽均衡 / 末行不过短） | 被 `gv_figure.py`、`layout_flow.py` 调用 |
-| `scripts/render_svg.py` | 无头浏览器渲染 SVG → PNG，支持裁切放大 | `--png out.png` `--crop "x y w h"` `--scale 2` `--size 1600x900` |
+| `scripts/render_svg.py` | 无头浏览器渲染 SVG → PNG，支持裁切放大与指定画布 | `--png out.png` `--crop "x y w h"` `--scale 2` `--size 1600x900` |
 | `scripts/check_overlap.py` | 文字包围盒 vs 线段/折线/矩形边框，报越界与压线 | `paths...` `--pad 12` `--json` |
-| `scripts/check_consistency.py` | **视觉语言一致性**：同尺寸单元格逐格比对锚点/字号/分隔线，另出字号档位、锚点分布、线宽、图元统计 | `paths...` `--min-cells 2` `--json` |
-| `scripts/check_spacing.py` | **框间距审计**：相邻框净距分布，不在约定档位（S=12/G=24/T=32）上的标出 | `paths...` `--scale 12,24,32` `--tol 2` |
-| `scripts/check_connectors.py` | **连线端点贴合**：每个端点距最近方框边界的像素距离，悬空即报并给吸附坐标（端点接在母线上视为合规） | `paths...` `--tol 1.5` `--min-len 60` |
+| `scripts/check_consistency.py` | **视觉语言一致性**：同尺寸单元格逐格比对锚点/字号/分隔线 | `paths...` `--min-cells 2` `--json` |
+| `scripts/check_spacing.py` | **框间距审计**：相邻框净距分布 | `paths...` `--scale 12,24,32` `--tol 2` |
+| `scripts/check_connectors.py` | **连线端点贴合**：端点距方框边界，悬空即报并给吸附坐标 | `paths...` `--tol 1.5` `--min-len 60` |
 | `scripts/check_symbols.py` | 禁用符号/记法扫描（可自定义规则表） | `paths...` `--rules file.json` |
 | `scripts/audit_text.py` | 导出每个 text 的坐标/字号/锚点/字数 | `path` `--md out.md` |
-| `scripts/update_pptx_images.py` | **换图**：把 pptx 内嵌图片换成新渲染的 PNG，幻灯片 XML／版式／几何位置逐字节不动（直接改写 zip 内 media，不用 python-pptx 重存） | `pptx --list`｜`pptx --map "条目=新图" --apply`｜`--map-file f.txt` |
-| `scripts/layout_flow.py` | 遗留：自写网格引擎（行带/列带）。**新图不要用**——Graphviz 的 HTML TABLE 覆盖同等能力；仅在改造既有图时作参考 | `cases.py --out 图.svg --apply` |
-| `scripts/layout_flow.py` | **从内容生成图**（"行 × 栏"式流程/路线图）：先按字数算断行与框高，再排版；自带生成前断言与生成后回读 | `cases.py --out 图.svg [--apply] [--report]` |
+| `scripts/update_pptx_images.py` | **换图**：把 pptx 内嵌图片换成新图，版式逐字节不动 | `pptx --list`｜`--map "条目=新图" --apply` |
+| `scripts/fit_pptx_frames.py` | 按图片真实比例重排图片框（消除拉伸） | `pptx --list`｜`--apply [--margin 0.4]` |
+| `scripts/formula_png.py` | **公式**：LaTeX → 裁白边 PNG（默认透明）+ `sizes.json` | `formulas.json --out dir [--dpi 400] [--no-alpha]` |
+| `scripts/deck_check.py` | **页片静态自检**：16:9、安全边距、图片拉伸、文字溢出、备注、占位符 | `deck.pptx [--strict] [--require-notes] [--json]` |
+| `scripts/text_check.py` | **文字自检**：标题像话题、长句、要点过多、口播过长、禁用词 | `deck.pptx｜report.md [--json]` |
+| `scripts/render_pptx_png.py` | **页片预览**：PowerPoint COM 逐页导出 PNG（替代 LibreOffice） | `deck.pptx --out preview [--width 1600]` |
 
 脚本只做机械判定，**结论一律以"命中 0 + 目视通过"共同成立为准**。
 
@@ -254,6 +333,15 @@ python scripts/update_pptx_images.py 三图.pptx --map "ppt/media/image1.png=图
 - [ ] 结构说明与图↔文对照表已更新
 - [ ] 若改了称谓/指标：正文、方案、台账同步，并复算字数
 
+**页片（PPT）交付前**：
+
+- [ ] `deck_check.py` 命中 **0 error**（16:9、0.5in 边距、图片无拉伸、备注齐全、无占位符）
+- [ ] `text_check.py` 命中 **0 error**（无禁用词；标题是结论）
+- [ ] 每页标题连读能成故事（"ghost deck" 自测）
+- [ ] 公式图透明、图片按真实比例入槽
+- [ ] `render_pptx_png.py` 出图成功，**逐页目视**（溢出/重叠/对比度/图注错位）
+- [ ] 每页有口播备注（≤120 字），与页面内容一致
+
 ## Integration
 
 ### 与 `paper-experiment` 的分工（按图种切，不按工序切）
@@ -278,10 +366,41 @@ python scripts/update_pptx_images.py 三图.pptx --map "ppt/media/image1.png=图
 
 与其他 skill 的分工：**数据图**→ `paper-experiment`（实验出图管线）或统计可视化规范；
 **论文投稿插图**→ 期刊图表规范（caption/字号/分辨率/矢量图要求）；
-本 skill 专治**工程类申报书/技术方案的结构图、路线图、计划矩阵**。
+**页片的生成/编辑**→ 本 skill 的 `ppt-deck.md`（新生成）+ 官方 `pptx` skill（改已有 `.pptx`、OOXML、
+`add_slide`/`clean`/`validate`）；**文字规范**→ `references/text-quality.md`（标题 action title、禁用词、
+句式），去 AI 味的完整规则仍以 `kf-personal-development` 的 `text-review.md` 为准；
+本 skill 专治**工程类申报书/技术方案的结构图、路线图、计划矩阵与页片交付**。
+
+### 与 `kf-personal-development` 的分工
+
+| 事情 | `kf-personal-development` | 本 skill |
+| --- | --- | --- |
+| 仓库 README、用法/API 文档、开发文档 | 负责 | — |
+| 代码注释、commit/release 文案、发布说明 | 负责 | — |
+| humanizer-zh 通用去 AI 味 | 规则正文 + `text_review.py` | 引用，不重写 |
+| 申报书/方案/答辩材料：结构图、页片、指标表述、报告段落 | — | 负责 |
+
+判断：跟着仓库走、给跑项目的人看 → development；交出去给评审、客户、导师看 → 本 skill。
+README 即使随申报材料一起提交，结构仍按 development 的 `readme.md`，交付文字再按本 skill 的
+`text-quality.md` 检查。
+
+### 与官方 `pptx` skill 的分工
+
+| 事情 | 谁做 |
+| --- | --- |
+| 从零生成页片 | 本 skill（`gen_deck.js` + `formula_png.py` + `deck_check.py`） |
+| 编辑已有 `.pptx`、套模板、复制/清理页、schema 校验 | 官方 `pptx` skill（`add_slide.py`、`clean.py`、`validate.py`） |
+| 读别人给的 deck（提文字、页序、缩略图网格） | 官方 `pptx` skill（`markitdown`、`thumbnail.py`） |
+| 换图不改版式 / 按比例重排图片框 | 本 skill（`update_pptx_images.py`、`fit_pptx_frames.py`） |
 
 ## Version Info
 
+- **v2.0.0（2026-10-16）**：从"配图 skill"扩成**配图 + 页片 + 文字**三类交付物。
+  ① 更名 `proposal-exports`；② 新增页片流程（`references/ppt-deck.md`、`assets/deck/gen_deck.js`、
+  `formula_png.py`、`deck_check.py`、`render_pptx_png.py`）；③ 新增文字规范（`references/text-quality.md`、
+  `text_check.py`）；④ 出图引擎改版：**模板优先、D2 备选、Graphviz 退役**（实测 Graphviz/D2 的 16:9
+  适配差、中文排版不可控，见 `references/design-notes/diagram-engine-decision.md`）；
+  ⑤ 新增 pytest（`tests/`）与设计记录（`references/design-notes/`）。
 - **v1.1.5（2026-10-15）**：硬规则新增第 15 条「先查证，不要重复造轮子」（术语→术语在线/GB 3100~3102，
   图形→已有 skill）；`text-norms.md` §7 改为"先查权威再谈通俗化"（删掉自建术语表，改指向
   [术语在线](https://www.termonline.cn/about)、ISO 704/GB/T 15237，只留"项目内约定"小节）；
@@ -300,6 +419,8 @@ python scripts/update_pptx_images.py 三图.pptx --map "ppt/media/image1.png=图
 
 | 版本 | 日期 | 变更 |
 | --- | --- | --- |
+| 2.0.0 | 2026-10-16 | 更名 proposal-exports；加页片（公式/生成/自检/预览）与文字规范（action title/禁用词检查）；出图默认改模板优先、D2 备选、Graphviz 退役；新增 tests 与设计记录 |
+| 1.1.6 | 2026-10-15 | `fit_pptx_frames.py`（按图片真实比例重排图片框）+ 硬规则 12（改动留痕） |
 | 1.1.3 | 2026-10-15 | 新增 `check_connectors.py`（连线端点贴合检查，含"端点接母线"合规判定与背景框排除）+ 验收清单第 2 条 |
 | 1.1.0 | 2026-10-15 | 新增 `check_consistency.py`（同类元素一致性检查）+ 设计系统表 + 硬规则 13（连线语言）、14（设计系统）+ `case-notes.md` 复盘与外部 skill 调研 |
 | 1.0.0 | 2026-10-15 | 首版：五步工作流、12 条硬规则、三类图版式、4 个脚本、模板 |

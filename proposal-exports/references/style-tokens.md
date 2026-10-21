@@ -30,7 +30,7 @@ font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-seri
 | 模块标题 | 17~18 | bold（同色系深色） |
 | 模块说明行 | 15 | normal（`#4B5563`） |
 | 正文/条目 | 15~17 | normal |
-| 小字注（协同关系、说明、图注） | 12~13 | normal（`#4B5563`） |
+| 小字注（协作关系、说明、图注） | 12~13 | normal（`#4B5563`） |
 | 连线浮动标签 | 13~14 | normal（`#4B5563`） |
 
 字号只在这几档里选，**不要出现 14.5 或 16.5 这种即兴值**。
