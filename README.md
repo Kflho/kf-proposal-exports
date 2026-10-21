@@ -49,6 +49,7 @@ sk_03/
     │   ├── check_connectors.py   连线端点贴合：端点距方框边界的像素距离，悬空即报
     │   ├── check_symbols.py      禁用符号与记法扫描（↓ / ＋ / · / >>> / @1 km …）
     │   ├── render_svg.py         Edge/Chrome 无头渲染整图或裁切放大（用于目视验收）
+    │   ├── svg_to_pdf.py         SVG → PDF（Edge 打印；供 nature-figure 的碰撞/字号审计）
     │   ├── update_pptx_images.py 把 pptx 内嵌图片换成新渲染的 PNG，其余条目逐字节不动
     │   └── layout_flow.py        遗留：自写网格引擎（新图请改用 Graphviz HTML TABLE）
     └── assets/
@@ -85,6 +86,10 @@ python proposal-pictures/scripts/update_pptx_images.py 三图.pptx --list
 python proposal-pictures/scripts/update_pptx_images.py 三图.pptx \
     --map "ppt/media/image1.png=out/图1.png" --apply
 
+# 6b) 要"评审能改字"：SVG 转原生 PPT（形状+文本框；需桌面 PowerPoint）
+python "$USERPROFILE/.dsh/tools/svg-native-pptx/powerpoint_native.py" \
+    --svg pictures/图1.svg --output out/图1-ppt
+
 # 7) 从内容生成"行 × 栏"式图（文案写在 cases.py；改文案只改它，勿手改坐标）
 python proposal-pictures/scripts/layout_flow.py cases_图3.py \
     --out pictures/图3.svg --apply --report
@@ -110,6 +115,18 @@ python proposal-pictures/scripts/layout_flow.py cases_图3.py \
 | **图里丢了左侧大标题 / 白底 / 连线** | `layout_flow.py` 的生成前断言与生成后回读（白底覆盖、连线 x=列心且 y 贴合上下框、禁 `foreignObject`） |
 | 导师/模板给的示例被擅自改写 | `SKILL.md` 硬规则：示例原样使用，差异只进对照表 |
 | 目视漏检（人眼看不出 7px 净距） | 几何自检 + 裁切放大目视（`render_svg.py --crop`） |
+
+## 外部 skill 协作（能调用就不自研）
+
+| 需求 | 调用 |
+| --- | --- |
+| 数据图（曲线/柱状/分布/多面板） | `scipilot-figure-skill`（选图顾问 + 出图）或 `nature-figure` |
+| 交付前碰撞审计 / 最终字号审计 | `nature-figure` 的 `audit_figure_collisions.py`、`audit_pdf_text.py` |
+| SVG 画布与有效字号 | `nature-figure` 的 `audit_svg_schematic.py`（16:9 传 `--max-width-mm 339`） |
+| 评审要改字：SVG → 原生 PPT / AI | `%USERPROFILE%\.dsh\tools\svg-native-pptx\`（独立安装，不在本仓库） |
+
+本 skill 只保留外部没有的部分：连线端点贴合、视觉语言一致性、禁用符号、框间距、
+中文指标表述、图↔文一致、PPT 换图。命令与判读见 `proposal-pictures/references/external-calls.md`。
 
 ## 许可
 

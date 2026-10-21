@@ -187,6 +187,7 @@ python scripts/update_pptx_images.py 三图.pptx --map "ppt/media/image1.png=图
 | `scripts/gv_figure.py` | **首选**：声明式出图（调 `dot`）+ 中文 DP 断行 + **按成品尺寸迭代缩尺** | `spec.py --out 图.svg --fit 11.2x6.3 [--png 图.png] [--dpi 300] [--report]` |
 | `scripts/_wrap_dp.py` | 中文断行器（DP：标点不入行首 / 行宽均衡 / 末行不过短） | 被 `gv_figure.py`、`layout_flow.py` 调用 |
 | `scripts/render_svg.py` | 无头浏览器渲染 SVG → PNG，支持裁切放大 | `--png out.png` `--crop "x y w h"` `--scale 2` `--size 1600x900` |
+| `scripts/svg_to_pdf.py` | SVG → PDF（Edge 打印；供外部碰撞/字号审计读取真实几何） | `svg --out out.pdf [--engine cairo]` |
 | `scripts/check_overlap.py` | 文字包围盒 vs 线段/折线/矩形边框，报越界与压线 | `paths...` `--pad 12` `--json` |
 | `scripts/check_consistency.py` | **视觉语言一致性**：同尺寸单元格逐格比对锚点/字号/分隔线，另出字号档位、锚点分布、线宽、图元统计 | `paths...` `--min-cells 2` `--json` |
 | `scripts/check_spacing.py` | **框间距审计**：相邻框净距分布，不在约定档位（S=12/G=24/T=32）上的标出 | `paths...` `--scale 12,24,32` `--tol 2` |
@@ -217,6 +218,21 @@ python scripts/update_pptx_images.py 三图.pptx --map "ppt/media/image1.png=图
 > PPT 里会被拉伸，须先把渲染尺寸对齐——`render_svg.py` 的窗口按 `viewBox × scale` 取整，
 > 与旧图差几个像素是常见的，例如 `viewBox 878` 出 1756 而旧图是 1760）。
 
+> **评审要改图时，转"原生对象"而不是换图**：调用 `~/.dsh/tools/svg-native-pptx/powerpoint_native.py`
+> 把 SVG 转成原生形状 + 原生文本框的 PPTX（PowerPoint 出实际预览对照）；装了 Illustrator 才可走 `.ai`。
+> 命令见 `references/external-calls.md`；坑：文本别放全角空格 U+3000（会拆成逐字框）、输出目录必须不存在。
+
+## 外部 skill：只调用，不自研
+
+| 需求 | 调用 |
+| --- | --- |
+| 数据图（曲线/柱状/分布/多面板） | `scipilot-figure-skill`（选型 + 出图）或 `nature-figure` |
+| 交付前碰撞 / 字号 / 画布审计 | `nature-figure` 的 `audit_figure_collisions.py`、`audit_pdf_text.py`、`audit_svg_schematic.py` |
+| 评审要改字：SVG → 原生 PPT / AI | `~/.dsh/tools/svg-native-pptx/powerpoint_native.py`（需桌面 PowerPoint；AI 需装 Illustrator） |
+
+命令与判读见 **`references/external-calls.md`**。本 skill 只保留外部没有的：连线端点、视觉语言一致性、
+禁用符号、框间距、指标表述、图↔文一致、PPT 换图。`check_overlap.py` 降级为源码级预检。
+
 ## 输出格式（交付物）
 
 1. **SVG 文件**（每图一个，自包含）；
@@ -242,6 +258,7 @@ python scripts/update_pptx_images.py 三图.pptx --map "ppt/media/image1.png=图
 ## Quality Standards（交付前逐条打勾）
 
 - [ ] `check_overlap.py` 命中 **0**（含出框与压线）
+- [ ] **外部门禁**：`nature-figure` 的碰撞审计 verdict 为 `PASS`（`REVIEW REQUIRED` 时每条 WARN 有目视结论），字号审计 ≥ 6 pt
 - [ ] `check_connectors.py` 命中 **0**（连线两端都贴在方框/层带边界上）
 - [ ] `check_consistency.py` 命中 **0**（同类元素锚点/字号/分隔线一致）
 - [ ] `check_spacing.py` 命中 **0**（或例外已写入结构说明）
