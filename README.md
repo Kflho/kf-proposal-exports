@@ -2,8 +2,8 @@
 
 中文技术申报书 / 技术方案 / 答辩材料的**配图 + 页片 + 文字**交付规范（skill：`kf-proposal-exports`，目录 `proposal-exports/`）。
 
-> 当前状态：v2.0.0。图流程可用（模板优先，D2 备选，Graphviz 退役）；页片流程可用（Python + Node + PowerPoint）；
-> 文字检查可用。`pytest` 31 项全绿。
+> 当前状态：v2.0.1。图流程可用（模板优先，D2 备选，Graphviz 退役）；页片流程可用（Python + Node + PowerPoint）；
+> 文字检查可用。`pytest` 38 项全绿。
 
 ## 快速开始
 
@@ -36,7 +36,7 @@ python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 | 页片检查 | `pip install python-pptx pillow` | `deck_check.py`、`text_check.py` |
 | 页片预览 | Windows + PowerPoint + `pip install pywin32` | 无 Office 时用官方 `pptx` skill 的 soffice 路线 |
 
-## 用法（三个场景）
+## 用法（四个场景）
 
 **1. 画申报结构图**：三类版式（总体框架 / 技术路线 / 研究计划矩阵）见 `references/figure-types.md`。
 起手拷 `assets/template.svg`，只改文案与坐标；画完跑 5 个检查脚本，再渲染看图。
@@ -45,9 +45,13 @@ python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 **2. 把讲稿做成 PPT**：先写页计划（每页一句结论 + 证据 + 口播），再套 `assets/deck/gen_deck.js` 的
 版式函数；公式走 `formula_png.py`；生成后跑 `deck_check.py` + `text_check.py` + 预览。
 细节见 `references/ppt-deck.md`，文案规则见 `references/text-quality.md`。
+按任务书验收的课程/实验汇报（标题切研究目标、结论放下方结论行）见硬规则 16 的例外。
 
 **3. 改已有页片**：换图用 `scripts/update_pptx_images.py`（版式逐字节不动）；
 图片被拉伸用 `scripts/fit_pptx_frames.py`；结构性编辑（加页/删页/改 XML）走官方 `pptx` skill。
+
+**4. 交付前转换与审计**：`scripts/svg_to_pdf.py` 把 SVG 转 PDF（Edge 打印，供外部碰撞/字号审计读真实几何）；
+评审要能改字时，用 `%USERPROFILE%\.dsh\tools\svg-native-pptx\` 把 SVG 转原生 PPT（形状 + 文本框，独立安装）。
 
 ## 输出
 
@@ -62,7 +66,7 @@ python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 
 ```bash
 cd proposal-exports
-python -m pytest -q          # 31 项：公式/页片检查/文字检查/结构回归
+python -m pytest -q          # 38 项：公式/页片检查/文字检查/结构回归
 ```
 
 成功判据：`pytest` 全绿；`deck_check.py` 0 error；`text_check.py` 0 error；预览逐页目视通过。
@@ -81,10 +85,22 @@ python -m pytest -q          # 31 项：公式/页片检查/文字检查/结构�
 | --- | --- |
 | [`proposal-exports/SKILL.md`](proposal-exports/SKILL.md) | 入口：触发、两条工作流、硬规则、脚本表 |
 | [`references/figure-types.md`](proposal-exports/references/figure-types.md) | 三类图版式、连线规范、设计系统 |
-| [`references/ppt-deck.md`](proposal-exports/references/ppt-deck.md) | 页片五步流程、令牌、四条本地纪律、质检 |
+| [`references/ppt-deck.md`](proposal-exports/references/ppt-deck.md) | 页片五步流程、令牌、五条本地纪律、质检 |
 | [`references/text-quality.md`](proposal-exports/references/text-quality.md) | action title、禁用词、句式与口播规范 |
 | [`references/design-notes/`](proposal-exports/references/design-notes/) | 设计记录：PPT 接入、出图引擎选型（含视觉调研协议） |
 | [`references/case-notes.md`](proposal-exports/references/case-notes.md) | 真实返工复盘与外部 skill 调研 |
+
+## 外部 skill 协作（能调用就不自研）
+
+| 需求 | 调用 |
+| --- | --- |
+| 数据图（曲线/柱状/分布/多面板） | `scipilot-figure-skill`（选图顾问 + 出图）或 `nature-figure` |
+| 交付前碰撞审计 / 最终字号审计 | `nature-figure` 的 `audit_figure_collisions.py`、`audit_pdf_text.py` |
+| SVG 画布与有效字号 | `nature-figure` 的 `audit_svg_schematic.py`（16:9 传 `--max-width-mm 339`） |
+| 评审要改字：SVG → 原生 PPT / AI | `%USERPROFILE%\.dsh\tools\svg-native-pptx\`（独立安装，不在本仓库） |
+
+本 skill 只保留外部没有的部分：连线端点贴合、视觉语言一致性、禁用符号、框间距、
+中文指标表述、图↔文一致、PPT 换图。命令与判读见 `proposal-exports/references/external-calls.md`。
 
 ## 许可
 

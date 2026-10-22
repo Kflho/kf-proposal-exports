@@ -78,6 +78,17 @@ python scripts/render_svg.py 图1.svg --png out/zoom.png --crop "300 540 600 60"
 - 导出每个 `<text>` 的 `x/y/font-size/text-anchor/是否旋转/字数/文字`；
 - 用途：核对术语与措辞、检查字号是否跳档、检查同类元素是否对齐（同列的 `x` 应一致）。
 
+## 3.5 外部审计门禁（交付前必跑，权威判定）
+
+碰撞 / 字号 / 画布三项不在本 skill 里重写，**调用 `nature-figure`**；命令见
+`references/external-calls.md` §2。判读：
+
+- `FIX BEFORE DELIVERY`（exit 1）→ 必须改，不得交付；
+- `REVIEW REQUIRED` → 逐条目视并在自检记录里写理由；
+- `NOT AUDITABLE`（exit 2）→ **不得当成通过**（依赖缺失 / 无文字 / 无法解析）。
+
+`check_overlap.py` 只是源码级预检（快、能当场提示），交付以渲染后的 `PASS` 为准。
+
 ## 4. 目视验收方法
 
 1. 整图看一眼：层次是否清楚、主角是否突出、有没有明显空洞或拥挤。

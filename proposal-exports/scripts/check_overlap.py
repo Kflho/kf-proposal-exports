@@ -53,13 +53,12 @@ def text_box(el: ET.Element):
         return None
     anchor = el.get("text-anchor", "start")
     wm = el.get("writing-mode", "") or ""
-    if "vertical" in wm:  # eaVert/vertical-rl：字正立、自上而下，列宽约 1em
+    if "vertical" in wm or wm in ("tb", "tb-rl"):  # 竖排：字正立、自上而下，列宽约 1em
         x, y = float(el.get("x", 0)), float(el.get("y", 0))
         h = text_width(text, fs)
-        anc = el.get(text-anchor, start)
-        if anc == middle:          # 竖排多以 y 为居中锚点
+        if anchor == "middle":       # 竖排多以 y 为居中锚点
             return [x - 0.5 * fs, y - h / 2, x + 0.5 * fs, y + h / 2, text]
-        if anc == end:
+        if anchor == "end":
             return [x - 0.5 * fs, y - h, x + 0.5 * fs, y, text]
         return [x - 0.5 * fs, y, x + 0.5 * fs, y + h, text]
     w = text_width(text, fs)
