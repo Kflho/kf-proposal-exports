@@ -68,7 +68,7 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
 | `table` | 原生表格（表头深底白字，重点行浅橙底）+ 右侧大数字 | 对比/能控性页 |
 | `closing` | 三条结论（粗体关键词）+ 下一步 + 谢谢 | 收尾 |
 
-## 四条本地纪律（实测踩出来的）
+## 五条本地纪律（实测踩出来的）
 
 1. **校验前设 UTF-8**：中文 Windows 下官方 `validate.py` 会按 GBK 解码 XML 而崩。
    `$env:PYTHONUTF8=1` 再跑（本 skill 的 `deck_check.py` 已自带 UTF-8 重配，不受影响）。
@@ -79,6 +79,9 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
    估算溢出报成 warning（`--strict` 变 error）。
 4. **预览用 PowerPoint COM**：`render_pptx_png.py` 导出的是 PowerPoint 自己的渲染，没有字体替换；
    LibreOffice 预览在中文下会出现"框里放得下、实际放不下"的假象。
+   **依赖 `pywin32`**（`pip install pywin32`），缺了脚本会直接报错退出——它不会静默降级到别处。
+5. **`text_check.py` 的要点数是估的**：它把 10–22pt 的所有段落都当要点，图注、大数字标签也算，
+   所以 `too-many-bullets` 常常虚高；先看 `--json` 里具体条目，再决定是否真的删内容。
 
 ## 质检（缺一不可）
 
@@ -99,6 +102,7 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
 | 图片被压扁/拉长 | 按框硬拉，没算真实比例 | 用 `sizes.json` 的宽高比算高度（模板里的 `hOf()`） |
 | 要点像代码（`u_r`） | 下标写成纯文本 | 用 run + `subscript: true`；表格单元格同样支持 |
 | 标题下划色条 | 模板残留/AI 味 | 删掉，用留白或底色分区 |
+| 宽矩阵公式字太小 | A、B、C 塞一张图，按卡片宽度等比缩后不足 15pt | 拆成两三张图（A/B 并排、C 另起一行），各自给 `maxW` |
 | 改完忘了重跑检查 | 只改一处 | 每次改内容都重跑 `deck_check` + 预览 |
 
 ## 与官方 `pptx` skill 的分工

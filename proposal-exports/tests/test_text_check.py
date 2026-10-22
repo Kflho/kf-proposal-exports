@@ -115,3 +115,18 @@ def test_allow_context_passes(tmp_path):
     path = write_md(tmp_path, "## 控制闭环保持稳定\n\n控制闭环保持稳定。\n")
     report = text_check.check_file(path)
     assert not [i for i in report.errors if i.code == "banned-phrase"]
+
+
+def test_control_theory_contexts_pass(tmp_path):
+    """闭环传递矩阵/闭环特征多项式是控制术语，不是 AI 高频词。"""
+    text = ("## 闭环传递矩阵与题目要求一致\n\n"
+            "闭环传递矩阵逐点一致，闭环特征多项式等于 gamma(s)。\n")
+    report = text_check.check_file(write_md(tmp_path, text))
+    assert not [i for i in report.errors if i.code == "banned-phrase"]
+
+
+def test_plain_closed_loop_still_errors(tmp_path):
+    """去掉固定搭配后，裸「闭环」仍按 AI 高频词报错。"""
+    path = write_md(tmp_path, "## 形成闭环\n\n形成闭环。\n")
+    report = text_check.check_file(path)
+    assert any(i.code == "banned-phrase" for i in report.errors)

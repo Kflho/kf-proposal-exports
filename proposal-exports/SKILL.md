@@ -2,8 +2,8 @@
 name: kf-proposal-exports
 description: "中文技术申报书/方案/答辩的**两类交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes."
 metadata:
-  version: "2.0.0"
-  last_updated: "2026-10-16"
+  version: "2.0.1"
+  last_updated: "2026-10-22"
   status: active
   data_access_level: raw
   task_type: open-ended
@@ -144,6 +144,9 @@ python scripts/check_symbols.py out/route.svg
     就**引用它**，不要自建一套并行的规则表。自建的规则只保留"权威来源查不到"的部分，并标注"项目内约定"。
 16. **页片标题写结论（action title）**：一句话、带判断、≤30 汉字；不写"背景/方法/结果"这类话题标签；
     全册标题连读要能讲完故事（读不通就改标题，不许靠正文补）。规则见 `references/text-quality.md`。
+    **例外（按任务书验收的课程/实验汇报）**：标题改为切「研究目标/实验要求」的条目名，
+    结论移到每页底部「结论｜」行（依据用户 `project note`「exports/汇报稿：标题切研究目标」）；
+    此时 `text_check.py` 的 `title-*` warning 属预期，在交付说明里登记，不作为返工依据。
 17. **文案禁用 AI 腔与套话**：禁用词、套话开头和翻译腔模式见 `assets/text/banned.json`，
     正文不重复列举；报告段落同样适用。`text_check.py` 命中 0 error 为准。
 18. **页片自检三件套 + 目视**：`deck_check.py`（几何/图片比例/备注/占位符）、`text_check.py`（标题/句子/禁用词）、
@@ -395,6 +398,12 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 ## Version Info
 
+- **v2.0.1（2026-10-22）**：页片实战反馈（线性系统实验一二合册，13 页）。
+  ① `banned.json` 补控制类固定搭配（传递矩阵、特征多项式等前缀词），避免控制术语被误报 error；
+  配套两条测试；
+  ② 硬规则 16 加例外：按任务书验收的课程/实验汇报，标题切研究目标，结论放下方「结论｜」行；
+  ③ `ppt-deck.md` 补三条实测：`render_pptx_png.py` 需 `pywin32`、`text_check.py` 会把 10–22pt
+  图注/数字标签算成要点（`too-many-bullets` 虚高）、宽矩阵拆成 A/B/C 三张图更好排。
 - **v2.0.0（2026-10-16）**：从"配图 skill"扩成**配图 + 页片 + 文字**三类交付物。
   ① 更名 `proposal-exports`；② 新增页片流程（`references/ppt-deck.md`、`assets/deck/gen_deck.js`、
   `formula_png.py`、`deck_check.py`、`render_pptx_png.py`）；③ 新增文字规范（`references/text-quality.md`、
@@ -419,6 +428,7 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 | 版本 | 日期 | 变更 |
 | --- | --- | --- |
+| 2.0.1 | 2026-10-22 | 补控制类固定搭配，避免术语被误报（含两条测试）；硬规则 16 加课程汇报例外（标题切研究目标）；ppt-deck 补 pywin32 依赖、text_check 图注计数、宽矩阵拆图 |
 | 2.0.0 | 2026-10-16 | 更名 proposal-exports；加页片（公式/生成/自检/预览）与文字规范（action title/禁用词检查）；出图默认改模板优先、D2 备选、Graphviz 退役；新增 tests 与设计记录 |
 | 1.1.6 | 2026-10-15 | `fit_pptx_frames.py`（按图片真实比例重排图片框）+ 硬规则 12（改动留痕） |
 | 1.1.3 | 2026-10-15 | 新增 `check_connectors.py`（连线端点贴合检查，含"端点接母线"合规判定与背景框排除）+ 验收清单第 2 条 |
