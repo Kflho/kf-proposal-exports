@@ -88,3 +88,9 @@ def test_new_scripts_have_docstring_and_main_guard():
         src = (SKILL_DIR / "scripts" / name).read_text(encoding="utf-8")
         assert src.lstrip().startswith(('"""', "#!/usr/bin/env python3")), name
         assert "__main__" in src, name
+
+
+def test_text_rigor_points_to_development_research():
+    text = SKILL_MD.read_text(encoding="utf-8")
+    for phrase in ("严谨性", "kf-personal-development", "专有名词", "reference_docs"):
+        assert phrase in text, f"SKILL.md 缺文字严谨性契约：{phrase}"

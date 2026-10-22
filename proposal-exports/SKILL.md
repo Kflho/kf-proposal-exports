@@ -54,6 +54,10 @@ D2 只做关系草图，Graphviz 只在遗留图里用，Mermaid 只做文档草
 正文文字按 `references/text-quality.md` / `text-norms.md` 的申报书规范写，**不把用户口语原话搬进
 论文 / 报告**；原话优先只用于用户自己的 Obsidian 笔记。引用用户给的结论、术语、数值时必须忠实。
 
+**严谨性**：专有名词、概念、指标口径先按 `kf-personal-development` 的前期调研核对权威来源，
+再写进正文；不自行造术语，也不把网络口语当定义。调研记录留在 `bin/reference_docs/`，不写进
+Obsidian 用户笔记。
+
 ## Quick Start
 
 ```bash
