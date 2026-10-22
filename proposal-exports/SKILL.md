@@ -18,6 +18,9 @@ metadata:
 
 把手写的"看着差不多就行"变成**可机器校验**的交付流程：结构与文案先定、画完必自检、交付必目视。
 
+> 跨机协作 / 开发流程：见 `kf-personal-development` 的 `references/skill-dev.md`
+> 「跨机协作流程」（canonical）；本 skill 不重复。
+
 本 skill 面向中文技术申报书 / 技术方案 / 项目答辩材料，管**两类交付物**：
 
 | 交付物 | 产物 | 规则与检查 |
