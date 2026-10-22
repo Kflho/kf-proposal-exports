@@ -29,6 +29,12 @@ metadata:
 | **页片（PPT）** | 可编辑 `.pptx` + 每页口播备注 + 预览 PNG | `references/ppt-deck.md` + `deck_check.py`、`render_pptx_png.py` |
 | **文字**（页片标题/要点/报告段落） | 页计划、标题序列、正文 | `references/text-quality.md` + `text_check.py` |
 
+## 图片排版调整
+
+先调版式，再调文案：图例 / 坐标轴 / 标签的层级、留白、对齐先定下来，再改文字；
+不要用改字号、挪一两个像素来掩盖结构问题。版式稳定后跑 `check_overlap.py` / `check_symbols.py`，
+最后目视核对图与正文、图与指标一致。
+
 依赖说明：图流程以纯标准库 Python 为主（出图默认手写 SVG / 模板；TikZ 需 TeX Live，
 D2 只做关系草图，Graphviz 只在遗留图里用，Mermaid 只做文档草图）；
 页片流程需要 Node（`pptxgenjs`）、`python-pptx`、`Pillow`，预览需要 Windows + PowerPoint（COM），

@@ -94,3 +94,9 @@ def test_text_rigor_points_to_development_research():
     text = SKILL_MD.read_text(encoding="utf-8")
     for phrase in ("严谨性", "kf-personal-development", "专有名词", "reference_docs"):
         assert phrase in text, f"SKILL.md 缺文字严谨性契约：{phrase}"
+
+
+def test_figure_layout_adjustment_is_documented():
+    text = SKILL_MD.read_text(encoding="utf-8")
+    for phrase in ("图片排版调整", "先调版式", "check_overlap"):
+        assert phrase in text, f"SKILL.md 缺图片排版调整：{phrase}"
