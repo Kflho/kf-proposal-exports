@@ -100,3 +100,8 @@ def test_figure_layout_adjustment_is_documented():
     text = SKILL_MD.read_text(encoding="utf-8")
     for phrase in ("图片排版调整", "先调版式", "check_overlap"):
         assert phrase in text, f"SKILL.md 缺图片排版调整：{phrase}"
+
+
+def test_skill_has_readme_and_gitignore():
+    assert (SKILL_DIR / "README.md").is_file()
+    assert (SKILL_DIR / ".gitignore").is_file()
