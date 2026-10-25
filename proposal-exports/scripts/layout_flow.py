@@ -184,8 +184,8 @@ def generate(cfg, L):
                  f'font-family="{FACE}" font-size="{mfs:.1f}" font-weight="bold" fill="#FFFFFF" '
                  f'text-anchor="middle">{esc(mt)}</text>')
 
-    for Lk in L['links']:
-        o.append(f'  <line x1="{Lk["x"]:.0f}" y1="{Lk["y1"]}" x2="{Lk["x"]:.0f}" y2="{Lk["y2"]}" '
+    for lk in L['links']:
+        o.append(f'  <line x1="{lk["x"]:.0f}" y1="{lk["y1"]}" x2="{lk["x"]:.0f}" y2="{lk["y2"]}" '
                  f'stroke="{COLOR_BLUE}" stroke-width="1.5" marker-end="url(#fl-arrow)"/>')
 
     for r in rows:

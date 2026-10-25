@@ -100,7 +100,7 @@ ExtendScript 里做四件事：
 ## 7 我们怎么用（已落地）
 
 工具**独立安装**在 `~/.dsh/tools/svg-native-pptx/`，**不在本仓库、不在本 skill 包内**；
-我们的 skill 只写调用说明（`proposal-pictures/references/external-calls.md`）。
+我们的 skill 只写调用说明（`proposal-exports/references/external-calls.md`）。
 
 | 动作 | 命令 |
 | --- | --- |

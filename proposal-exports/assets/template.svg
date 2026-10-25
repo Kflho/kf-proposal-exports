@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  proposal-pictures 起手模板（1600×900, 16:9）
+  proposal-exports 起手模板：物理 960×540pt（16:9 全幅），设计网格 1600×900（1 设计单位 = 0.6pt）
+  新图请按 SKILL「画布尺寸」直接用 960×540pt / viewBox 0 0 960 540 起手，坐标即 pt。
   调色板：主色 #2F6FB0 / #E8F1FA；带标题 #4A7EBB；强调 #E8A33D / #FDF3E3；弱化 #9AA5B1 / #F2F4F7
           正文 #1F2937；次要 #4B5563
   字体：Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif
   用法：拷成 图N_xxx.svg，改文案与坐标；箭头 marker 已内置，勿删。
   注意：跨行文字请复制第二个 <text>，不要用同一个 <text> 内的多个 <tspan> 换行。
 -->
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<svg xmlns="http://www.w3.org/2000/svg" width="960pt" height="540pt" viewBox="0 0 1600 900">
   <title>图版式起手模板</title>
   <desc>标题条 + 上级通栏 + 三条模块 + 底部指标通栏 + 图注。所有坐标取整，便于导入 PPT 后按同坐标重画。</desc>
 
@@ -37,7 +38,7 @@
   <!-- 层次带：带标题 + 3 模块 -->
   <rect x="40" y="186" width="1520" height="52" rx="8" fill="#4A7EBB"/>
   <text x="72" y="220" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="20" font-weight="bold" fill="#FFFFFF">层次一　阶段名</text>
+        font-size="20" font-weight="bold" fill="#FFFFFF">层次一 阶段名</text>
 
   <rect x="60" y="252" width="440" height="112" rx="10" fill="#FFFFFF" stroke="#2F6FB0" stroke-width="2"/>
   <text x="280" y="292" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"

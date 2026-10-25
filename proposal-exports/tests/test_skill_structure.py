@@ -11,7 +11,7 @@ from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parents[1]
 SKILL_MD = SKILL_DIR / "SKILL.md"
-TEXT_SUFFIXES = {".md", ".py", ".js", ".json", ".txt", ".yml", ".yaml"}
+TEXT_SUFFIXES = {".md", ".py", ".js", ".json", ".txt", ".yml", ".yaml", ".svg"}
 SKIP_DIRS = {".git", "node_modules", "dev", "__pycache__", ".pytest_cache", "tests"}
 # 设计记录要写清"为什么改名"，会提到旧名字；测试文件本身含旧字符串作为检索词。都允许。
 ALLOW_OLD_NAME = ("references/design-notes/", "tests/")

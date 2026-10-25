@@ -31,6 +31,14 @@ metadata:
 | **界面文字**（弹窗/状态栏/提示） | 只写当前状态或要求操作 | `references/text-quality.md`「用户交互文字」一节 |
 | **MATLAB 数据图产物** | PNG（论文/报告图），中英双语路径 | `references/matlab-figures.md` + `assets/matlab/export_figure.m` + 共享库 `matlab-project-utils` |
 
+## 画布尺寸
+
+- **进 PPT / 答辩**：`960×540pt`（13.33×7.5in，16:9 全幅 1:1）。`viewBox="0 0 960 540"`，
+  坐标与字号就是最终 pt：正文 ≥ 10pt、图注 ≥ 9pt。
+- **进 A4 申报书**：`842×595pt`（A4 横向）；双栏图宽 `519pt`（183mm）。
+- `assets/template.svg` 是旧版设计网格：物理 `960×540pt`，内部 `viewBox 0 0 1600 900`
+  （1 设计单位 = 0.6pt）。**新图按上面的 pt 画布起手**；模板重排到 960×540（1:1 pt）是待办。
+
 ## 图片排版调整
 
 先调版式，再调文案：图例 / 坐标轴 / 标签的层级、留白、对齐先定下来，再改文字；
