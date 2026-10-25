@@ -7,7 +7,9 @@ the mechanical half — it catches high-confidence template/boilerplate/AI-tell
 patterns in **user-facing** text:
 
 - README.md, SKILL.md and references/*.md;
-- Chinese string literals in runtime scripts (CLI help, errors, output).
+- Chinese string literals in runtime scripts (CLI help, errors, output);
+- with --exports: report text plus figure links, alt text, captions, figure
+  numbering and orphan images under bin/exports.
 
 It cannot judge context like humanizer-zh does.  Findings marked ERROR block the
 release; WARNING asks for an editorial pass.  For a real rewrite, load the
@@ -26,11 +28,6 @@ import json
 import re
 import sys
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'scripts'))
-
-from lib.place import exports_dirs  # noqa: E402
 
 HUMANIZER = 'humanizer-zh 2026-09-23 (31 patterns)'
 
@@ -79,7 +76,10 @@ RULES = [
 SKIP_DIRS = {'.git', '__pycache__', 'temp', 'tests', '.pytest_cache', 'dev'}
 TECH_ALLOW = {
     '链路': re.compile(r'(下载|网络|远程|数据|全|这条|处理|调用|音频|视频|字幕|端到端)链路|链路(层|不可用|正常|中断)'),
-    '闭环': re.compile(r'(三步|流程|业务|反馈|控制|自动)闭环|闭环(系统|流程)'),
+    '闭环': re.compile(r'(三步|流程|业务|反馈|控制|自动|速度|电流|位置|姿态)闭环|'
+                       r'闭环(系统|流程|极点|特征多项式|特征值|矩阵|传递|增益|'
+                       r'直流增益|性能|动态|回路|控制|误差|响应|稳定|稳态|阻尼|'
+                       r'零点|带宽|频域|时域|内部模态)|闭环\s*\$?A\s*\+\s*BK'),
     '完美': re.compile(r'完美(正确|匹配|对齐|同步)'),
     '——': re.compile(r'xx——序号|——序号'),
 }
@@ -124,7 +124,7 @@ def _python_strings(root: Path) -> list[tuple[Path, int, str]]:
     strings = []
     for path in sorted(root.rglob('*.py')):
         if (any(part in SKIP_DIRS for part in path.parts)
-                or path.name == 'text_review.py'):
+                or path.name in {'text_review.py', 'text_consistency.py'}):
             continue
         try:
             tree = ast.parse(path.read_text(encoding='utf-8-sig',
@@ -136,6 +136,80 @@ def _python_strings(root: Path) -> list[tuple[Path, int, str]]:
                 if re.search(r'[\u4e00-\u9fff]', node.value):
                     strings.append((path, node.lineno, node.value))
     return strings
+
+
+IMAGE_SUFFIXES = {'.png', '.jpg', '.jpeg', '.svg', '.pdf', '.emf'}
+IMAGE_RE = re.compile(r'!\[([^\]]*)\]\(([^)]+)\)')
+CAPTION_RE = re.compile(r'^\*?图\s*(\d+)')
+
+
+def exports_dirs(root: Path) -> list[Path]:
+    """项目产出目录：bin/exports 优先，兼容旧版 exports/。"""
+    return [p for p in (root / 'bin' / 'exports', root / 'exports') if p.is_dir()]
+
+
+def _finding(file: str, line: int, rule: str, title: str, severity: str,
+             text: str, advice: str) -> dict:
+    return {'file': file, 'line': line, 'rule': rule, 'title': title,
+            'severity': severity, 'text': text, 'advice': advice}
+
+
+def _scan_export_artifacts(exports: Path, root: Path) -> list[dict]:
+    """报告产物：图片链接、alt、图注、图号、孤立图。
+
+    图内文字（标题/坐标轴/图例）在 PNG 里，机械检查读不到，仍按人工/OCR 处理。
+    """
+    findings = []
+    referenced: set[Path] = set()
+    for md in sorted(exports.rglob('*.md')):
+        try:
+            text = md.read_text(encoding='utf-8-sig', errors='replace')
+        except OSError:
+            continue
+        rel_md = md.relative_to(root).as_posix()
+        numbers = []
+        for match in IMAGE_RE.finditer(text):
+            alt, target = match.group(1).strip(), match.group(2).strip()
+            line = text[:match.start()].count('\n') + 1
+            if not alt:
+                findings.append(_finding(rel_md, line, 'ART-IMG-ALT',
+                                         '图片缺 alt 文本', 'warning', target,
+                                         '补一句图在讲什么，读屏/搜索都靠它'))
+            if re.match(r'^[a-z]+://', target):
+                continue
+            path = (md.parent / target).resolve()
+            referenced.add(path)
+            if not path.exists():
+                findings.append(_finding(rel_md, line, 'ART-IMG-MISSING',
+                                         '图片链接不存在', 'error', target,
+                                         '检查相对路径；打包时图片要跟 md 一起走'))
+                continue
+            tail = text[match.end():].splitlines()
+            caption = next((x.strip() for x in tail if x.strip()), '')
+            cap = CAPTION_RE.match(caption)
+            if not cap:
+                findings.append(_finding(rel_md, line, 'ART-IMG-CAPTION',
+                                         '图片后缺图注', 'warning', target,
+                                         '紧接一行写「图 N　内容」；图注与图内文字逐字一致'))
+            else:
+                numbers.append(int(cap.group(1)))
+        for expected, number in enumerate(numbers, 1):
+            if number != expected:
+                findings.append(_finding(rel_md, 0, 'ART-FIG-NUM',
+                                         '图号不连续', 'warning',
+                                         f'第 {expected} 张图为「图 {number}」',
+                                         '按出现顺序重排图号；附录图另起编号时在正文说明'))
+                break
+    for figdir in sorted({p for p in exports.rglob('figures') if p.is_dir()}):
+        for path in figdir.rglob('*'):
+            if (path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
+                    and path.resolve() not in referenced):
+                rel = path.relative_to(root).as_posix()
+                findings.append(_finding(rel, 0, 'ART-IMG-ORPHAN',
+                                         '图片没有被任何报告引用', 'warning',
+                                         path.name,
+                                         '删掉或补引用；共享图放单独目录并在正文说明'))
+    return findings
 
 
 def scan(root: Path, include_exports: bool = False) -> list[dict]:
@@ -150,6 +224,7 @@ def scan(root: Path, include_exports: bool = False) -> list[dict]:
                 except OSError:
                     continue
                 findings.extend(_scan_text(text, rel, 0))
+            findings.extend(_scan_export_artifacts(exports, root))
         return findings
     for path in _text_files(root, MARKDOWN):
         rel = path.relative_to(root).as_posix()
@@ -171,7 +246,7 @@ def main(argv=None) -> int:
     parser.add_argument('--root', default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--exports', action='store_true',
-                        help='scan bin/exports (or legacy exports) text instead of the repo')
+                        help='scan bin/exports text + report image/caption/number/orphan checks')
     args = parser.parse_args(argv)
     findings = scan(Path(args.root), args.exports)
     errors = [item for item in findings if item['severity'] == 'error']

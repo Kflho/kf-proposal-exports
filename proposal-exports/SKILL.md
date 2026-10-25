@@ -27,9 +27,9 @@ metadata:
 | --- | --- | --- |
 | **配图** | 自包含 SVG（可导入 PPT/WPS 再编辑），或 PNG | 本文件 + `references/figure-types.md`、5 个 SVG 检查脚本 |
 | **页片（PPT）** | 可编辑 `.pptx` + 每页口播备注 + 预览 PNG | `references/ppt-deck.md` + `deck_check.py`、`render_pptx_png.py` |
-| **文字**（页片标题/要点/报告段落） | 页计划、标题序列、正文 | `references/text-quality.md` + `text_check.py` |
+| **文字**（页片标题/要点/报告段落） | 页计划、标题序列、正文 | `references/text-quality.md` + `text_check.py`、`text_consistency.py` |
 | **界面文字**（弹窗/状态栏/提示） | 只写当前状态或要求操作 | `references/text-quality.md`「用户交互文字」一节 |
-| **MATLAB 数据图产物** | PNG（论文/报告图），中英双语路径 | `references/matlab-figures.md` + 共享库 `matlab-project-utils` |
+| **MATLAB 数据图产物** | PNG（论文/报告图），中英双语路径 | `references/matlab-figures.md` + `assets/matlab/export_figure.m` + 共享库 `matlab-project-utils` |
 
 ## 图片排版调整
 
@@ -84,8 +84,10 @@ python scripts/text_check.py out/deck.pptx
 python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 
 # ---- MATLAB 数据图：统一格式 → 600 dpi PNG ----
-# MATLAB 里：run_visualization(fig); export_fig_paper(fig, 'name', 5.5);
-# 产物规则（PNG、双语路径、标题单行、目视）见 references/matlab-figures.md
+# 拷 assets/matlab/export_figure.m 到项目；MATLAB 里：
+#   export_figure(fig, outDir, 'name');          % 报告/PPT，默认 7.5 in
+#   export_figure(fig, outDir, 'name', 5.5);     % 论文单栏
+# 单图/循环/分栏/半对数用例见 references/matlab-figures.md
 
 # ---- 路线图：拷案例 → 改 ROWS → 生成 → 5 项检查 → 渲染 ----
 python scripts/layout_flow.py assets/deck/cases_route.py --out out/route.svg --apply
@@ -324,6 +326,7 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 | `scripts/formula_png.py` | **公式**：LaTeX → 裁白边 PNG（默认透明）+ `sizes.json` | `formulas.json --out dir [--dpi 400] [--no-alpha]` |
 | `scripts/deck_check.py` | **页片静态自检**：16:9、安全边距、图片拉伸、文字溢出、备注、占位符 | `deck.pptx [--strict] [--require-notes] [--json]` |
 | `scripts/text_check.py` | **文字自检**：标题像话题、长句、要点过多、口播过长、禁用词 | `deck.pptx｜report.md [--json]` |
+| `scripts/text_consistency.py` | **一致性检查**：文档术语/标题层级/相对链接；`--exports` 加报告图片链接、alt、图注、图号、孤立图 | `--root . [--exports] [--json]` |
 | `scripts/render_pptx_png.py` | **页片预览**：PowerPoint COM 逐页导出 PNG（替代 LibreOffice） | `deck.pptx --out preview [--width 1600]` |
 
 脚本只做机械判定，**结论一律以"命中 0 + 目视通过"共同成立为准**。

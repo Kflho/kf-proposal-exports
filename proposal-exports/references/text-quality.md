@@ -120,6 +120,9 @@
 python scripts/text_check.py deck.pptx            # 页片：标题/要点/口播
 python scripts/text_check.py report.md            # 报告：标题/句子/禁用词
 python scripts/text_check.py deck.pptx --json
+
+python scripts/text_consistency.py --root .            # 仓库文档：术语/标题/相对链接
+python scripts/text_consistency.py --root . --exports  # 报告产物：图片链接/图注/图号/孤立图 + AI 腔
 ```
 
 判据见 `assets/text/banned.json` 与下表：
@@ -134,8 +137,15 @@ python scripts/text_check.py deck.pptx --json
 | 单句过长（>60 汉字） | `sentence-too-long` | warning |
 | 单页要点超过 5 条 / 单条超过 40 字 | `too-many-bullets` / `bullet-too-long` | warning |
 | 口播超过 120 字 | `notes-too-long` | warning |
+| 报告图片链接缺失 | `ART-IMG-MISSING` | error |
+| 图片没有 alt / 图片后没有图注 | `ART-IMG-ALT` / `ART-IMG-CAPTION` | warning |
+| 图片没被任何报告引用 | `ART-IMG-ORPHAN` | warning |
+| 图号不连续 | `ART-FIG-NUM` | warning |
 
 机械检查只抓高置信度问题；标题有没有洞察、目标与实验是否对应，仍要人读。
+**图内文字**（坐标轴、图例、图内标题）在 PNG 里，机械检查读不到，仍按人工/OCR 处理；
+`text_check.py` 覆盖页片/报告文字，`text_consistency.py --exports` 覆盖报告里的图片块
+（链接、alt、图注、图号、孤立图），两者不重叠。
 
 ## 人工检查清单
 
@@ -148,6 +158,7 @@ python scripts/text_check.py deck.pptx --json
 - [ ] 每个数值能指到实验、公式或任务书；
 - [ ] 指标名、口径、条件、考核方式四处一致；
 - [ ] 结论写了达到与未达到，没有掩盖失败；
+- [ ] 图片链接存在、alt/图注齐全、图号连续、`figures/` 无孤立图（`--exports` 机械查）；
 - [ ] 图注、表注、正文的术语和单位一致；
 - [ ] README 类文字走 development，不在本 skill 重写。
 
