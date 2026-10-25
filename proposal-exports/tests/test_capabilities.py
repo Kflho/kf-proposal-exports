@@ -1,7 +1,7 @@
 """能力级 smoke：配图模板过自检、页片从公式到 pptx 再到两项检查。
 
 与单元测试的分工：这里只验证“交付流程真的能跑通”，不重复测每个函数分支。
-- 配图：仓库自带的 `assets/template.svg` 必须过 `check_overlap` / `check_symbols`；
+- 配图：仓库自带的 `assets/template.svg` 必须过 `check_overlap` / `check_symbols` / `check_spacing`；
 - 页片：公式 PNG → `gen_deck.js` → `deck_check --strict --require-notes` → `text_check`。
   Node 依赖（`pptxgenjs`）没装时跳过页片这一项，不让测试环境失败。
 """
@@ -35,8 +35,10 @@ def test_shipped_svg_template_passes_checks() -> None:
     template = ROOT / "assets" / "template.svg"
     overlap = run([sys.executable, str(ROOT / "scripts" / "check_overlap.py"), str(template)])
     symbols = run([sys.executable, str(ROOT / "scripts" / "check_symbols.py"), str(template)])
+    spacing = run([sys.executable, str(ROOT / "scripts" / "check_spacing.py"), str(template)])
     assert overlap.returncode == 0, overlap.stdout + overlap.stderr
     assert symbols.returncode == 0, symbols.stdout + symbols.stderr
+    assert spacing.returncode == 0, spacing.stdout + spacing.stderr
 
 
 @pytest.mark.skipif(not PPTXGEN.is_dir(), reason="未安装 pptxgenjs（npm install）")

@@ -1,102 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  proposal-exports 起手模板：物理 960×540pt（16:9 全幅），设计网格 1600×900（1 设计单位 = 0.6pt）
-  新图请按 SKILL「画布尺寸」直接用 960×540pt / viewBox 0 0 960 540 起手，坐标即 pt。
+  起手模板：960×540pt（13.33×7.5in，16:9 全幅，1 坐标单位 = 1pt）
   调色板：主色 #2F6FB0 / #E8F1FA；带标题 #4A7EBB；强调 #E8A33D / #FDF3E3；弱化 #9AA5B1 / #F2F4F7
           正文 #1F2937；次要 #4B5563
   字体：Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif
   用法：拷成 图N_xxx.svg，改文案与坐标；箭头 marker 已内置，勿删。
   注意：跨行文字请复制第二个 <text>，不要用同一个 <text> 内的多个 <tspan> 换行。
+  间距：框间 12 / 24，单元格内文字 24 / 48（check_spacing.py 默认档位）。
 -->
-<svg xmlns="http://www.w3.org/2000/svg" width="960pt" height="540pt" viewBox="0 0 1600 900">
-  <title>图版式起手模板</title>
-  <desc>标题条 + 上级通栏 + 三条模块 + 底部指标通栏 + 图注。所有坐标取整，便于导入 PPT 后按同坐标重画。</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="960pt" height="540pt" viewBox="0 0 960 540">
+  <title>图版式起手模板（960×540pt）</title>
+  <desc>标题条 + 上级通栏 + 层次带 + 三条模块 + 支撑产出 + 底部指标通栏 + 图注；坐标即 pt。</desc>
 
   <defs>
     <marker id="tpl-arrow" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="10" markerHeight="8"
             markerUnits="userSpaceOnUse" orient="auto">
       <path d="M0,0 L10,4 L0,8 Z" fill="#2F6FB0"/>
     </marker>
-    <marker id="tpl-arrow-down" viewBox="0 0 10 8" refX="5" refY="8" markerWidth="12" markerHeight="10"
+    <marker id="tpl-arrow-down" viewBox="0 0 10 8" refX="5" refY="8" markerWidth="10" markerHeight="8"
             markerUnits="userSpaceOnUse" orient="auto">
       <path d="M0,0 L10,0 L5,8 Z" fill="#2F6FB0"/>
     </marker>
   </defs>
 
-  <rect x="0" y="0" width="1600" height="900" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="960" height="540" fill="#FFFFFF"/>
 
   <!-- 标题条 -->
-  <rect x="40" y="22" width="1520" height="54" rx="10" fill="#2F6FB0"/>
-  <text x="800" y="58" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="30" font-weight="bold" fill="#FFFFFF" text-anchor="middle">图主标题</text>
+  <rect x="36" y="12" width="888" height="36" rx="6" fill="#2F6FB0"/>
+  <text x="480" y="36" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="18" font-weight="bold" fill="#FFFFFF" text-anchor="middle">图主标题</text>
 
   <!-- 上级课题通栏 -->
-  <rect x="40" y="94" width="1520" height="66" rx="10" fill="#E8F1FA" stroke="#2F6FB0" stroke-width="2"/>
-  <text x="800" y="136" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="24" font-weight="bold" fill="#1F2937" text-anchor="middle">上级课题 全称</text>
+  <rect x="36" y="60" width="888" height="36" rx="6" fill="#E8F1FA" stroke="#2F6FB0" stroke-width="1.2"/>
+  <text x="480" y="84" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="14" font-weight="bold" fill="#1F2937" text-anchor="middle">上级课题 全称</text>
 
   <!-- 层次带：带标题 + 3 模块 -->
-  <rect x="40" y="186" width="1520" height="52" rx="8" fill="#4A7EBB"/>
-  <text x="72" y="220" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="20" font-weight="bold" fill="#FFFFFF">层次一 阶段名</text>
+  <rect x="36" y="108" width="888" height="32" rx="5" fill="#4A7EBB"/>
+  <text x="48" y="128" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="12" font-weight="bold" fill="#FFFFFF">层次一 阶段名</text>
 
-  <rect x="60" y="252" width="440" height="112" rx="10" fill="#FFFFFF" stroke="#2F6FB0" stroke-width="2"/>
-  <text x="280" y="292" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="18" font-weight="bold" fill="#1F2937" text-anchor="middle">模块 1 标题</text>
-  <text x="280" y="320" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="15" fill="#4B5563" text-anchor="middle">说明行（方法/要点，≤ 20 字）</text>
+  <rect x="60" y="152" width="264" height="68" rx="6" fill="#FFFFFF" stroke="#2F6FB0" stroke-width="1.2"/>
+  <text x="192" y="176" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="11" font-weight="bold" fill="#1F2937" text-anchor="middle">模块 1 标题</text>
+  <text x="192" y="200" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="9" fill="#4B5563" text-anchor="middle">说明行（方法/要点，≤ 20 字）</text>
 
-  <rect x="580" y="252" width="440" height="112" rx="10" fill="#FFFFFF" stroke="#2F6FB0" stroke-width="2"/>
-  <text x="800" y="292" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="18" font-weight="bold" fill="#1F2937" text-anchor="middle">模块 2 标题</text>
-  <text x="800" y="320" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="15" fill="#4B5563" text-anchor="middle">说明行</text>
+  <rect x="348" y="152" width="264" height="68" rx="6" fill="#FFFFFF" stroke="#2F6FB0" stroke-width="1.2"/>
+  <text x="480" y="176" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="11" font-weight="bold" fill="#1F2937" text-anchor="middle">模块 2 标题</text>
+  <text x="480" y="200" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="9" fill="#4B5563" text-anchor="middle">说明行</text>
 
-  <rect x="1100" y="252" width="440" height="112" rx="10" fill="#FFFFFF" stroke="#2F6FB0" stroke-width="2"/>
-  <text x="1320" y="292" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="18" font-weight="bold" fill="#1F2937" text-anchor="middle">模块 3 标题</text>
-  <text x="1320" y="320" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="15" fill="#4B5563" text-anchor="middle">说明行</text>
+  <rect x="636" y="152" width="264" height="68" rx="6" fill="#FFFFFF" stroke="#2F6FB0" stroke-width="1.2"/>
+  <text x="768" y="176" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="11" font-weight="bold" fill="#1F2937" text-anchor="middle">模块 3 标题</text>
+  <text x="768" y="200" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="9" fill="#4B5563" text-anchor="middle">说明行</text>
 
-  <line x1="500" y1="308" x2="580" y2="308" stroke="#2F6FB0" stroke-width="2" marker-end="url(#tpl-arrow)"/>
-  <line x1="1020" y1="308" x2="1100" y2="308" stroke="#2F6FB0" stroke-width="2" marker-end="url(#tpl-arrow)"/>
+  <line x1="324" y1="186" x2="348" y2="186" stroke="#2F6FB0" stroke-width="1.2" marker-end="url(#tpl-arrow)"/>
+  <line x1="612" y1="186" x2="636" y2="186" stroke="#2F6FB0" stroke-width="1.2" marker-end="url(#tpl-arrow)"/>
 
   <!-- 带间动作词 -->
-  <line x1="410" y1="364" x2="410" y2="460" stroke="#2F6FB0" stroke-width="2.5"
+  <line x1="132" y1="220" x2="132" y2="244" stroke="#2F6FB0" stroke-width="1.5"
         marker-end="url(#tpl-arrow-down)"/>
-  <text x="430" y="410" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="17" font-weight="bold" fill="#2F6FB0">动作词</text>
+  <text x="140" y="236" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="10" font-weight="bold" fill="#2F6FB0">动作词</text>
 
   <!-- 支撑产出（强调色） -->
-  <rect x="60" y="460" width="700" height="220" rx="10" fill="#FDF3E3" stroke="#E8A33D" stroke-width="2"/>
-  <rect x="82" y="486" width="8" height="26" rx="3" fill="#E8A33D"/>
-  <text x="102" y="508" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="20" font-weight="bold" fill="#1F2937">支撑产出</text>
-  <line x1="82" y1="526" x2="738" y2="526" stroke="#E8A33D" stroke-width="1.5" opacity="0.6"/>
-  <text x="90" y="550" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="17" fill="#1F2937">· 交付物（软件 1 套 / 报告 N 份）</text>
-  <text x="90" y="588" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="17" fill="#1F2937">· 折中曲线 / 清单 / 方案</text>
-  <text x="90" y="626" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="17" fill="#1F2937">· 相对指标：较 &lt;基线全名&gt; 降低 ≥N%</text>
-  <text x="90" y="664" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="17" fill="#1F2937">· 时间类：≤100 ms（层级；规模；计时口径）</text>
+  <rect x="60" y="244" width="420" height="148" rx="6" fill="#FDF3E3" stroke="#E8A33D" stroke-width="1.2"/>
+  <rect x="74" y="258" width="5" height="14" rx="2" fill="#E8A33D"/>
+  <text x="86" y="268" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="12" font-weight="bold" fill="#1F2937">支撑产出</text>
+  <line x1="74" y1="280" x2="466" y2="280" stroke="#E8A33D" stroke-width="1" opacity="0.6"/>
+  <text x="78" y="292" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="10" fill="#1F2937">· 交付物（软件 1 套 / 报告 N 份）</text>
+  <text x="78" y="316" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="10" fill="#1F2937">· 折中曲线 / 清单 / 方案</text>
+  <text x="78" y="340" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="10" fill="#1F2937">· 相对指标：较 &lt;基线全名&gt; 降低 ≥N%</text>
+  <text x="78" y="364" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="10" fill="#1F2937">· 时间类：≤100 ms（层级；规模；计时口径）</text>
 
   <!-- 兄弟项（弱化色） -->
-  <rect x="840" y="460" width="660" height="220" rx="10" fill="#F2F4F7" stroke="#9AA5B1" stroke-width="2"/>
-  <text x="1170" y="500" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="20" font-weight="bold" fill="#4B5563" text-anchor="middle">兄弟部分（弱化色，非本部分）</text>
-  <text x="1170" y="540" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="15" fill="#4B5563" text-anchor="middle">与本部分的关系用带标签的箭头表达</text>
+  <rect x="504" y="244" width="396" height="148" rx="6" fill="#F2F4F7" stroke="#9AA5B1" stroke-width="1.2"/>
+  <text x="702" y="268" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="12" font-weight="bold" fill="#4B5563" text-anchor="middle">兄弟部分（弱化色，非本部分）</text>
+  <text x="702" y="292" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="9" fill="#4B5563" text-anchor="middle">与本部分的关系用带标签的箭头表达</text>
 
   <!-- 底部承接通栏（两行用两个 text，不要用 tspan dy） -->
-  <rect x="40" y="740" width="1520" height="70" rx="8" fill="#E8F1FA" stroke="#2F6FB0" stroke-width="2"/>
-  <text x="800" y="768" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="15" fill="#1F2937" text-anchor="middle">支撑的系统级指标（由 XX 环节考核）：指标名 ≥ 值 单位、指标名 ≤ 值（限定）、</text>
-  <text x="800" y="792" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="15" fill="#1F2937" text-anchor="middle">成对指标：虚警率 ≤5%（与检测概率成对约束，其门限待任务书给定）</text>
+  <rect x="36" y="404" width="888" height="48" rx="5" fill="#E8F1FA" stroke="#2F6FB0" stroke-width="1.2"/>
+  <text x="480" y="424" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="9" fill="#1F2937" text-anchor="middle">支撑的系统级指标（由 XX 环节考核）：指标名 ≥ 值 单位、指标名 ≤ 值（限定）、</text>
+  <text x="480" y="448" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="9" fill="#1F2937" text-anchor="middle">成对指标：虚警率 ≤5%（与检测概率成对约束，其门限待任务书给定）</text>
 
   <!-- 图注 -->
-  <text x="800" y="856" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
-        font-size="12" fill="#4B5563" text-anchor="middle">注：计时口径 / 基线配置 / 术语说明（与正文一致）</text>
+  <text x="480" y="476" font-family="Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif"
+        font-size="9" fill="#4B5563" text-anchor="middle">注：计时口径 / 基线配置 / 术语说明（与正文一致）</text>
 </svg>

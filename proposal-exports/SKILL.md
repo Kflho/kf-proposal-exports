@@ -36,8 +36,8 @@ metadata:
 - **进 PPT / 答辩**：`960×540pt`（13.33×7.5in，16:9 全幅 1:1）。`viewBox="0 0 960 540"`，
   坐标与字号就是最终 pt：正文 ≥ 10pt、图注 ≥ 9pt。
 - **进 A4 申报书**：`842×595pt`（A4 横向）；双栏图宽 `519pt`（183mm）。
-- `assets/template.svg` 是旧版设计网格：物理 `960×540pt`，内部 `viewBox 0 0 1600 900`
-  （1 设计单位 = 0.6pt）。**新图按上面的 pt 画布起手**；模板重排到 960×540（1:1 pt）是待办。
+- `assets/template.svg` 就是按 `960×540pt` 画的（1 坐标单位 = 1pt）：框间距 12 / 24，
+  单元格内文字间距 24 / 48；模板自检 `check_overlap` / `check_symbols` / `check_spacing` 全过。
 
 ## 图片排版调整
 
@@ -309,7 +309,8 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 
 样例见 `references/design-notes/bench/route_mermaid.mmd`。竖版输出、长句断行密，不要直接进页片。
 
-**Graphviz 的写法**（只给存量图参考）：`rankdir` / `rank=same` 分层，`subgraph cluster_x` 表并列，
+**Graphviz 的写法**（只给存量图参考，完整踩坑见 `references/graphviz-usage.md`）：`rankdir` / `rank=same` 分层，
+`subgraph cluster_x` 表并列，
 边上 `label=` 自动避让；中文断行仍用 `scripts/gv_figure.py`（内部 `_wrap_dp.py` 做 DP 断行）。
 装了 Graphviz 才能用这条路：`winget install Graphviz.Graphviz`。
 

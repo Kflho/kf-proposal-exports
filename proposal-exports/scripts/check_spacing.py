@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from collections import Counter
 from xml.etree import ElementTree as ET
@@ -30,7 +31,7 @@ SVG = "{http://www.w3.org/2000/svg}"
 
 def num(v, d=0.0):
     try:
-        return float(v)
+        return float(re.sub(r"[a-zA-Z%]+$", "", str(v).strip()))
     except (TypeError, ValueError):
         return d
 
