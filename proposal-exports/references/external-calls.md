@@ -4,8 +4,10 @@
 
 ## 1 数据图
 
-交给 `scipilot-figure-skill`（选型 + 出图）或 `nature-figure`（投稿级 / 多面板）。
-本 skill 只管结构示意图（框架 / 路线 / 计划矩阵），不画曲线柱状。
+绘图实现交给 `scipilot-figure-skill`（选型 + 出图）或 `nature-figure`（投稿级 / 多面板）；
+MATLAB 项目统一格式用共享库 `matlab-project-utils` 的 `run_visualization` /
+`export_fig_paper`。产物规范（PNG、600 dpi、双语路径、标题单行、目视）见
+`references/matlab-figures.md`。本 skill 不画曲线柱状，只定产物标准。
 
 ## 2 交付前审计（权威门禁）
 

@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | 1 页计划 | 每页一句话结论（action title）+ 支撑证据（图/公式/表）+ 口播 | `deck-plan.md`（页号、标题、版面、素材、口播） | 标题写名词短语 = 返工（要写成结论） |
 | 2 定令牌 | 选浅色/深色、字号档、边距；从 `assets/deck/gen_deck.js` 拷模板 | `gen_deck.js` 里的常量段 | 跳过这步会一页一个样 |
-| 3 备素材 | 公式 → `formula_png.py`；图 → 本 skill 的 SVG 导出或 MATLAB 出的 PNG；表格 → 原生表格 | `assets/…png` + `sizes.json` | 公式白底不透明 → 浅色卡片上露白块 |
+| 3 备素材 | 公式 → `formula_png.py`；图 → 本 skill 的 SVG 导出或 MATLAB 出的 PNG（MATLAB 图按 `matlab-figures.md` 出）；表格 → 原生表格 | `assets/…png` + `sizes.json` | 公式白底不透明 → 浅色卡片上露白块 |
 | 4 生成 | `node gen_deck.js` → `deck.pptx` | pptx + 每页 notes | 中文标点孤行、下标写成 `u_r` |
 | 5 质检 | `deck_check.py` → `render_pptx_png.py` → 逐页目视 | 报告 + `preview/*.png` | 只看缩略图看不出 0.1in 越界 |
 

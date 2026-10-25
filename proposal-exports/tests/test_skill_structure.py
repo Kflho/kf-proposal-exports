@@ -83,6 +83,14 @@ def test_ppt_capability_files_exist():
         assert (SKILL_DIR / rel).is_file(), f"缺 {rel}"
 
 
+def test_matlab_figure_assets_and_reference_exist():
+    for rel in ("assets/matlab/export_figure.m",
+                "assets/matlab/figure_cases.m"):
+        assert (SKILL_DIR / rel).is_file(), f"缺 {rel}"
+    ref = (SKILL_DIR / "references/matlab-figures.md").read_text(encoding="utf-8")
+    assert "export_figure" in ref and "figure_cases.m" in ref
+
+
 def test_new_scripts_have_docstring_and_main_guard():
     for name in ("formula_png.py", "deck_check.py", "render_pptx_png.py", "text_check.py"):
         src = (SKILL_DIR / "scripts" / name).read_text(encoding="utf-8")

@@ -1,9 +1,9 @@
 ---
 name: kf-proposal-exports
-description: "中文技术申报书/方案/答辩的**两类交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes."
+description: "中文技术申报书/方案/答辩的**交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查；③MATLAB 数据图产物——统一入口 run_visualization、PNG/600 dpi、中英双语路径、标题单行。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, MATLAB 出图, 数据图规范, matlab figure, paper figure, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes."
 metadata:
-  version: "2.0.1"
-  last_updated: "2026-10-22"
+  version: "2.0.2"
+  last_updated: "2026-10-23"
   status: active
   data_access_level: raw
   task_type: open-ended
@@ -14,20 +14,22 @@ metadata:
     - academic-paper-reviewer
 ---
 
-# Proposal Exports v2.0.2 — 中文申报材料：配图 + 页片
+# Proposal Exports v2.0.2 — 中文申报材料：配图 + 页片 + MATLAB 图产物
 
 把手写的"看着差不多就行"变成**可机器校验**的交付流程：结构与文案先定、画完必自检、交付必目视。
 
 > 跨机协作 / 开发流程：见 `kf-personal-development` 的 `references/skill-dev.md`
 > 「跨机协作流程」（canonical）；本 skill 不重复。
 
-本 skill 面向中文技术申报书 / 技术方案 / 项目答辩材料，管**两类交付物**：
+本 skill 面向中文技术申报书 / 技术方案 / 项目答辩材料，管以下交付物：
 
 | 交付物 | 产物 | 规则与检查 |
 | --- | --- | --- |
 | **配图** | 自包含 SVG（可导入 PPT/WPS 再编辑），或 PNG | 本文件 + `references/figure-types.md`、5 个 SVG 检查脚本 |
 | **页片（PPT）** | 可编辑 `.pptx` + 每页口播备注 + 预览 PNG | `references/ppt-deck.md` + `deck_check.py`、`render_pptx_png.py` |
 | **文字**（页片标题/要点/报告段落） | 页计划、标题序列、正文 | `references/text-quality.md` + `text_check.py` |
+| **界面文字**（弹窗/状态栏/提示） | 只写当前状态或要求操作 | `references/text-quality.md`「用户交互文字」一节 |
+| **MATLAB 数据图产物** | PNG（论文/报告图），中英双语路径 | `references/matlab-figures.md` + 共享库 `matlab-project-utils` |
 
 ## 图片排版调整
 
@@ -81,6 +83,10 @@ python scripts/deck_check.py out/deck.pptx --strict --require-notes
 python scripts/text_check.py out/deck.pptx
 python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 
+# ---- MATLAB 数据图：统一格式 → 600 dpi PNG ----
+# MATLAB 里：run_visualization(fig); export_fig_paper(fig, 'name', 5.5);
+# 产物规则（PNG、双语路径、标题单行、目视）见 references/matlab-figures.md
+
 # ---- 路线图：拷案例 → 改 ROWS → 生成 → 5 项检查 → 渲染 ----
 python scripts/layout_flow.py assets/deck/cases_route.py --out out/route.svg --apply
 python scripts/render_svg.py out/route.svg --png out/route.png
@@ -106,10 +112,16 @@ python scripts/check_symbols.py out/route.svg
 - 要做汇报/答辩/组会**页片**：把讲稿落成 PPT、补标题与口播、把图/公式排进去
 - 要检查**页片或报告的文字**：标题像话题、要点太多、句子太长、AI 腔、口播超长
 - 写申报书正文 / 技术方案 / 项目笔记，或梳理「研究内容、目标、创新点、技术方案」的边界
+- 要出 **MATLAB 数据图**、统一字体/线宽/图例，或核对论文/报告的图片产物（PNG、600 dpi、双语路径、标题单行）
 
-### 不触发
+## 面向用户的界面文字
 
-- 纯粹的数据可视化（折线/柱状/散点）→ 用 matplotlib / 统计可视化规范
+面向用户的界面文字（弹窗/状态栏/提示）只写当前状态或要求操作，规则见 `references/text-quality.md`「用户交互文字」一节。
+
+## 不触发
+
+- 纯粹的数据可视化实现（折线/柱状/散点的绘制、选型与数据计算）→ 绘图脚本 /
+  `matlab-project-utils` / `scipilot`；产物标准见 `references/matlab-figures.md`
 - 照片、渲染图、界面截图
 - 仓库 README、用法/API 文档、代码注释、commit/release 文案 →
   `kf-personal-development` 的 `readme.md` / `text-review.md`
@@ -316,6 +328,9 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 
 脚本只做机械判定，**结论一律以"命中 0 + 目视通过"共同成立为准**。
 
+> MATLAB 数据图不走本 skill 的脚本：统一格式与 600 dpi 导出用共享库 `matlab-project-utils` 的
+> `run_visualization`、`export_fig_paper`；产物规则见 `references/matlab-figures.md`。
+
 > **从内容生成图（`layout_flow.py`）**：手改坐标改不动的图用它。把文案写进一份
 > `cases.py`（`ROWS` 列表 + 版面常量），脚本负责：按字数断行 → 由行数反推框高 →
 > 按基线网格放文字 → 四行间距 → 三列对齐 → 连线（x=列心，y 贯通行间空隙）→ 白底。
@@ -387,6 +402,12 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 - [ ] 结构说明与图↔文对照表已更新
 - [ ] 若改了称谓/指标：正文、方案、台账同步，并复算字数
 
+**MATLAB 数据图交付前**：
+
+- [ ] 走 `run_visualization`，无 `[run_visualization] 标题超宽` 告警
+- [ ] PNG、≥300 dpi、双语路径（或单语一致），重跑前清旧图
+- [ ] 逐张目视；论文里的图按页渲染核对，插入 PPT/Word 不变形
+
 **页片（PPT）交付前**：
 
 - [ ] `deck_check.py` 命中 **0 error**（16:9、0.5in 边距、图片无拉伸、备注齐全、无占位符）
@@ -411,14 +432,20 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 数据图侧的"看图"可直接套用本 skill `references/verification.md` 的做法：可疑区域**裁切放大**再核、
 **换一个查看器**再看一遍（不同查看器对字体与换行处理不同）。
 
-**本 skill 不管**：数据图（曲线/分布/柱状）、绘图脚本与 `run_visualization`、中英双语出图、
-论文/Note 的图片路径与引用同步——这些归 `paper-experiment`。
+MATLAB 数据图的实现由共享库 `matlab-project-utils`（`visualizations/run_visualization`、
+`plots/export_fig_paper`）负责；**产物标准**（PNG/600 dpi、双语路径、标题单行、重跑清理、
+目视）在本 skill 的 `references/matlab-figures.md`，实现与标准分开放。
+
+**本 skill 不管**：数据图的绘图实现（曲线/分布/柱状怎么画）、`run_visualization` 的内部实现、
+论文/Note 的图片引用同步——这些归 `paper-experiment` / `matlab-project-utils`；
+**产物标准**（PNG/分辨率/双语路径/标题/导出/目视）见 `references/matlab-figures.md`。
 
 **上游**：写作/评审类 skill 给出正文与术语口径 → 本 skill 出图并核对一致性。
 **下游**：图交付后，正文里的"如图 N 所示"、图号、图注由文档侧统一编号；
 若图随文提交，图的指标表述要与正文考核指标逐字对齐。
 
-与其他 skill 的分工：**数据图**→ `paper-experiment`（实验出图管线）或统计可视化规范；
+与其他 skill 的分工：**数据图**→ 实现走 `paper-experiment` / `matlab-project-utils`，
+产物规范走 `references/matlab-figures.md`；
 **论文投稿插图**→ 期刊图表规范（caption/字号/分辨率/矢量图要求）；
 **页片的生成/编辑**→ 本 skill 的 `ppt-deck.md`（新生成）+ 官方 `pptx` skill（改已有 `.pptx`、OOXML、
 `add_slide`/`clean`/`validate`）；**文字规范**→ `references/text-quality.md`（标题 action title、禁用词、
@@ -449,6 +476,10 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 ## Version Info
 
+- **v2.0.2（2026-10-23）**：把 MATLAB 出图产物规范从 `kf-personal-development` 的 MATLAB 附录
+  移入本 skill：新增 `references/matlab-figures.md`（统一入口 `run_visualization`、600 dpi PNG、
+  双语路径、标题单行、目视自检）；MATLAB 代码风格与环境仍留在开发 skill，仅保留一条指向本 skill
+  的引用。
 - **v2.0.1（2026-10-22）**：页片实战反馈（线性系统实验一二合册，13 页）。
   ① `banned.json` 补控制类固定搭配（传递矩阵、特征多项式等前缀词），避免控制术语被误报 error；
   配套两条测试；
@@ -480,6 +511,7 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 | 版本 | 日期 | 变更 |
 | --- | --- | --- |
 | 2.0.2 | 2026-10-22 | 新增「章节定义」（`references/project-content.md`）：概论 / 研究内容 / 目标与子课题 / 创新点 / 技术方案优势 / 实验 / 产出各写什么；项目笔记功能只写"做什么"，不写实现手段 |
+| 2.0.2 | 2026-10-23 | MATLAB 出图产物规范从 kf-personal-development 移入（`references/matlab-figures.md`）：统一入口/600 dpi/双语路径/标题单行/目视；开发 skill 只留引用 |
 | 2.0.1 | 2026-10-22 | 补控制类固定搭配，避免术语被误报（含两条测试）；硬规则 16 加课程汇报例外（标题切研究目标）；ppt-deck 补 pywin32 依赖、text_check 图注计数、宽矩阵拆图 |
 | 2.0.0 | 2026-10-16 | 更名 proposal-exports；加页片（公式/生成/自检/预览）与文字规范（action title/禁用词检查）；出图默认改模板优先、D2 备选、Graphviz 退役；新增 tests 与设计记录 |
 | 1.1.6 | 2026-10-15 | `fit_pptx_frames.py`（按图片真实比例重排图片框）+ 硬规则 12（改动留痕） |
