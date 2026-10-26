@@ -3,7 +3,7 @@
 中文技术申报书 / 技术方案 / 答辩材料的**配图 + 页片 + 文字**交付规范（skill：`kf-proposal-exports`，目录 `proposal-exports/`）。
 
 > 当前状态：v2.0.2。图流程可用（模板优先，D2 备选，Graphviz 退役）；页片流程可用（Python + Node + PowerPoint）；
-> 文字检查可用。`pytest` 82 项（13 个模块）全绿。
+> 文字检查可用。`pytest` 87 项（14 个模块）全绿。
 
 ## 快速开始
 
@@ -65,7 +65,7 @@ python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 
 ```bash
 cd proposal-exports
-python -m pytest -q          # 82 项（13 个模块）：公式/页片检查/文字检查/字体/闸门/回灌/结构回归
+python -m pytest -q          # 87 项（14 个模块）：公式/页片检查/文字检查/字体/闸门/回灌/模板/结构回归
 ```
 
 成功判据：`pytest` 全绿；`deck_gate.py` 0 error（字体 → 静态 → 文字 → 外部审计）；预览逐页目视通过。
@@ -87,6 +87,7 @@ python -m pytest -q          # 82 项（13 个模块）：公式/页片检查/�
 | [`references/ppt-deck.md`](proposal-exports/references/ppt-deck.md) | 页片五步流程、令牌、五条本地纪律、质检 |
 | [`references/external-deck.md`](proposal-exports/references/external-deck.md) | 页片外部能力：何时调 `nature-paper2ppt` / `academic-ppt`、调用契约、回退 |
 | [`references/deck-generator.md`](proposal-exports/references/deck-generator.md) | 页片生成器契约与回灌五步：pptx 改动同步回代码 |
+| [`references/deck-template.md`](proposal-exports/references/deck-template.md) | 按模板出片：抽主题色/字体/版式，套版式或复制页填内容 |
 | [`references/text-quality.md`](proposal-exports/references/text-quality.md) | action title、禁用词、句式与口播规范 |
 | [`references/design-notes/`](proposal-exports/references/design-notes/) | 设计记录：PPT 接入、出图引擎选型（含视觉调研协议） |
 | [`references/case-notes.md`](proposal-exports/references/case-notes.md) | 真实返工复盘与外部 skill 调研 |

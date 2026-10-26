@@ -89,7 +89,7 @@ def build_steps(deck: Path, *, steps: tuple[str, ...], strict: bool, require_not
                                       "--apply"]))
     if "deck_check" in steps:
         args = [sys.executable, str(HERE / "deck_check.py"), str(deck),
-                "--title-ea", "SimHei", "--body-ea", "SimSun"]
+                "--title-ea", "黑体", "--body-ea", "宋体"]
         if strict:
             args.append("--strict")
         if require_notes:

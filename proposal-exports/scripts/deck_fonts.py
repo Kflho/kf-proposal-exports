@@ -33,8 +33,8 @@ except Exception:
     pass
 
 LATIN_DEFAULT = "Times New Roman"
-TITLE_EA_DEFAULT = "SimHei"      # 黑体
-BODY_EA_DEFAULT = "SimSun"       # 宋体
+TITLE_EA_DEFAULT = "黑体"       # 用中文族名：英文名 SimHei 在部分 Office 会被静默替换
+BODY_EA_DEFAULT = "宋体"        # 同理，SimSun 会回退成宋体，但黑体标题会丢
 TITLE_MIN_PT_DEFAULT = 30.0
 
 
@@ -62,11 +62,17 @@ def _ensure_typeface(rpr, tag: str, face: str) -> bool:
     return changed
 
 
-def role_of(run, title_min_pt: float = TITLE_MIN_PT_DEFAULT) -> str:
-    """按字号分角色：≥阈值算标题，没写字号的算正文。"""
+def role_of(run, title_min_pt: float = TITLE_MIN_PT_DEFAULT, shape=None) -> str:
+    """分角色：先看字号；没写字号的看占位符类型（版式里的标题不写字号）。"""
     size = run.font.size
-    if size is not None and size.pt >= title_min_pt:
-        return "title"
+    if size is not None:
+        return "title" if size.pt >= title_min_pt else "body"
+    if shape is not None:
+        try:
+            if int(shape.placeholder_format.type) in (1, 3):   # TITLE / CENTER_TITLE
+                return "title"
+        except Exception:
+            pass
     return "body"
 
 
@@ -86,7 +92,7 @@ def deal_fonts(path: Path, latin: str = LATIN_DEFAULT, title_ea: str = TITLE_EA_
                 for run in para.runs:
                     if not run.text:
                         continue
-                    role = role_of(run, title_min_pt)
+                    role = role_of(run, title_min_pt, shape)
                     counts[role] += 1
                     rpr = _rpr(run)
                     ea = title_ea if role == "title" else body_ea

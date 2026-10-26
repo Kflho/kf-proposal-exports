@@ -2,7 +2,7 @@
 name: kf-proposal-exports
 description: "中文技术申报书/方案/答辩的**交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查；③MATLAB 数据图产物——统一入口 run_visualization、PNG/600 dpi、中英双语路径、标题单行。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, MATLAB 出图, 数据图规范, matlab figure, paper figure, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes."
 metadata:
-  version: "2.0.4"
+  version: "2.0.5"
   last_updated: "2026-10-23"
   status: active
   data_access_level: raw
@@ -15,7 +15,7 @@ metadata:
     - academic-paper-reviewer
 ---
 
-# Proposal Exports v2.0.4 — 中文申报材料：配图 + 页片 + MATLAB 图产物
+# Proposal Exports v2.0.5 — 中文申报材料：配图 + 页片 + MATLAB 图产物
 
 把手写的"看着差不多就行"变成**可机器校验**的交付流程：结构与文案先定、画完必自检、交付必目视。
 
@@ -160,6 +160,7 @@ python scripts/check_symbols.py out/route.svg
 
 > **页片交付**：`deck_gate.py` 0 error（内含字体落实、`deck_check`、`text_check`、外部审计）+ 预览逐页看过。
 > **要长期维护的册子先建生成器**：代码出片、页片里的改动用 `deck_spec.py --compare` 回灌，见 `references/deck-generator.md`。
+> **有现成模板**：用 `deck_template.py` 抽令牌、套版式/复制页，见 `references/deck-template.md`（中文字体写中文族名）。
 > 缺一项就算没做完。
 
 ## 五步工作流（顺序不可颠倒）
@@ -349,6 +350,7 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 | `scripts/deck_fonts.py` | **字体规范落实**：给每个 run 写 `a:latin`/`a:ea`（标题黑体、正文宋体、西文 Times New Roman），默认干跑 | `deck.pptx [--apply] [--title-min-pt 30]` |
 | `scripts/deck_gate.py` | **页片交付闸门**：字体 → 静态 → 文字 → 外部审计，一条命令；外部脚本找不到标 skipped | `deck.pptx [--strict] [--steps ...] [--external-script path]` |
 | `scripts/deck_spec.py` | **回灌**：把 `.pptx` 拆成 spec（文字/位置/表格/图片/备注），或比两版差异 | `deck.pptx --out spec.json [--assets dir]`；`--compare old new [--json]` |
+| `scripts/deck_template.py` | **按模板出片**：抽主题色/字体/版式占位符；按 plan 套版式或复制页替换文字与图片 | `模板.pptx --tokens tokens.json`；`--list`；`--plan plan.json --out deck.pptx` |
 | `scripts/text_check.py` | **文字自检**：标题像话题、长句、要点过多、口播过长、禁用词 | `deck.pptx｜report.md [--json]` |
 | `scripts/text_consistency.py` | **一致性检查**：文档术语/标题层级/相对链接；`--exports` 加报告图片链接、alt、图注、图号、孤立图 | `--root . [--exports] [--json]` |
 | `scripts/render_pptx_png.py` | **页片预览**：PowerPoint COM 逐页导出 PNG（替代 LibreOffice） | `deck.pptx --out preview [--width 1600]` |
@@ -506,6 +508,8 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 ## Version Info
 
+- **v2.0.5（2026-10-27）**：按模板出片两层能力——`deck_template.py`（`--tokens` 抽主题色/字体/版式占位符；`--plan` 套版式、复制页替换文字与图片）+ `references/deck-template.md`、审美评估 `design-notes/deck-template-eval.md`；修中文字体族名（`SimHei`/`SimSun` 被 Office 静默回退成宋体，改 `黑体`/`宋体`）。
+
 - **v2.0.4（2026-10-27）**：新增页片回灌流程 `references/deck-generator.md` 与 `scripts/deck_spec.py`（dump spec / `--compare` 比两版），把「在 PowerPoint 里改完 → 同步回生成器」固化成五步流程与差异判读。
 
 - **v2.0.3（2026-10-26）**：页片流程改「接线 + 补充」。① 新增 `references/external-deck.md`（论文→页片调 `nature-paper2ppt` / `academic-ppt`，含调用契约与回退）；② 新增 `deck_gate.py`（字体→静态→文字→外部审计，一条命令）与 `deck_fonts.py`（标题黑体/正文宋体/西文 Times New Roman，写进 run 的 `a:ea`/`a:latin`）；③ 审美按 taste-skill 实跑定档（`design-notes/deck-aesthetics.md`），字号收敛为 54/33/18/12 四档；④ `deck_check` 增令牌与字体检查，`text_check` 标题上限 30→16 汉字、增口语语体检查；⑤ 修掉 sk_05 断链与「官方 pptx skill」死引用。
@@ -544,6 +548,7 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 | 版本 | 日期 | 变更 |
 | --- | --- | --- |
+| 2.0.5 | 2026-10-27 | 按模板出片：`deck_template.py`（抽令牌 + 套版式/复制页）+ 文档与审美评估；中文字体族名修正 |
 | 2.0.4 | 2026-10-27 | 生成器回灌：`deck_spec.py`（dump/compare）+ `deck-generator.md`（契约、五步回灌、差异判读、限制） |
 | 2.0.3 | 2026-10-26 | 页片改接线+补充：`external-deck.md`（调 paper2ppt/academic-ppt）、`deck_gate.py`、`deck_fonts.py`；四档字号；字体与令牌检查；标题 ≤16 汉字；修死链 |
 | 2.0.2 | 2026-10-22 | 新增「章节定义」（`references/project-content.md`）：概论 / 研究内容 / 目标与子课题 / 创新点 / 技术方案优势 / 实验 / 产出各写什么；项目笔记功能只写"做什么"，不写实现手段 |

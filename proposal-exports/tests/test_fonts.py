@@ -59,8 +59,8 @@ def test_fonts_role_split(tmp_path):
     latin, title_ea = deck_check._run_typefaces(runs[0])
     _, body_ea = deck_check._run_typefaces(runs[1])
     assert latin == "Times New Roman"
-    assert title_ea == "SimHei"
-    assert body_ea == "SimSun"
+    assert title_ea == "黑体"
+    assert body_ea == "宋体"
 
 
 def test_missing_ea_is_warning(tmp_path):
@@ -82,9 +82,9 @@ def test_role_mismatch_is_warning(tmp_path):
     add_note(slide)
     path = tmp_path / "role.pptx"
     prs.save(path)
-    deck_fonts.deal_fonts(path, title_ea="SimSun", body_ea="SimSun", apply=True)
+    deck_fonts.deal_fonts(path, title_ea="宋体", body_ea="宋体", apply=True)
 
-    report = deck_check.check_deck(path, title_ea="SimHei", body_ea="SimSun")
+    report = deck_check.check_deck(path, title_ea="黑体", body_ea="宋体")
     assert any(i.code == "font-role" for i in report.warnings)
 
 

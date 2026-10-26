@@ -6,6 +6,7 @@
 
 ## 什么时候走这条流程
 
+> 有现成模板要套（学校/单位模板）：走 `deck_template.py`，见 `references/deck-template.md`。
 > 要反复改的册子（答辩/课程汇报）**先建生成器**：代码出片，人在 PowerPoint 里改完后用
 > `scripts/deck_spec.py --compare` 把差异回灌进生成器，见 `references/deck-generator.md`。
 
@@ -52,7 +53,7 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
 
 | 令牌 | 值 |
 | --- | --- |
-| 中文字体 | 标题 **黑体 SimHei**、正文 **宋体 SimSun**；西文/数字 **Times New Roman**（`deck_fonts.py` 写进 run 的 `a:ea`/`a:latin`，换机器不走系统回退） |
+| 中文字体 | 标题 **黑体**、正文 **宋体**（用中文族名，写 SimHei/SimSun 在部分 Office 会被静默回退成宋体）；西文/数字 **Times New Roman**（`deck_fonts.py` 写进 run 的 `a:ea`/`a:latin`，换机器不走系统回退） |
 | 字号 | 只四档：**54** 封面与唯一大数字 / **33** 页标题 / **18** 正文·要点·表格 / **12** 图注·来源·页码 |
 | 行距 | 标题 1.15 / 正文 1.4（中文字面比西文满，1.2 会挤） |
 | 浅色令牌 | 底 `#FFFFFF`；文字 `#1F2937`；主色 `#1E2761`；强调 `#E8A33D`；弱化 `#6B7A90`；卡片底 `#F4F7FC` |
