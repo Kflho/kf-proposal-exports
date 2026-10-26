@@ -56,9 +56,9 @@ CAPABILITIES: list[Capability] = [
     Capability("页片-按模板出片", "scripts/deck_template.py", "references/deck-template.md", "test_deck_template"),
     Capability("页片-审美评估", "scripts/deck_critique.py", "references/deck-critique.md",
                "test_deck_critique", gate="critique"),
-    Capability("页片-预览 PNG", "scripts/render_pptx_png.py", "references/ppt-deck.md", None),
-    Capability("页片-换图", "scripts/update_pptx_images.py", "SKILL.md", None),
-    Capability("页片-重排图片框", "scripts/fit_pptx_frames.py", "SKILL.md", None),
+    Capability("页片-预览 PNG", "scripts/render_pptx_png.py", "references/ppt-deck.md", "test_render"),
+    Capability("页片-换图", "scripts/update_pptx_images.py", "SKILL.md", "test_pptx_edit"),
+    Capability("页片-重排图片框", "scripts/fit_pptx_frames.py", "SKILL.md", "test_pptx_edit"),
     Capability("文本-一致性", "scripts/text_consistency.py", "references/text-quality.md",
                "test_text_consistency"),
     Capability("MATLAB 出图封装", "assets/matlab/export_figure.m", "references/matlab-figures.md", None),
@@ -71,9 +71,6 @@ EXPECTED_GAPS = {
     "配图-SVG 渲染",
     "配图-文字清单",
     "配图-从内容生成",
-    "页片-预览 PNG",
-    "页片-换图",
-    "页片-重排图片框",
     "MATLAB 出图封装",
 }
 

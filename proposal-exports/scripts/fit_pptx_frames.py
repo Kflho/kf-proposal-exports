@@ -138,7 +138,17 @@ def main():
                     s = s.replace(old_off, new_off, 1).replace(old_ext, new_ext, 1)
                 data = s.encode('utf-8')
             zo.writestr(n, data)
-    tmp.replace(src)
+    # Windows 上目标文件偶尔仍被占用（PowerPoint/杀软/同步盘），短暂重试后再回退为复制
+    import time
+    for attempt in range(5):
+        try:
+            tmp.replace(src)
+            break
+        except PermissionError:
+            time.sleep(0.2)
+    else:
+        src.write_bytes(tmp.read_bytes())
+        tmp.unlink(missing_ok=True)
     print(f'  APPLIED：图片框已按图片比例重排（备份 {bak.name}）')
     return 0
 

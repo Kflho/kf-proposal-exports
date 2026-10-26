@@ -3,7 +3,7 @@
 中文技术申报书 / 技术方案 / 答辩材料的**配图 + 页片 + 文字**交付规范（skill：`kf-proposal-exports`，目录 `proposal-exports/`）。
 
 > 当前状态：v2.0.2。图流程可用（模板优先，D2 备选，Graphviz 退役）；页片流程可用（Python + Node + PowerPoint）；
-> 文字检查可用。`pytest` 98 项（16 个模块）全绿。
+> 文字检查可用。`pytest` 98 项（18 个模块）全绿。
 
 ## 快速开始
 
@@ -65,7 +65,7 @@ python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 
 ```bash
 cd proposal-exports
-python -m pytest -q          # 98 项（16 个模块）：公式/页片/文字/字体/闸门/回灌/模板/审美/激活/结构回归
+python -m pytest -q          # 101 项（18 个模块）：公式/页片/文字/字体/闸门/回灌/模板/审美/激活/换图重排/预览/结构回归
 ```
 
 成功判据：`pytest` 全绿；`deck_gate.py` 0 error（字体 → 静态 → 文字 → 外部审计）；预览逐页目视通过。
