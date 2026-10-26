@@ -107,6 +107,7 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
 | 要点像代码（`u_r`） | 下标写成纯文本 | 用 run + `subscript: true`；表格单元格同样支持 |
 | 标题下划色条 | 模板残留/AI 味 | 删掉，用留白或底色分区 |
 | 宽矩阵公式字太小 | A、B、C 塞一张图，按卡片宽度等比缩后不足 15pt | 拆成两三张图（A/B 并排、C 另起一行），各自给 `maxW` |
+| PowerPoint 打不开（COM 报 `could not open the file`，但 python-pptx 能读） | 生成器推了**空文本 run**（如无引导词条目写 `""` 再挂 bullet）；XML 合法但 PowerPoint 拒绝 | 别推空 run：把 bullet 挂到正文首个 run 上；生成后先跑 `render_pptx_png.py`，打不开会立刻暴露 |
 | 改完忘了重跑检查 | 只改一处 | 每次改内容都重跑 `deck_check` + 预览 |
 
 ## 与官方 `pptx` skill 的分工

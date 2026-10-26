@@ -102,7 +102,8 @@ def _shape_key(item: dict) -> str:
     if item["kind"] == "text":
         return "text：" + " / ".join(item.get("plain") or [])
     if item["kind"] == "image":
-        return "image：" + item.get("asset", "")
+        box = item.get("box") or {}
+        return "image：{x},{y},{w},{h}".format(**box)
     return "table：" + " | ".join(cell for row in item.get("rows", []) for cell in row)
 
 
