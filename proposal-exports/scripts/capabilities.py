@@ -39,8 +39,8 @@ CAPABILITIES: list[Capability] = [
     Capability("配图-几何自检", "scripts/check_overlap.py", "SKILL.md", "test_capabilities"),
     Capability("配图-禁用符号", "scripts/check_symbols.py", "SKILL.md", "test_capabilities"),
     Capability("配图-框间距", "scripts/check_spacing.py", "SKILL.md", "test_capabilities"),
-    Capability("配图-连线端点", "scripts/check_connectors.py", "SKILL.md", None),
-    Capability("配图-视觉一致性", "scripts/check_consistency.py", "SKILL.md", None),
+    Capability("配图-连线端点", "scripts/check_connectors.py", "SKILL.md", "test_figure_checks"),
+    Capability("配图-视觉一致性", "scripts/check_consistency.py", "SKILL.md", "test_figure_checks"),
     Capability("配图-SVG 渲染", "scripts/render_svg.py", "SKILL.md", None),
     Capability("配图-文字清单", "scripts/audit_text.py", "SKILL.md", None),
     Capability("配图-SVG→PDF", "scripts/svg_to_pdf.py", "references/external-calls.md", "test_svg_to_pdf"),
@@ -66,8 +66,6 @@ CAPABILITIES: list[Capability] = [
 
 # 显式登记的缺口：没有自动测试、靠人工或外部能力覆盖。新增缺口要写在这里。
 EXPECTED_GAPS = {
-    "配图-连线端点",
-    "配图-视觉一致性",
     "配图-SVG 渲染",
     "配图-文字清单",
     "配图-从内容生成",

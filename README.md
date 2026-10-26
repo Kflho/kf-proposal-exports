@@ -65,7 +65,7 @@ python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 
 ```bash
 cd proposal-exports
-python -m pytest -q          # 101 项（18 个模块）：公式/页片/文字/字体/闸门/回灌/模板/审美/激活/换图重排/预览/结构回归
+python -m pytest -q          # 104 项（19 个模块）：公式/页片/文字/字体/闸门/回灌/模板/审美/激活/换图重排/预览/结构回归
 ```
 
 成功判据：`pytest` 全绿；`deck_gate.py` 0 error（字体 → 静态 → 文字 → 外部审计）；预览逐页目视通过。
