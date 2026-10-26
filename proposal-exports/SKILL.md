@@ -1,8 +1,8 @@
 ---
 name: kf-proposal-exports
-description: "中文技术申报书/方案/答辩的**交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查；③MATLAB 数据图产物——统一入口 run_visualization、PNG/600 dpi、中英双语路径、标题单行。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, MATLAB 出图, 数据图规范, matlab figure, paper figure, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes."
+description: "中文技术申报书/方案/答辩的**交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查；③MATLAB 数据图产物——统一入口 run_visualization、PNG/600 dpi、中英双语路径、标题单行。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, MATLAB 出图, 数据图规范, matlab figure, paper figure, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes, 做或改页片, 套模板, 维护生成器, 评估审美, 写评审理由, 交付前自检."
 metadata:
-  version: "2.0.6"
+  version: "2.0.7"
   last_updated: "2026-10-23"
   status: active
   data_access_level: raw
@@ -39,65 +39,24 @@ metadata:
 | 层 | 内容 | 何时加载 |
 | --- | --- | --- |
 | **常驻（持续激活）** | 本文件：触发、画布与令牌、两条工作流、硬规则、脚本表 | 每次会话 |
-| **选择性（阶段触发）** | `references/`：画图取 `figure-types`；页片取 `ppt-deck`；文字取 `text-quality`/`text-norms`；外部能力取 `external-deck`；生成器/回灌取 `deck-generator`；模板取 `deck-template`；审美取 `deck-critique`；目视取 `verification`；MATLAB 取 `matlab-figures` | 流程走到那一步才读 |
+| **选择性（阶段触发）** | `references/`：画图取 [figure-types](references/figure-types.md)；页片取 [ppt-deck](references/ppt-deck.md)；文字取 [text-quality](references/text-quality.md)/[text-norms](references/text-norms.md)；外部能力取 [external-deck](references/external-deck.md)；生成器/回灌取 [deck-generator](references/deck-generator.md)；模板取 [deck-template](references/deck-template.md)；审美取 [deck-critique](references/deck-critique.md)；目视取 [verification](references/verification.md)；MATLAB 取 [matlab-figures](references/matlab-figures.md) | 流程走到那一步才读 |
 | **交付前一次** | `deck_gate.py` 一条命令（字体 → 静态 → 文字 → 审美 → 外部审计）+ 预览 PNG | 闸门统一调用 |
 
 判断方法：先看这一步的判据在哪份 reference，只读那一份；读不到再查笔记，不靠猜。
 
-## 画布尺寸
+> 图片排版调整：**先调版式，再调文案**；版式定了跑 check_overlap.py / check_symbols.py，最后目视。
+> 画布、设计语言、引擎选型见 [references/figure-engine.md](references/figure-engine.md)。
 
-- **进 PPT / 答辩**：`960×540pt`（13.33×7.5in，16:9 全幅 1:1）。`viewBox="0 0 960 540"`，
-  坐标与字号就是最终 pt：正文 ≥ 10pt、图注 ≥ 9pt。
-- **进 A4 申报书**：`842×595pt`（A4 横向）；双栏图宽 `519pt`（183mm）。
-- `assets/template.svg` 就是按 `960×540pt` 画的（1 坐标单位 = 1pt）：框间距 12 / 24，
-  单元格内文字间距 24 / 48；模板自检 `check_overlap` / `check_symbols` / `check_spacing` 全过。
+## 审美
 
-## 图片排版调整
+taste-skill 只接两步：定令牌前抽三个方向并记录（`design-notes/deck-aesthetics.md`）；交付前跑
+`deck_critique.py` 出 `*_critique.md`（闸门含该步）。规则见 [deck-critique.md](references/deck-critique.md)。
 
-先调版式，再调文案：图例 / 坐标轴 / 标签的层级、留白、对齐先定下来，再改文字；
-不要用改字号、挪一两个像素来掩盖结构问题。版式稳定后跑 `check_overlap.py` / `check_symbols.py`，
-最后目视核对图与正文、图与指标一致。
-
-## 审美（taste-skill 的两个接入点）
-
-taste-skill 是网页 skill（`inspect.mjs` 读不了 `.pptx`），页片搬的是它的**法条**。接入点只有两个，
-每个都要留产物，否则等于没接：
-
-1. **定令牌之前（决策）**：用 `draw.mjs` 抽三个方向 → 选一个 → 把选择与重画理由写进
-   `references/design-notes/`（实例 `deck-aesthetics.md`，含 seed）。**不写这一步就不改令牌。**
-2. **交付之前（评估）**：`scripts/deck_critique.py <deck.pptx> --md <deck>_critique.md`
-   （`deck_gate` 已含 `critique` 步）——8 条机械法条 + 人工三项，报告随交付物留痕。
-
-判读与规则见 `references/deck-critique.md`：FAIL 必修；REVIEW 逐条写理由；报告缺失视为没做。
-## 章节定义：先写"是什么"，再写"怎么做"
-
-写申报书正文、技术方案、项目笔记前先读 `references/project-content.md`：每一部分只写它该写的。
-
-| 部分 | 写什么 |
-|---|---|
-| 概论 | 问题 + 思路 + 总体方案（「为解决 xx 问题，通过研究 xx 原理，提出 xxx 总体技术方案」） |
-| 研究内容 | 研究的具体工作内容（分条） |
-| 目标与子课题 | 研究内容 → 课题分解 → 目标；子课题支撑研究内容 |
-| 创新点 | 相比其他人创新的地方，和研究内容区分 |
-| 技术方案优势 | 创新点有无优势，不能只创新无优势 |
-| 实验 / 测试 | 每个目标都有对应实验和数据，先定性再定量 |
-| 产出 | 论文、报告、export（图片 / 汇报稿） |
-
-项目笔记按 `xx note / interpretation / src / report` 模板；**功能只写做什么**，实现手段
-（脚本、包格式、状态编号、测试数量）放「状态」一行或技术文档，不写进概论 / 功能。
-
-正文文字按 `references/text-quality.md` / `text-norms.md` 的申报书规范写，**不把用户口语原话搬进
-论文 / 报告**；原话优先只用于用户自己的 Obsidian 笔记。引用用户给的结论、术语、数值时必须忠实。
-
-**严谨性**：专有名词、概念、指标口径先按 `kf-personal-development` 的前期调研核对权威来源，
-再写进正文；不自行造术语，也不把网络口语当定义。调研记录留在 `bin/reference_docs/`，不写进
-Obsidian 用户笔记。
-
-> Quick Start、安装依赖与输出格式见 [references/quick-start.md](references/quick-start.md)。
+> 概论 / 研究内容 / 目标 / 创新点 / 实验 / 产出各写什么，见 [references/project-content.md](references/project-content.md)。
 
 ## Trigger Conditions
 
-### 触发场景
+## 触发场景
 
 - 要为申报书/方案/答辩画图或配图（总体框架、技术路线、研究计划、指标体系、进度甘特、组织架构）
 - 要检查已有配图：文字压线、重叠、越界、错乱、与实际不符
@@ -115,12 +74,7 @@ Obsidian 用户笔记。
 
 ## 不触发
 
-- 纯粹的数据可视化实现（折线/柱状/散点的绘制、选型与数据计算）→ 绘图脚本 /
-  `matlab-project-utils` / `scipilot`；产物标准见 `references/matlab-figures.md`
-- 照片、渲染图、界面截图
-- 仓库 README、用法/API 文档、代码注释、commit/release 文案 →
-  `kf-personal-development` 的 `readme.md` / `text-review.md`
-- 长篇论文/公文写作（页片与申报材料之外的体裁）→ 用写作/评审类 skill
+纯代码/算法实现、纯数据分析、与申报材料无关的网页前端 → 不加载本 skill。
 
 ## 页片与文字工作流（详见 `references/ppt-deck.md`、`text-quality.md`）
 
@@ -153,284 +107,44 @@ Obsidian 用户笔记。
 
 19 条硬规则已下沉：[references/hard-rules.md](references/hard-rules.md)（违反即返工；先读它再画/再做页片）。
 
-## 三类图的版式（详见 references/figure-types.md）
+> 三类图版式（框架 / 路线 / 计划矩阵）与连线规范见 [references/figure-types.md](references/figure-types.md)。
 
-| 图 | 回答的问题 | 骨架 |
-| --- | --- | --- |
-| **总体框架图** | 本部分**如何支撑上级**？与兄弟部分什么关系？ | 顶栏（上级）→ 两侧/左列兄弟（弱化色）→ 中央本部分 → 右侧研究子内容（3~4 条，每条 ~10 字）→ 右下产出框 → 底部承接指标通栏 |
-| **技术路线图** | 技术路线**怎么走**？ | 标题条 → 2~3 条横向层次带（带标题 + 带内 3 模块：小示意 + 标题 + 说明）→ 带间居中向下箭头配 2~4 字动作词 → 底部验证带 |
-| **研究计划矩阵** | 目标→问题→内容→方法→验证**如何对齐**？ | 左侧竖排标题条 + 自上而下 5 行（目标需求 / 关键问题 / 研究内容 / 子内容与关键方法 / 实验验证），问题↔内容↔方法**竖向成列** |
+> 脚本表与命令见 [references/quick-start.md](references/quick-start.md)；交付前一律跑 `deck_gate.py`。
 
-## 样式令牌（详见 references/style-tokens.md）
+## 外部 skill：只调用
 
-```text
-主色 #2F6FB0（描边）／#E8F1FA（填充）    层次带标题 #4A7EBB 底 + 白字
-强调 #E8A33D ／ #FDF3E3                   弱化（兄弟项）#9AA5B1 ／ #F2F4F7
-正文 #1F2937，次要 #4B5563
-字体 Microsoft YaHei, PingFang SC, Source Han Sans SC, SimHei, sans-serif
-标题 30~34 / 带标题 20~24 / 模块标题 17~18 / 正文 15~17 / 小字注 12~13
-圆角 8~12，描边 2（核心框 2.5），画布 16:9 用 viewBox="0 0 1600 900"
-```
+数据图 → `scipilot-figure-skill` / `nature-figure`；审计 → `nature-figure` 的三个 audit 脚本；
+原生 PPT/AI → `svg-native-pptx`；页片 → `nature-paper2ppt` / `academic-ppt`。命令与判读见
+[references/external-calls.md](references/external-calls.md)、[references/external-deck.md](references/external-deck.md)。
 
-## 指标表述（详见 references/indicator-wording.md）
+> 反模式、交付标准与集成说明见 [references/quality.md](references/quality.md)。
 
-- 指标名用**任务书/指南的原文名称**，不自造（如"通感专用定位测距"）；确需规范化的写进台账并注明原文。
-- 精度类写**距离限定前置**：`1 km 处定位精度 ≤10 m`（不写 `≤10 m@1 km`）。
-- 相对指标**必带基线**：`较固定 50:50 时频划分降低 ≥10%`（不写 `↓≥10%`）。
-- 时间类指标**必带层级与计时口径**：`≤100 ms（快变层单次求解；慢变层秒级更新；≤8 站；自感知数据就绪起计）`。
-- **成对约束成对写**：`虚警率 ≤5%（与检测概率成对约束，其门限待任务书给定）`。
-- 承接的系统级指标要**写明由谁考核**：`支撑的系统级指标（由项目集成与硬件环节考核）：…`。
+## 脚本（入口一览）
 
-## 设计语言（学术规范，出图前先读）
-
-> 完整口径见 **`references/design-tokens.md`**；唯一真源是 **`scripts/tokens.py`**——改配色/字号/线宽只改它。
-
-依据 Nature 官方图规范与 Wong 无障碍色板（[出处](https://research-figure-guide.nature.com/figures/preparing-figures-our-specifications/)）。要点：
-
-| 维度 | 规范 |
+| 阶段 | 脚本 |
 | --- | --- |
-| **按成品尺寸设计** | SVG 坐标 = 交付 pt（1:1）。`gv_figure.py --fit "11.2x6.3"` 自动迭代缩尺，`tokens.py` 里的字号即最终字号 |
-| **色彩** | Wong 色板语义化：结构 `#0072B2`／产出 `#E69F00`／验证 `#009E73`；**文字一律黑或白**，颜色只用于框线、色块、键线 |
-| **禁用** | 彩色文字、红绿组合、图案填充、投影、背景网格、装饰性图标 |
-| **字号** | 正文 6.5 / 小标题 7 / 面板号 8（粗体）/ 标题 9 pt；**最小 5、最大 7**（标题与面板号除外） |
-| **线宽** | 只用三档：框 0.8 / 连线 0.6 / 强调 1.2 pt |
-| **交付** | 矢量优先（SVG/EMF，文字可编辑不转曲）；位图 ≥300 dpi；进 PPT 前确认**比例与图片框一致** |
-| **版式** | 面板字母序、最小化空白、内容决定面板大小；图注不是可选项 |
+| 配图 | `scripts/check_overlap.py`、`scripts/check_symbols.py`、`scripts/check_connectors.py`、`scripts/check_consistency.py`、`scripts/check_spacing.py`、`scripts/render_svg.py`、`scripts/audit_text.py`、`scripts/svg_to_pdf.py` |
+| 页片 | `scripts/formula_png.py`、`scripts/deck_check.py`、`scripts/text_check.py`、`scripts/deck_fonts.py`、`scripts/deck_gate.py`、`scripts/deck_spec.py`、`scripts/deck_template.py`、`scripts/deck_critique.py`、`scripts/render_pptx_png.py`、`scripts/update_pptx_images.py`、`scripts/fit_pptx_frames.py` |
+| 文本 | `scripts/text_consistency.py` |
 
-```bash
-# 出图（成品 1:1 + 300dpi + 自动缩尺）
-python scripts/gv_figure.py 图1_gv.py --out 图1.svg --fit "11.2x6.3" \
-       --png 图1.png --dpi 300
-```
+命令与参数见 [references/quick-start.md](references/quick-start.md)；交付前跑 `deck_gate.py`。
 
-## 出图方式：模板优先，TikZ 可选，D2 备选，Graphviz 退役
+## 文字严谨性
+专有名词、概念、指标口径先按 `kf-personal-development` 的前期调研核对权威来源再落笔；调研发现在
+`bin/reference_docs/` 留档，不写进用户 Obsidian 笔记。不自行造术语，也不把网络口语当定义。
 
-> **2026-10 实测后的调整。** 自动布局引擎优化的是"图读得懂"，不是"版面像设计过的"：
-> 同一份三层流程，Graphviz 出成 611×1607 的竖条、D2 默认方向出成 2893×468 的横幅，
-> Mermaid 出成 1004×1600 的竖版，都不符合 16:9 页片；中文字距、留白、分组关系全由引擎决定。
-> 而 `assets/template.svg` 在 1600×900 上**直接就是成品**，还能被 5 个检查脚本逐项验。
-> 所以：**默认用模板 / 网格引擎；TikZ 给需要精确版式的 TeX 用户；D2 只做临时关系图；
-> Graphviz 只改存量图；Mermaid 只做文档草图。**
+## 阶段路由（触发 → 先读哪份）
 
-| 场景 | 用什么 | 为什么 |
+| 触发 | 先读 | 产物 |
 | --- | --- | --- |
-| 三类申报图（总体框架、技术路线、研究计划矩阵） | `assets/template.svg` 手改，或 `layout_flow.py` 从内容生成 | 版式即坐标，检查脚本能验；天然 16:9 |
-| 精确版面、TeX 工程 | TikZ（`xelatex` + `ctex`） | 1600×900 可精确控制；但坐标手写、5 个 SVG 检查不适用 |
-| 临时关系图 / 结构示意（≤15 节点，不要求像素级） | **D2**（`winget install Terrastruct.D2`） | ELK 布局 + 现代主题，出图快；导出后仍需 `render_svg.py` 与检查 |
-| 存量 `.dot` 图改造 | Graphviz（保留，不推荐新图） | 旧图迁移用；新图不要从这里开始 |
-| README / 文档里的流程草图 | Mermaid（`@mermaid-js/mermaid-cli`） | 文本即图，改起来快；竖版、断行密，不进页片 |
+| 画申报结构图 / 框架 / 路线 / 计划矩阵 | [figure-types](references/figure-types.md) + [figure-engine](references/figure-engine.md) | SVG + 5 个几何/记法检查 |
+| 做或改页片、套模板、维护生成器 | [ppt-deck](references/ppt-deck.md) / [deck-template](references/deck-template.md) / [deck-generator](references/deck-generator.md) | pptx + `deck_gate` |
+| 评估审美、写评审理由 | [deck-critique](references/deck-critique.md)（记录在 `design-notes/deck-aesthetics`） | `*_critique.md` |
+| 写申报书 / 方案 / 报告文字 | [project-content](references/project-content.md) + [text-quality](references/text-quality.md) + [text-norms](references/text-norms.md) | 段落 |
+| 交付前自检 | [verification](references/verification.md) + [quality](references/quality.md) + [quick-start](references/quick-start.md) | 打勾清单 |
+| 外部能力（数据图/审计/原生 PPT） | [external-calls](references/external-calls.md) + [external-deck](references/external-deck.md) | 调用 |
 
-**D2 的用法**（装一次）：
-
-```bash
-winget install Terrastruct.D2
-d2 --theme 0 --layout elk 关系图.d2 关系图.svg
-python scripts/render_svg.py 关系图.svg --png out/关系图.png --size 1600x900
-python scripts/check_overlap.py 关系图.svg        # 文字压线仍可查
-```
-
-> D2 输出是"关系图"，不是"申报版式图"。放进页片时按示意图用（`render_svg.py --size 1600x900`
-> 缩放到画布），不要把 D2 图当总体框架图交。
-
-**TikZ 的用法**（TeX 用户，需 TeX Live）：
-
-```bash
-xelatex -interaction=nonstopmode 路线图.tex
-pdftoppm -png -r 200 -scale-to-x 1600 -scale-to-y 900 路线图.pdf 路线图
-```
-
-起手模板见 `references/design-notes/bench/route_tikz.tex`。坐标手写，改文案要同步改节点宽度；
-交付前目视，不进 5 个 SVG 检查链。
-
-**Mermaid 的用法**（只做文档草图）：
-
-```bash
-npm install @mermaid-js/mermaid-cli
-mmdc -i 流程.mmd -o 流程.png --size 1600x900
-```
-
-样例见 `references/design-notes/bench/route_mermaid.mmd`。竖版输出、长句断行密，不要直接进页片。
-
-**Graphviz 的写法**（只给存量图参考，完整踩坑见 `references/graphviz-usage.md`）：`rankdir` / `rank=same` 分层，
-`subgraph cluster_x` 表并列，
-边上 `label=` 自动避让；中文断行仍用 `scripts/gv_figure.py`（内部 `_wrap_dp.py` 做 DP 断行）。
-装了 Graphviz 才能用这条路：`winget install Graphviz.Graphviz`。
-
-## 脚本
-
-| 脚本 | 用途 | 关键参数 |
-| --- | --- | --- |
-| `scripts/tokens.py` | **设计令牌唯一真源**：Wong 色板、成品 pt 字号档、线宽、间距（见 `references/design-tokens.md`） | 被各 spec `import` |
-| `scripts/layout_flow.py` | **首选（图）**：从内容生成"行 × 栏"式图，自带生成前断言与生成后回读 | `cases.py --out 图.svg [--apply] [--report]` |
-| `scripts/gv_figure.py` | 遗留/备选：声明式 Graphviz 出图 + 中文 DP 断行（需装 `dot`） | `spec.py --out 图.svg --fit 11.2x6.3 [--png]` |
-| `scripts/_wrap_dp.py` | 中文断行器（DP：标点不入行首 / 行宽均衡 / 末行不过短） | 被 `gv_figure.py`、`layout_flow.py` 调用 |
-| `scripts/render_svg.py` | 无头浏览器渲染 SVG → PNG，支持裁切放大与指定画布 | `--png out.png` `--crop "x y w h"` `--scale 2` `--size 1600x900` |
-| `scripts/svg_to_pdf.py` | SVG → PDF（Edge 打印；供外部碰撞/字号审计读取真实几何） | `svg --out out.pdf [--engine cairo]` |
-| `scripts/check_overlap.py` | 文字包围盒 vs 线段/折线/矩形边框，报越界与压线 | `paths...` `--pad 12` `--json` |
-| `scripts/check_consistency.py` | **视觉语言一致性**：同尺寸单元格逐格比对锚点/字号/分隔线 | `paths...` `--min-cells 2` `--json` |
-| `scripts/check_spacing.py` | **框间距审计**：相邻框净距分布 | `paths...` `--scale 12,24,32` `--tol 2` |
-| `scripts/check_connectors.py` | **连线端点贴合**：端点距方框边界，悬空即报并给吸附坐标 | `paths...` `--tol 1.5` `--min-len 60` |
-| `scripts/check_symbols.py` | 禁用符号/记法扫描（可自定义规则表） | `paths...` `--rules file.json` |
-| `scripts/audit_text.py` | 导出每个 text 的坐标/字号/锚点/字数 | `path` `--md out.md` |
-| `scripts/update_pptx_images.py` | **换图**：把 pptx 内嵌图片换成新图，版式逐字节不动 | `pptx --list`｜`--map "条目=新图" --apply` |
-| `scripts/fit_pptx_frames.py` | 按图片真实比例重排图片框（消除拉伸） | `pptx --list`｜`--apply [--margin 0.4]` |
-| `scripts/formula_png.py` | **公式**：LaTeX → 裁白边 PNG（默认透明）+ `sizes.json` | `formulas.json --out dir [--dpi 400] [--no-alpha]` |
-| `scripts/deck_check.py` | **页片静态自检**：16:9、安全边距、图片拉伸、文字溢出、备注、占位符，加令牌（字号档位/强调色/渐变阴影）与字体（族/中英分工/角色） | `deck.pptx [--strict] [--require-notes] [--scale 54,33,18,12] [--title-ea SimHei --body-ea SimSun]` |
-| `scripts/deck_fonts.py` | **字体规范落实**：给每个 run 写 `a:latin`/`a:ea`（标题黑体、正文宋体、西文 Times New Roman），默认干跑 | `deck.pptx [--apply] [--title-min-pt 30]` |
-| `scripts/deck_gate.py` | **页片交付闸门**：字体 → 静态 → 文字 → 外部审计，一条命令；外部脚本找不到标 skipped | `deck.pptx [--strict] [--steps ...] [--external-script path]` |
-| `scripts/deck_spec.py` | **回灌**：把 `.pptx` 拆成 spec（文字/位置/表格/图片/备注），或比两版差异 | `deck.pptx --out spec.json [--assets dir]`；`--compare old new [--json]` |
-| `scripts/deck_template.py` | **按模板出片**：抽主题色/字体/版式占位符；按 plan 套版式或复制页替换文字与图片 | `模板.pptx --tokens tokens.json`；`--list`；`--plan plan.json --out deck.pptx` |
-| `scripts/deck_critique.py` | **审美评估**：8 条 taste-skill 法条（字号档/强调色/平色/居中/轴线/页满度/字体族/主导）+ 人工三项 | `deck.pptx [--md critique.md] [--json]` |
-| `scripts/capabilities.py` | **能力清单**：脚本/文档/测试/闸门一表；`--report` 看覆盖率与缺口 | `--report [--json]` |
-| `scripts/text_check.py` | **文字自检**：标题像话题、长句、要点过多、口播过长、禁用词 | `deck.pptx｜report.md [--json]` |
-| `scripts/text_consistency.py` | **一致性检查**：文档术语/标题层级/相对链接；`--exports` 加报告图片链接、alt、图注、图号、孤立图 | `--root . [--exports] [--json]` |
-| `scripts/render_pptx_png.py` | **页片预览**：PowerPoint COM 逐页导出 PNG（替代 LibreOffice） | `deck.pptx --out preview [--width 1600]` |
-
-脚本只做机械判定，**结论一律以"命中 0 + 目视通过"共同成立为准**。
-
-> MATLAB 数据图不走本 skill 的脚本：统一格式与 600 dpi 导出用共享库 `matlab-project-utils` 的
-> `run_visualization`、`export_fig_paper`；产物规则见 `references/matlab-figures.md`。
-
-> **从内容生成图（`layout_flow.py`）**：手改坐标改不动的图用它。把文案写进一份
-> `cases.py`（`ROWS` 列表 + 版面常量），脚本负责：按字数断行 → 由行数反推框高 →
-> 按基线网格放文字 → 四行间距 → 三列对齐 → 连线（x=列心，y 贯通行间空隙）→ 白底。
-> 三道关：**生成前断言**（超宽 / 行首标点 / 框越界 / 竖排标签超条）、
-> **生成后回读**（连线竖直、x=列心、y 贴合上下框、白底覆盖、无 `foreignObject`）。
-> 改文案只改 `cases.py` 重跑，不要再手改 SVG 坐标。规则要点：
-> - 行型三选：`full` 通栏整段｜`cols` 三列（带栏标题）｜`seg` 通栏分三段、各居中于列心
-> - 段落写成**一整段**（不要在句号处拆成多个字符串，否则会各自断行、长短不齐）
-> - 格内要"一条一行"时在文案里写 `\n`（硬换行优先于 DP 断行）
-> - 左侧**大标题**用 `MAIN_TITLE`（漏了整幅会显得缺一块）
-> - 断行器 `_wrap_dp.py` 是动态规划：代价 = 标点孤行 1000 + 行宽不满平方×0.002 + 末行过短 400
-
-> **交付物是 PPT 时的收尾**：本 skill 出 SVG，而申报书常要交 PPT。流程是
-> `render_svg.py` 出 PNG → `update_pptx_images.py` 换图。换图前先 `--list` 看清包内
-> 条目与尺寸，再干跑一次确认清单（脚本会**报出尺寸变化**：若新图与包内旧图尺寸不一致，
-> PPT 里会被拉伸，须先把渲染尺寸对齐——`render_svg.py` 的窗口按 `viewBox × scale` 取整，
-> 与旧图差几个像素是常见的，例如 `viewBox 878` 出 1756 而旧图是 1760）。
-
-> **评审要改图时，转"原生对象"而不是换图**：调用 `~/.dsh/tools/svg-native-pptx/powerpoint_native.py`
-> 把 SVG 转成原生形状 + 原生文本框的 PPTX（PowerPoint 出实际预览对照）；装了 Illustrator 才可走 `.ai`。
-> 命令见 `references/external-calls.md`；坑：文本别放全角空格 U+3000（会拆成逐字框）、输出目录必须不存在。
-
-## 外部 skill：只调用，不自研
-
-| 需求 | 调用 |
-| --- | --- |
-| 论文 → 中文文献汇报 / 组会 / 答辩页片 | `nature-paper2ppt`（选路、契约、回退见 `references/external-deck.md`） |
-| 论文 → 英文学术报告（要 Q&A 预测） | `academic-ppt`（同上） |
-| 数据图（曲线/柱状/分布/多面板） | `scipilot-figure-skill`（选型 + 出图）或 `nature-figure` |
-| 交付前碰撞 / 字号 / 画布审计 | `nature-figure` 的 `audit_figure_collisions.py`、`audit_pdf_text.py`、`audit_svg_schematic.py` |
-| 评审要改字：SVG → 原生 PPT / AI | `~/.dsh/tools/svg-native-pptx/powerpoint_native.py`（需桌面 PowerPoint；AI 需装 Illustrator） |
-
-命令与判读见 **`references/external-calls.md`**。本 skill 只保留外部没有的：连线端点、视觉语言一致性、
-禁用符号、框间距、指标表述、图↔文一致、PPT 换图。`check_overlap.py` 降级为源码级预检。
-
-> Quick Start、安装依赖与输出格式见 [references/quick-start.md](references/quick-start.md)。
-
-## Anti-Patterns（都是真实踩过的）
-
-| 反模式 | 后果 | 正确做法 |
-| --- | --- | --- |
-| 用 `tspan dy` 换行 | 某些查看器把两行拼成一串，看着像"文字错乱" | 拆成两个 `<text>` |
-| 把说明塞进标题行内（小字 tspan） | 行变长撑出右边框（实测溢出 47px） | 说明下沉为第二行小字注，框高相应加大 |
-| 只跑一次自检就交付 | 改一次文案就 reintroduce 越界 | 每次改动后重跑；命中数必须为 0 |
-| 只看整图缩略图 | 7~13px 净距/溢出看不出来 | 对可疑区域 `--crop` 放大 4 倍再看 |
-| 图上写 `↓≥10%` | 与正文"降低 ≥10%"不一致，且非规范 | 用文字，且与正文逐字一致 |
-| 图上自己给指标加"最优/保证" | 验收时被追问依据 | 只写可达成的措辞，限定条件写全 |
-| 直接改导师示例的措辞 | 与上级口径脱节，返工 | 示例原样，差异进对照表 |
-| 称谓各写各的（课题/子课题/研究内容） | 评审看不懂层级，甚至自相矛盾 | 全文一套称谓，先定后用 |
-| 同类元素锚点混用（表头居中、条目左对齐） | 一眼看出"乱"，但几何自检全绿 | 先定设计系统表（§6），画完跑 `check_consistency.py` |
-| 连线直角与斜线混用 / 并列项画箭头 | 视觉语言不统一；把并列讲成流程 | 见硬规则 13 与 `figure-types.md` §5 |
-
-## Quality Standards（交付前逐条打勾）
-
-- [ ] `check_overlap.py` 命中 **0**（含出框与压线）
-- [ ] **外部门禁**：`nature-figure` 的碰撞审计 verdict 为 `PASS`（`REVIEW REQUIRED` 时每条 WARN 有目视结论），字号审计 ≥ 6 pt
-- [ ] `check_connectors.py` 命中 **0**（连线两端都贴在方框/层带边界上）
-- [ ] `check_consistency.py` 命中 **0**（同类元素锚点/字号/分隔线一致）
-- [ ] `check_spacing.py` 命中 **0**（或例外已写入结构说明）
-- [ ] `check_symbols.py` 命中 **0**（或每条都有明确豁免理由）
-- [ ] 每张图 `xml.etree.ElementTree.parse` 通过
-- [ ] 无 `<image>`／`<script>`／`foreignObject`／外部字体
-- [ ] 文字与正文/技术方案的术语、称谓、指标写法**逐字一致**
-- [ ] 图上每个数值都能在正文/方案里找到出处
-- [ ] 已渲染并**目视**（含可疑区域放大）
-- [ ] 结构说明与图↔文对照表已更新
-- [ ] 若改了称谓/指标：正文、方案、台账同步，并复算字数
-
-**MATLAB 数据图交付前**：
-
-- [ ] 走 `run_visualization`，无 `[run_visualization] 标题超宽` 告警
-- [ ] PNG、≥300 dpi、双语路径（或单语一致），重跑前清旧图
-- [ ] 逐张目视；论文里的图按页渲染核对，插入 PPT/Word 不变形
-
-**页片（PPT）交付前**：
-
-- [ ] `deck_gate.py` 命中 **0 error**（字体 + 静态 + 文字 + 审美 + 外部审计）
-- [ ] `*_critique.md` 存在：无 FAIL，REVIEW 逐条有理由，人工三项逐页签过
-- [ ] `text_check.py` 命中 **0 error**（无禁用词；标题是结论）
-- [ ] 每页标题连读能成故事（"ghost deck" 自测）
-- [ ] 公式图透明、图片按真实比例入槽
-- [ ] `render_pptx_png.py` 出图成功，**逐页目视**（溢出/重叠/对比度/图注错位）
-- [ ] 每页有口播备注（≤120 字），与页面内容一致
-
-## Integration
-
-### 与 `paper-experiment` 的分工（按图种切，不按工序切）
-
-| 维度 | `paper-experiment`（数据图） | 本 skill（结构图） |
-| --- | --- | --- |
-| 图种 | 实验/数据图：曲线、分布、柱状、箱线、对比图 | 结构示意图：总体框架、技术路线、研究计划矩阵、指标体系、组织/进度 |
-| 生成方式 | **代码出图**（MATLAB/Python + `run_visualization`），版式由脚本统一 | **手写 SVG**，版式即坐标，逐图设计 |
-| 载体与语言 | PNG，中英双语，进论文与实验 Note | SVG（可转 PPT/PNG），中文申报材料，单语 |
-| 规范核心 | 图表清单在设计阶段定、参数入图例标题留目标、标题单行不超宽、路径与引用三处同步 | 版式类别、配色字体令牌、文字与符号规范、指标表述规范、几何自检、图↔文↔方案一致 |
-
-**共享三条原则**（两边同源，勿各写一套）：**先设计后出图**、**术语与符号有出处**、**出图后必须看图**。
-数据图侧的"看图"可直接套用本 skill `references/verification.md` 的做法：可疑区域**裁切放大**再核、
-**换一个查看器**再看一遍（不同查看器对字体与换行处理不同）。
-
-MATLAB 数据图的实现由共享库 `matlab-project-utils`（`visualizations/run_visualization`、
-`plots/export_fig_paper`）负责；**产物标准**（PNG/600 dpi、双语路径、标题单行、重跑清理、
-目视）在本 skill 的 `references/matlab-figures.md`，实现与标准分开放。
-
-**本 skill 不管**：数据图的绘图实现（曲线/分布/柱状怎么画）、`run_visualization` 的内部实现、
-论文/Note 的图片引用同步——这些归 `paper-experiment` / `matlab-project-utils`；
-**产物标准**（PNG/分辨率/双语路径/标题/导出/目视）见 `references/matlab-figures.md`。
-
-**上游**：写作/评审类 skill 给出正文与术语口径 → 本 skill 出图并核对一致性。
-**下游**：图交付后，正文里的"如图 N 所示"、图号、图注由文档侧统一编号；
-若图随文提交，图的指标表述要与正文考核指标逐字对齐。
-
-与其他 skill 的分工：**数据图**→ 实现走 `paper-experiment` / `matlab-project-utils`，
-产物规范走 `references/matlab-figures.md`；
-**论文投稿插图**→ 期刊图表规范（caption/字号/分辨率/矢量图要求）；
-**页片的生成/编辑**→ 本 skill 的 `ppt-deck.md`（新生成）+ 官方 `pptx` skill（改已有 `.pptx`、OOXML、
-`add_slide`/`clean`/`validate`）；**文字规范**→ `references/text-quality.md`（标题 action title、禁用词、
-句式），去 AI 味的完整规则仍以 `kf-personal-development` 的 `text-review.md` 为准；
-本 skill 专治**工程类申报书/技术方案的结构图、路线图、计划矩阵与页片交付**。
-
-### 与 `kf-personal-development` 的分工
-
-| 事情 | `kf-personal-development` | 本 skill |
-| --- | --- | --- |
-| 仓库 README、用法/API 文档、开发文档 | 负责 | — |
-| 代码注释、commit/release 文案、发布说明 | 负责 | — |
-| humanizer-zh 通用去 AI 味 | 规则正文 + `text_review.py` | 引用，不重写 |
-| 申报书/方案/答辩材料：结构图、页片、指标表述、报告段落 | — | 负责 |
-
-判断：跟着仓库走、给跑项目的人看 → development；交出去给评审、客户、导师看 → 本 skill。
-README 即使随申报材料一起提交，结构仍按 development 的 `readme.md`，交付文字再按本 skill 的
-`text-quality.md` 检查。
-
-### 与官方 `pptx` skill 的分工
-
-| 事情 | 谁做 |
-| --- | --- |
-| 论文 → 页片（叙事与版式） | `nature-paper2ppt` / `academic-ppt`（见 `references/external-deck.md`） |
-| 从讲稿/申报正文生成页片 | 本 skill（`gen_deck.js` + `formula_png.py` + `deck_gate.py`） |
-| 编辑已有 `.pptx`、套模板、复制/清理页、schema 校验 | 官方 `pptx` skill（`add_slide.py`、`clean.py`、`validate.py`） |
-| 读别人给的 deck（提文字、页序、缩略图网格） | 官方 `pptx` skill（`markitdown`、`thumbnail.py`） |
-| 换图不改版式 / 按比例重排图片框 | 本 skill（`update_pptx_images.py`、`fit_pptx_frames.py`） |
-
-> 版本与变更记录见 [CHANGELOG.md](CHANGELOG.md)。
+## 参考索引
+- 图与令牌：[figure-types](references/figure-types.md) [figure-engine](references/figure-engine.md) [design-tokens](references/design-tokens.md) [style-tokens](references/style-tokens.md) [indicator-wording](references/indicator-wording.md) [text-norms](references/text-norms.md) [verification](references/verification.md) [graphviz-usage](references/graphviz-usage.md)
+- 页片与文字：[ppt-deck](references/ppt-deck.md) [quick-start](references/quick-start.md) [deck-generator](references/deck-generator.md) [deck-template](references/deck-template.md) [deck-critique](references/deck-critique.md) [text-quality](references/text-quality.md) [project-content](references/project-content.md) [quality](references/quality.md)
+- 外部与案例：[external-calls](references/external-calls.md) [external-deck](references/external-deck.md) [case-notes](references/case-notes.md)；设计记录 `design-notes/`（[deck-aesthetics](references/design-notes/deck-aesthetics.md) [deck-template-eval](references/design-notes/deck-template-eval.md) [ppt-integration](references/design-notes/ppt-integration.md) [writing-standards-research](references/design-notes/writing-standards-research.md) [diagram-engine-decision](references/design-notes/diagram-engine-decision.md) [kf-research-gap](references/design-notes/kf-research-gap.md) [bench/content](references/design-notes/bench/content.md)）

@@ -1,5 +1,9 @@
 # Changelog（kf-proposal-exports）
 
+## 变更记录
+
+- **2.0.7（2026-10-27）**：SKILL 瘦身 570→150 行（细则下沉 igure-engine / quality / quick-start / hard-rules，硬规则与输出格式迁出）；补阶段路由表与参考索引；description 补 6 个触发词。
+
 > 只记版本与变更；判据与流程在 SKILL.md 与 references/。
 
 ## 版本
