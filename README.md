@@ -98,6 +98,7 @@ python -m pytest -q          # 60 项（9 个模块）：公式/页片检查/文
 | 交付前碰撞审计 / 最终字号审计 | `nature-figure` 的 `audit_figure_collisions.py`、`audit_pdf_text.py` |
 | SVG 画布与有效字号 | `nature-figure` 的 `audit_svg_schematic.py`（16:9 传 `--max-width-mm 339`） |
 | 评审要改字：SVG → 原生 PPT / AI | `%USERPROFILE%\.dsh\tools\svg-native-pptx\`（独立安装，不在本仓库） |
+| 「看着好看、不像模型默认审美」的视觉决策 | `taste-skill`（**完整安装**，入口 `~/.dsh/skills/taste-skill/SKILL.md`；要 node + 浏览器） |
 
 本 skill 只保留外部没有的部分：连线端点贴合、视觉语言一致性、禁用符号、框间距、
 中文指标表述、图↔文一致、PPT 换图。命令与判读见 `proposal-exports/references/external-calls.md`。
