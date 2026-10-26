@@ -39,6 +39,14 @@ python scripts/deck_gate.py out/deck.pptx --strict --require-notes
 
 报告默认落在 deck 旁边的 `<deck>_critique.md`，随交付物一起留痕；不写这份文件等于没做审美评估。
 
+REVIEW 的理由用 `--note` 写进报告；重跑闸门时报告里的「复核理由」段会被保留，不会被覆盖：
+
+```bash
+python scripts/deck_critique.py out/deck.pptx --md out/deck_critique.md \
+  --note "P4 L8：数字与标题同级，用于强调" --note "P1 L6：封面有意留白"
+```
+
+
 ## 和 deck_gate 的关系
 
 `deck_gate` 的步骤是：`fonts → deck_check → text_check → critique → external`。
