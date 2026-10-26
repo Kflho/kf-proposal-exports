@@ -35,7 +35,7 @@ except Exception:
     pass
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_STEPS = ("fonts", "deck_check", "text_check", "external")
+DEFAULT_STEPS = ("fonts", "deck_check", "text_check", "critique", "external")
 
 EXTERNAL_CANDIDATES = (
     Path.home() / ".dsh" / "skills" / "nature-paper2ppt" / "scripts" / "audit_pptx_quality.py",
@@ -100,6 +100,11 @@ def build_steps(deck: Path, *, steps: tuple[str, ...], strict: bool, require_not
     if "text_check" in steps:
         results.append(_run("text_check",
                             [sys.executable, str(HERE / "text_check.py"), str(deck)]))
+    if "critique" in steps:
+        # 审美评估：机械法条 + 人工三项清单，报告写到 deck 旁边留痕
+        md_path = deck.with_name(deck.stem + "_critique.md")
+        results.append(_run("critique", [sys.executable, str(HERE / "deck_critique.py"),
+                                          str(deck), "--md", str(md_path)]))
     if "external" in steps:
         if external is None:
             results.append({"name": "external", "exit": 0, "seconds": 0.0,

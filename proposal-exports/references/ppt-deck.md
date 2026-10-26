@@ -97,6 +97,7 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
 | 渲染 | `render_pptx_png.py` | 每页 PNG 都生成 |
 | 目视 | 逐页看（可疑处放大 2 倍） | 无溢出/重叠/低对比/图注错位 |
 | 内容 | 备注是否与页面一致（口播稿 ≤120 字/页） | 逐页对照页计划 |
+| 审美 | `deck_critique.py`（gate 里自动跑） | 无 FAIL；REVIEW 逐条有理由；报告 `*_critique.md` 在 |
 
 ## 常见缺陷（都是实测过的）
 

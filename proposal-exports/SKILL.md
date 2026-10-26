@@ -2,7 +2,7 @@
 name: kf-proposal-exports
 description: "中文技术申报书/方案/答辩的**交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查；③MATLAB 数据图产物——统一入口 run_visualization、PNG/600 dpi、中英双语路径、标题单行。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, MATLAB 出图, 数据图规范, matlab figure, paper figure, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes."
 metadata:
-  version: "2.0.5"
+  version: "2.0.6"
   last_updated: "2026-10-23"
   status: active
   data_access_level: raw
@@ -15,7 +15,7 @@ metadata:
     - academic-paper-reviewer
 ---
 
-# Proposal Exports v2.0.5 — 中文申报材料：配图 + 页片 + MATLAB 图产物
+# Proposal Exports v2.0.6 — 中文申报材料：配图 + 页片 + MATLAB 图产物
 
 把手写的"看着差不多就行"变成**可机器校验**的交付流程：结构与文案先定、画完必自检、交付必目视。
 
@@ -46,22 +46,17 @@ metadata:
 不要用改字号、挪一两个像素来掩盖结构问题。版式稳定后跑 `check_overlap.py` / `check_symbols.py`，
 最后目视核对图与正文、图与指标一致。
 
-## 审美决策（taste-skill）
+## 审美（taste-skill 的两个接入点）
 
-要「看着好看、不像模型默认审美」时调 `taste-skill`：完整仓装在 harness，入口
-`~/.dsh/skills/taste-skill/SKILL.md`（上游 `Leonxlnx/taste-skill`，安装名 `design-taste-frontend`）。
-它给的是**决策方法**：抽三个方向 → 选一个 → 定字体 / 配色 / 构图 → 真实浏览器检查 → 看截图再改，
-不是一套现成模板。
+taste-skill 是网页 skill（`inspect.mjs` 读不了 `.pptx`），页片搬的是它的**法条**。接入点只有两个，
+每个都要留产物，否则等于没接：
 
-- 用它的流程，不搬它的前端 house style；本 skill 的版式令牌（`960×540pt`、字号、线号、颜色）仍以本文为准；
-- 需要 node + 浏览器；没有就别硬跑，退回静态检查并说明；
-- 引用规范见 `kf-personal-development/references/skill-dev.md`「外部 skill 引用」：完整功能装完整仓，不截取片段。
+1. **定令牌之前（决策）**：用 `draw.mjs` 抽三个方向 → 选一个 → 把选择与重画理由写进
+   `references/design-notes/`（实例 `deck-aesthetics.md`，含 seed）。**不写这一步就不改令牌。**
+2. **交付之前（评估）**：`scripts/deck_critique.py <deck.pptx> --md <deck>_critique.md`
+   （`deck_gate` 已含 `critique` 步）——8 条机械法条 + 人工三项，报告随交付物留痕。
 
-依赖说明：图流程以纯标准库 Python 为主（出图默认手写 SVG / 模板；TikZ 需 TeX Live，
-D2 只做关系草图，Graphviz 只在遗留图里用，Mermaid 只做文档草图）；
-页片流程需要 Node（`pptxgenjs`）、`python-pptx`、`Pillow`，预览需要 Windows + PowerPoint（COM），
-公式需要 TeX Live（`pdflatex`/`pdftoppm`）。脚本缺依赖时直接报错并给安装命令，不静默降级。
-
+判读与规则见 `references/deck-critique.md`：FAIL 必修；REVIEW 逐条写理由；报告缺失视为没做。
 ## 章节定义：先写"是什么"，再写"怎么做"
 
 写申报书正文、技术方案、项目笔记前先读 `references/project-content.md`：每一部分只写它该写的。
@@ -156,7 +151,7 @@ python scripts/check_symbols.py out/route.svg
 | 2 定令牌 | 选浅/深色、字号、边距；拷 `assets/deck/gen_deck.js` | `gen_deck.js` 常量段 | 一页一个样 |
 | 3 备素材 | 公式走 `formula_png.py`；图走本 skill 的图流程；表用原生表格 | PNG + `sizes.json` | 公式白底、图被拉伸 |
 | 4 生成 | `node gen_deck.js` | `.pptx` + 每页 notes | 中文标点孤行、下标写成 `u_r` |
-| 5 自检 | `deck_gate.py`（字体 → 静态 → 文字 → 外部审计）→ `render_pptx_png.py` → 逐页目视 | 报告 + 预览 PNG | 闸门 0 error 才算交付 |
+| 5 自检 | `deck_gate.py`（字体 → 静态 → 文字 → **审美评估** → 外部审计）→ `render_pptx_png.py` → 逐页目视 | 报告 + `*_critique.md` + 预览 PNG | 闸门 0 error、critique 无 FAIL 才算交付 |
 
 > **页片交付**：`deck_gate.py` 0 error（内含字体落实、`deck_check`、`text_check`、外部审计）+ 预览逐页看过。
 > **要长期维护的册子先建生成器**：代码出片、页片里的改动用 `deck_spec.py --compare` 回灌，见 `references/deck-generator.md`。
@@ -351,6 +346,8 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 | `scripts/deck_gate.py` | **页片交付闸门**：字体 → 静态 → 文字 → 外部审计，一条命令；外部脚本找不到标 skipped | `deck.pptx [--strict] [--steps ...] [--external-script path]` |
 | `scripts/deck_spec.py` | **回灌**：把 `.pptx` 拆成 spec（文字/位置/表格/图片/备注），或比两版差异 | `deck.pptx --out spec.json [--assets dir]`；`--compare old new [--json]` |
 | `scripts/deck_template.py` | **按模板出片**：抽主题色/字体/版式占位符；按 plan 套版式或复制页替换文字与图片 | `模板.pptx --tokens tokens.json`；`--list`；`--plan plan.json --out deck.pptx` |
+| `scripts/deck_critique.py` | **审美评估**：8 条 taste-skill 法条（字号档/强调色/平色/居中/轴线/页满度/字体族/主导）+ 人工三项 | `deck.pptx [--md critique.md] [--json]` |
+| `scripts/capabilities.py` | **能力清单**：脚本/文档/测试/闸门一表；`--report` 看覆盖率与缺口 | `--report [--json]` |
 | `scripts/text_check.py` | **文字自检**：标题像话题、长句、要点过多、口播过长、禁用词 | `deck.pptx｜report.md [--json]` |
 | `scripts/text_consistency.py` | **一致性检查**：文档术语/标题层级/相对链接；`--exports` 加报告图片链接、alt、图注、图号、孤立图 | `--root . [--exports] [--json]` |
 | `scripts/render_pptx_png.py` | **页片预览**：PowerPoint COM 逐页导出 PNG（替代 LibreOffice） | `deck.pptx --out preview [--width 1600]` |
@@ -441,7 +438,8 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 
 **页片（PPT）交付前**：
 
-- [ ] `deck_gate.py` 命中 **0 error**（字体落实 + 16:9/边距/图片/备注/占位符 + 字号档位/强调色/渐变 + 文字 + 外部审计）
+- [ ] `deck_gate.py` 命中 **0 error**（字体 + 静态 + 文字 + 审美 + 外部审计）
+- [ ] `*_critique.md` 存在：无 FAIL，REVIEW 逐条有理由，人工三项逐页签过
 - [ ] `text_check.py` 命中 **0 error**（无禁用词；标题是结论）
 - [ ] 每页标题连读能成故事（"ghost deck" 自测）
 - [ ] 公式图透明、图片按真实比例入槽
@@ -508,6 +506,8 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 ## Version Info
 
+- **v2.0.6（2026-10-27）**：审美接入落地——`deck_critique.py`（8 条法条的机械版 + 人工三项，报告 `*_critique.md`）、`deck_gate` 增 `critique` 步、`references/deck-critique.md`；新增 `capabilities.py` 与功能激活测试（脚本可 `--help`、文档链接、闸门覆盖、taste 接入产物、缺口显式登记）。
+
 - **v2.0.5（2026-10-27）**：按模板出片两层能力——`deck_template.py`（`--tokens` 抽主题色/字体/版式占位符；`--plan` 套版式、复制页替换文字与图片）+ `references/deck-template.md`、审美评估 `design-notes/deck-template-eval.md`；修中文字体族名（`SimHei`/`SimSun` 被 Office 静默回退成宋体，改 `黑体`/`宋体`）。
 
 - **v2.0.4（2026-10-27）**：新增页片回灌流程 `references/deck-generator.md` 与 `scripts/deck_spec.py`（dump spec / `--compare` 比两版），把「在 PowerPoint 里改完 → 同步回生成器」固化成五步流程与差异判读。
@@ -548,6 +548,7 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 | 版本 | 日期 | 变更 |
 | --- | --- | --- |
+| 2.0.6 | 2026-10-27 | 审美评估进流程（deck_critique + critique 步 + 报告留痕）；能力清单与激活测试 |
 | 2.0.5 | 2026-10-27 | 按模板出片：`deck_template.py`（抽令牌 + 套版式/复制页）+ 文档与审美评估；中文字体族名修正 |
 | 2.0.4 | 2026-10-27 | 生成器回灌：`deck_spec.py`（dump/compare）+ `deck-generator.md`（契约、五步回灌、差异判读、限制） |
 | 2.0.3 | 2026-10-26 | 页片改接线+补充：`external-deck.md`（调 paper2ppt/academic-ppt）、`deck_gate.py`、`deck_fonts.py`；四档字号；字体与令牌检查；标题 ≤16 汉字；修死链 |
