@@ -9,6 +9,7 @@ metadata:
   task_type: open-ended
   related_skills:
     - kf-personal-development
+    - taste-skill
     - pptx
     - academic-paper
     - academic-paper-reviewer
@@ -44,6 +45,17 @@ metadata:
 先调版式，再调文案：图例 / 坐标轴 / 标签的层级、留白、对齐先定下来，再改文字；
 不要用改字号、挪一两个像素来掩盖结构问题。版式稳定后跑 `check_overlap.py` / `check_symbols.py`，
 最后目视核对图与正文、图与指标一致。
+
+## 审美决策（taste-skill）
+
+要「看着好看、不像模型默认审美」时调 `taste-skill`：完整仓装在 harness，入口
+`~/.dsh/skills/taste-skill/SKILL.md`（上游 `Leonxlnx/taste-skill`，安装名 `design-taste-frontend`）。
+它给的是**决策方法**：抽三个方向 → 选一个 → 定字体 / 配色 / 构图 → 真实浏览器检查 → 看截图再改，
+不是一套现成模板。
+
+- 用它的流程，不搬它的前端 house style；本 skill 的版式令牌（`960×540pt`、字号、线号、颜色）仍以本文为准；
+- 需要 node + 浏览器；没有就别硬跑，退回静态检查并说明；
+- 引用规范见 `kf-personal-development/references/skill-dev.md`「外部 skill 引用」：完整功能装完整仓，不截取片段。
 
 依赖说明：图流程以纯标准库 Python 为主（出图默认手写 SVG / 模板；TikZ 需 TeX Live，
 D2 只做关系草图，Graphviz 只在遗留图里用，Mermaid 只做文档草图）；
