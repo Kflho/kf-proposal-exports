@@ -6,6 +6,9 @@
 
 ## 什么时候走这条流程
 
+> 要反复改的册子（答辩/课程汇报）**先建生成器**：代码出片，人在 PowerPoint 里改完后用
+> `scripts/deck_spec.py --compare` 把差异回灌进生成器，见 `references/deck-generator.md`。
+
 - 要交**页片**：组会/答辩/项目汇报，材料里有公式、矩阵、对比表、实验曲线；
 - 已有一版 `.pptx` 要**改内容或换图**（换图优先用 `update_pptx_images.py`，见 SKILL.md「交付物是 PPT 时的收尾」）；
 - 要把 `bin/exports/` 里的讲稿（每页：版面 + 口播 + 时长）落成页片。
