@@ -32,6 +32,18 @@ metadata:
 | **界面文字**（弹窗/状态栏/提示） | 只写当前状态或要求操作 | `references/text-quality.md`「用户交互文字」一节 |
 | **MATLAB 数据图产物** | PNG（论文/报告图），中英双语路径 | `references/matlab-figures.md` + `assets/matlab/export_figure.m` + 共享库 `matlab-project-utils` |
 
+## 能力分层（常驻 / 选择性）
+
+启动只加载**常驻**；选择性文档由触发条件点名，不预读。
+
+| 层 | 内容 | 何时加载 |
+| --- | --- | --- |
+| **常驻（持续激活）** | 本文件：触发、画布与令牌、两条工作流、硬规则、脚本表 | 每次会话 |
+| **选择性（阶段触发）** | `references/`：画图取 `figure-types`；页片取 `ppt-deck`；文字取 `text-quality`/`text-norms`；外部能力取 `external-deck`；生成器/回灌取 `deck-generator`；模板取 `deck-template`；审美取 `deck-critique`；目视取 `verification`；MATLAB 取 `matlab-figures` | 流程走到那一步才读 |
+| **交付前一次** | `deck_gate.py` 一条命令（字体 → 静态 → 文字 → 审美 → 外部审计）+ 预览 PNG | 闸门统一调用 |
+
+判断方法：先看这一步的判据在哪份 reference，只读那一份；读不到再查笔记，不靠猜。
+
 ## 画布尺寸
 
 - **进 PPT / 答辩**：`960×540pt`（13.33×7.5in，16:9 全幅 1:1）。`viewBox="0 0 960 540"`，

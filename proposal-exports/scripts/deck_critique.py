@@ -193,7 +193,8 @@ def critique(path: Path, accent: str = deck_check.ACCENT_DEFAULT) -> Critique:
     return report
 
 
-def to_markdown(report: Critique) -> str:
+def to_markdown(report: Critique, notes: list[str] | None = None,
+                preserve: str | None = None) -> str:
     fails = [f for f in report.findings if f.level == "FAIL"]
     reviews = [f for f in report.findings if f.level == "REVIEW"]
     lines = [
@@ -210,6 +211,10 @@ def to_markdown(report: Critique) -> str:
         lines.append(f"| {item.rule} | {item.level} | {item.page or '-'} | {item.evidence} |")
     lines += ["", "## 人工三项（必须逐页看过再签）", ""]
     lines += [f"- [ ] {item}" for item in MANUAL_PASSES]
+    lines += ["", "## 复核理由（REVIEW 逐条写）", ""]
+    lines += [f"- {note}" for note in (notes or [])] or ["- （尚未填写）"]
+    if preserve:
+        lines += ["", preserve.rstrip()]
     return "\n".join(lines) + "\n"
 
 
@@ -218,6 +223,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("deck", help="待评估的 .pptx")
     parser.add_argument("--accent", default=deck_check.ACCENT_DEFAULT, help="强调色 RRGGBB")
     parser.add_argument("--md", help="把评估报告写到该 Markdown")
+    parser.add_argument("--note", action="append", default=[],
+                        help="复核理由（可多次传入；重跑时保留）")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
@@ -235,8 +242,15 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.md:
-        Path(args.md).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.md).write_text(to_markdown(report), encoding="utf-8")
+        md_path = Path(args.md)
+        preserve = None
+        if md_path.is_file():
+            old = md_path.read_text(encoding="utf-8")
+            marker = "## 复核理由"
+            if marker in old:
+                preserve = old[old.index(marker):]
+        md_path.parent.mkdir(parents=True, exist_ok=True)
+        md_path.write_text(to_markdown(report, args.note, preserve), encoding="utf-8")
     if args.json:
         print(json.dumps({"path": report.path, "slides": report.slides,
                           "failed": report.failed,
