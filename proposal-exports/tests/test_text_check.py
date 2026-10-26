@@ -49,6 +49,20 @@ def test_long_sentence_is_warning(tmp_path):
     assert any(i.code == "sentence-too-long" for i in report.warnings)
 
 
+def test_colloquial_register_is_warning(tmp_path):
+    path = write_md(tmp_path, "## 单站测距遇遮挡就掉点\n\n站数加到 12 个也补不回。\n")
+    report = text_check.check_file(path)
+    hits = [i for i in report.warnings if i.code == "colloquial"]
+    assert hits, report.warnings
+    assert any("掉点" in item.message for item in hits)
+
+
+def test_academic_register_passes(tmp_path):
+    path = write_md(tmp_path, "## 遮挡 40% 时可用率降至 89%\n\n仅增加站数无法恢复可用率。\n")
+    report = text_check.check_file(path)
+    assert not [i for i in report.warnings if i.code == "colloquial"]
+
+
 def _deck_with(tmp_path, bullets, notes=""):
     prs = Presentation()
     prs.slide_width = Inches(13.333)

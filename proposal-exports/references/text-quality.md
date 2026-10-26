@@ -8,7 +8,7 @@
 
 | 规则 | 来源 |
 | --- | --- |
-| 标题写结论，不写话题；≤15 词、最多两行；主动语态；具体带数字 | [Slideworks: action titles](https://slideworks.io/resources/how-to-write-action-titles-like-mckinsey) |
+| 标题写结论，不写话题；≤16 汉字、一行；主动语态；具体带数字 | [Slideworks: action titles](https://slideworks.io/resources/how-to-write-action-titles-like-mckinsey) |
 | 先写标题序列，只读标题能讲完故事；SCQA / 问题—方案—证据 | 同上 |
 | 结论先行、以上统下、归类分组、逻辑递进 | 金字塔原理；[think-cell 中文说明](https://www.thinkcell.com/zh/blog/using-the-pyramid-principle-to-build-better-powerpoint-presentations) |
 | 科技报告分前置、主体、结尾 | [GB/T 7713.3-2014](https://www.nstrs.cn/standard/detail?arid=4587) |
@@ -61,7 +61,8 @@
 
 | 部分 | 写法 | 反例 | 检查 |
 | --- | --- | --- | --- |
-| 标题 | 一句结论；≤30 汉字；最多两行；主动语态；带数字更好 | 「模型」「结果对比」这类话题 | `title-no-verdict`、`title-topic`、`title-too-long` |
+| 标题 | 一句结论；**≤16 汉字、一行**（超了拆页）；主动语态；带数字 | 「模型」「结果对比」这类话题；20 字以上的整句 | `title-no-verdict`、`title-topic`、`title-too-long` |
+| 语体 | 学术表述：可用率下降 / 测距中断 / 仅增加站数无法恢复 | 「掉点」「补不回」「拉满」这类工程口语 | `colloquial` |
 | 要点 | 3–5 条；每条一句话、≤40 字；「**粗体引导词**：一句说明」 | 整段论文体；一页塞 8 条 | `too-many-bullets`、`bullet-too-long` |
 | 口播 | ≤120 字；能直接念；结论 → 证据 → 所以；不照读页面 | 把页面文字念一遍 | `notes-too-long`，其余人工 |
 | 图注 | 指标名 + 口径 + 单位；与图内文字逐字一致 | 只写「如图所示」 | 人工 |
@@ -133,7 +134,8 @@ python scripts/text_consistency.py --root . --exports  # 报告产物：图片�
 | 翻译腔/空泛句式 | `ai-phrase` | warning |
 | 标题没有判断 | `title-no-verdict` | warning |
 | 标题像话题或过短 | `title-topic` | warning |
-| 标题过长（>30 汉字） | `title-too-long` | warning |
+| 标题过长（>16 汉字） | `title-too-long` | warning |
+| 口语/工程俚语（掉点、补不回） | `colloquial` | warning |
 | 单句过长（>60 汉字） | `sentence-too-long` | warning |
 | 单页要点超过 5 条 / 单条超过 40 字 | `too-many-bullets` / `bullet-too-long` | warning |
 | 口播超过 120 字 | `notes-too-long` | warning |

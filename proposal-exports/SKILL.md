@@ -2,7 +2,7 @@
 name: kf-proposal-exports
 description: "中文技术申报书/方案/答辩的**交付物规范**：①配图（SVG 优先，可导入 PPT 编辑）——三类图版式（总体框架图、技术路线图、研究计划矩阵）、配色与字体令牌、文字与符号规范、指标表述规范、几何自检与一致性自检；②页片（PPT）与报告文字——页计划与 action title、版式令牌、公式 PNG、页片静态自检、口播备注、文字去 AI 味检查；③MATLAB 数据图产物——统一入口 run_visualization、PNG/600 dpi、中英双语路径、标题单行。触发词：画图, 配图, 申报书配图, 技术路线图, 总体框架图, 检查图片, 文字越界, 做PPT, 做个PPT, 幻灯片, 页片, 汇报PPT, 答辩PPT, 讲解PPT, 把讲稿做成PPT, 页稿成片, 报告文字, 标题像话题, 检查PPT文字, 口播稿, MATLAB 出图, 数据图规范, matlab figure, paper figure, draw diagram, proposal figure, technical roadmap, framework figure, check svg text, slide deck, presentation, pptx, speaker notes."
 metadata:
-  version: "2.0.2"
+  version: "2.0.3"
   last_updated: "2026-10-23"
   status: active
   data_access_level: raw
@@ -15,7 +15,7 @@ metadata:
     - academic-paper-reviewer
 ---
 
-# Proposal Exports v2.0.2 — 中文申报材料：配图 + 页片 + MATLAB 图产物
+# Proposal Exports v2.0.3 — 中文申报材料：配图 + 页片 + MATLAB 图产物
 
 把手写的"看着差不多就行"变成**可机器校验**的交付流程：结构与文案先定、画完必自检、交付必目视。
 
@@ -27,7 +27,7 @@ metadata:
 | 交付物 | 产物 | 规则与检查 |
 | --- | --- | --- |
 | **配图** | 自包含 SVG（可导入 PPT/WPS 再编辑），或 PNG | 本文件 + `references/figure-types.md`、5 个 SVG 检查脚本 |
-| **页片（PPT）** | 可编辑 `.pptx` + 每页口播备注 + 预览 PNG | `references/ppt-deck.md` + `deck_check.py`、`render_pptx_png.py` |
+| **页片（PPT）** | 可编辑 `.pptx` + 每页口播备注 + 预览 PNG | `references/ppt-deck.md` + `deck_gate.py`（字体/几何/文字/外部审计）、`deck_fonts.py`、`render_pptx_png.py` |
 | **文字**（页片标题/要点/报告段落） | 页计划、标题序列、正文 | `references/text-quality.md` + `text_check.py`、`text_consistency.py` |
 | **界面文字**（弹窗/状态栏/提示） | 只写当前状态或要求操作 | `references/text-quality.md`「用户交互文字」一节 |
 | **MATLAB 数据图产物** | PNG（论文/报告图），中英双语路径 | `references/matlab-figures.md` + `assets/matlab/export_figure.m` + 共享库 `matlab-project-utils` |
@@ -96,11 +96,10 @@ python scripts/check_overlap.py 图1_总体框架.svg                    # 几�
 python scripts/check_symbols.py 图1_总体框架.svg                    # 记法：禁用符号
 python scripts/audit_text.py 图1_总体框架.svg                       # 文字清单
 
-# ---- 页片：公式 → 生成 → 静态自检 → 文字自检 → 预览 ----
+# ---- 页片：公式 → 生成 → 闸门（字体→静态→文字→外部审计）→ 预览 ----
 python scripts/formula_png.py assets/deck/formulas.example.json --out assets/deck/formulas
 node assets/deck/gen_deck.js --out out/deck.pptx
-python scripts/deck_check.py out/deck.pptx --strict --require-notes
-python scripts/text_check.py out/deck.pptx
+python scripts/deck_gate.py out/deck.pptx --strict --require-notes --scale 54,33,18,12
 python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 
 # ---- MATLAB 数据图：统一格式 → 600 dpi PNG ----
@@ -157,9 +156,9 @@ python scripts/check_symbols.py out/route.svg
 | 2 定令牌 | 选浅/深色、字号、边距；拷 `assets/deck/gen_deck.js` | `gen_deck.js` 常量段 | 一页一个样 |
 | 3 备素材 | 公式走 `formula_png.py`；图走本 skill 的图流程；表用原生表格 | PNG + `sizes.json` | 公式白底、图被拉伸 |
 | 4 生成 | `node gen_deck.js` | `.pptx` + 每页 notes | 中文标点孤行、下标写成 `u_r` |
-| 5 自检 | `deck_check.py` → `text_check.py` → `render_pptx_png.py` → 逐页目视 | 报告 + 预览 PNG | 三项全过才算交付 |
+| 5 自检 | `deck_gate.py`（字体 → 静态 → 文字 → 外部审计）→ `render_pptx_png.py` → 逐页目视 | 报告 + 预览 PNG | 闸门 0 error 才算交付 |
 
-> **页片交付三件套**：`deck_check.py` 0 error、`text_check.py` 0 error、预览逐页看过。
+> **页片交付**：`deck_gate.py` 0 error（内含字体落实、`deck_check`、`text_check`、外部审计）+ 预览逐页看过。
 > 缺一项就算没做完。
 
 ## 五步工作流（顺序不可颠倒）
@@ -210,7 +209,7 @@ python scripts/check_symbols.py out/route.svg
     （`artifact-diagramming`、`opum-ai/diagram-skills`、`excalidraw-skill` 等）；
     页片生成/编辑先看官方 `pptx` skill（pptxgenjs、OOXML、validate）；③ 已有标准/工具能覆盖的，
     就**引用它**，不要自建一套并行的规则表。自建的规则只保留"权威来源查不到"的部分，并标注"项目内约定"。
-16. **页片标题写结论（action title）**：一句话、带判断、≤30 汉字；不写"背景/方法/结果"这类话题标签；
+16. **页片标题写结论（action title）**：一句结论、**≤16 汉字、一行**（超了拆页，不缩字号）；不写"背景/方法/结果"这类话题标签；
     全册标题连读要能讲完故事（读不通就改标题，不许靠正文补）。规则见 `references/text-quality.md`。
     **例外（按任务书验收的课程/实验汇报）**：标题改为切「研究目标/实验要求」的条目名，
     结论移到每页底部「结论｜」行（依据用户 `project note`「exports/汇报稿：标题切研究目标」）；
@@ -345,7 +344,9 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 | `scripts/update_pptx_images.py` | **换图**：把 pptx 内嵌图片换成新图，版式逐字节不动 | `pptx --list`｜`--map "条目=新图" --apply` |
 | `scripts/fit_pptx_frames.py` | 按图片真实比例重排图片框（消除拉伸） | `pptx --list`｜`--apply [--margin 0.4]` |
 | `scripts/formula_png.py` | **公式**：LaTeX → 裁白边 PNG（默认透明）+ `sizes.json` | `formulas.json --out dir [--dpi 400] [--no-alpha]` |
-| `scripts/deck_check.py` | **页片静态自检**：16:9、安全边距、图片拉伸、文字溢出、备注、占位符 | `deck.pptx [--strict] [--require-notes] [--json]` |
+| `scripts/deck_check.py` | **页片静态自检**：16:9、安全边距、图片拉伸、文字溢出、备注、占位符，加令牌（字号档位/强调色/渐变阴影）与字体（族/中英分工/角色） | `deck.pptx [--strict] [--require-notes] [--scale 54,33,18,12] [--title-ea SimHei --body-ea SimSun]` |
+| `scripts/deck_fonts.py` | **字体规范落实**：给每个 run 写 `a:latin`/`a:ea`（标题黑体、正文宋体、西文 Times New Roman），默认干跑 | `deck.pptx [--apply] [--title-min-pt 30]` |
+| `scripts/deck_gate.py` | **页片交付闸门**：字体 → 静态 → 文字 → 外部审计，一条命令；外部脚本找不到标 skipped | `deck.pptx [--strict] [--steps ...] [--external-script path]` |
 | `scripts/text_check.py` | **文字自检**：标题像话题、长句、要点过多、口播过长、禁用词 | `deck.pptx｜report.md [--json]` |
 | `scripts/text_consistency.py` | **一致性检查**：文档术语/标题层级/相对链接；`--exports` 加报告图片链接、alt、图注、图号、孤立图 | `--root . [--exports] [--json]` |
 | `scripts/render_pptx_png.py` | **页片预览**：PowerPoint COM 逐页导出 PNG（替代 LibreOffice） | `deck.pptx --out preview [--width 1600]` |
@@ -381,6 +382,8 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 
 | 需求 | 调用 |
 | --- | --- |
+| 论文 → 中文文献汇报 / 组会 / 答辩页片 | `nature-paper2ppt`（选路、契约、回退见 `references/external-deck.md`） |
+| 论文 → 英文学术报告（要 Q&A 预测） | `academic-ppt`（同上） |
 | 数据图（曲线/柱状/分布/多面板） | `scipilot-figure-skill`（选型 + 出图）或 `nature-figure` |
 | 交付前碰撞 / 字号 / 画布审计 | `nature-figure` 的 `audit_figure_collisions.py`、`audit_pdf_text.py`、`audit_svg_schematic.py` |
 | 评审要改字：SVG → 原生 PPT / AI | `~/.dsh/tools/svg-native-pptx/powerpoint_native.py`（需桌面 PowerPoint；AI 需装 Illustrator） |
@@ -434,7 +437,7 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 
 **页片（PPT）交付前**：
 
-- [ ] `deck_check.py` 命中 **0 error**（16:9、0.5in 边距、图片无拉伸、备注齐全、无占位符）
+- [ ] `deck_gate.py` 命中 **0 error**（字体落实 + 16:9/边距/图片/备注/占位符 + 字号档位/强调色/渐变 + 文字 + 外部审计）
 - [ ] `text_check.py` 命中 **0 error**（无禁用词；标题是结论）
 - [ ] 每页标题连读能成故事（"ghost deck" 自测）
 - [ ] 公式图透明、图片按真实比例入槽
@@ -493,12 +496,15 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 | 事情 | 谁做 |
 | --- | --- |
-| 从零生成页片 | 本 skill（`gen_deck.js` + `formula_png.py` + `deck_check.py`） |
+| 论文 → 页片（叙事与版式） | `nature-paper2ppt` / `academic-ppt`（见 `references/external-deck.md`） |
+| 从讲稿/申报正文生成页片 | 本 skill（`gen_deck.js` + `formula_png.py` + `deck_gate.py`） |
 | 编辑已有 `.pptx`、套模板、复制/清理页、schema 校验 | 官方 `pptx` skill（`add_slide.py`、`clean.py`、`validate.py`） |
 | 读别人给的 deck（提文字、页序、缩略图网格） | 官方 `pptx` skill（`markitdown`、`thumbnail.py`） |
 | 换图不改版式 / 按比例重排图片框 | 本 skill（`update_pptx_images.py`、`fit_pptx_frames.py`） |
 
 ## Version Info
+
+- **v2.0.3（2026-10-26）**：页片流程改「接线 + 补充」。① 新增 `references/external-deck.md`（论文→页片调 `nature-paper2ppt` / `academic-ppt`，含调用契约与回退）；② 新增 `deck_gate.py`（字体→静态→文字→外部审计，一条命令）与 `deck_fonts.py`（标题黑体/正文宋体/西文 Times New Roman，写进 run 的 `a:ea`/`a:latin`）；③ 审美按 taste-skill 实跑定档（`design-notes/deck-aesthetics.md`），字号收敛为 54/33/18/12 四档；④ `deck_check` 增令牌与字体检查，`text_check` 标题上限 30→16 汉字、增口语语体检查；⑤ 修掉 sk_05 断链与「官方 pptx skill」死引用。
 
 - **v2.0.2（2026-10-23）**：把 MATLAB 出图产物规范从 `kf-personal-development` 的 MATLAB 附录
   移入本 skill：新增 `references/matlab-figures.md`（统一入口 `run_visualization`、600 dpi PNG、
@@ -534,6 +540,7 @@ README 即使随申报材料一起提交，结构仍按 development 的 `readme.
 
 | 版本 | 日期 | 变更 |
 | --- | --- | --- |
+| 2.0.3 | 2026-10-26 | 页片改接线+补充：`external-deck.md`（调 paper2ppt/academic-ppt）、`deck_gate.py`、`deck_fonts.py`；四档字号；字体与令牌检查；标题 ≤16 汉字；修死链 |
 | 2.0.2 | 2026-10-22 | 新增「章节定义」（`references/project-content.md`）：概论 / 研究内容 / 目标与子课题 / 创新点 / 技术方案优势 / 实验 / 产出各写什么；项目笔记功能只写"做什么"，不写实现手段 |
 | 2.0.2 | 2026-10-23 | MATLAB 出图产物规范从 kf-personal-development 移入（`references/matlab-figures.md`）：统一入口/600 dpi/双语路径/标题单行/目视；开发 skill 只留引用 |
 | 2.0.1 | 2026-10-22 | 补控制类固定搭配，避免术语被误报（含两条测试）；硬规则 16 加课程汇报例外（标题切研究目标）；ppt-deck 补 pywin32 依赖、text_check 图注计数、宽矩阵拆图 |

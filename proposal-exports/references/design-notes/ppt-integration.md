@@ -2,7 +2,7 @@
 
 > 类型：技术方案（skill 结构变更）
 > 日期：2026-10　｜　状态：实现中
-> 关联证据：`references/case-notes.md` §5（外部 skill 调研）、`../../sk_05/RESEARCH-ppt-skills.md` §6（官方 pptx skill 本机实测）
+> 关联证据：`references/case-notes.md` §5（外部同类 skill 调研）、`design-notes/deck-aesthetics.md`（审美实跑）、`references/external-deck.md`（外部能力契约）
 
 ## 问题
 
@@ -18,7 +18,7 @@
 
 | 证据 | 结论 |
 |---|---|
-| `sk_05/RESEARCH-ppt-skills.md` §6：官方 `pptx` skill 5 页实测（3 轮迭代） | pptxgenjs 路线可用；暴露 3 个中文场景缺陷：公式白底、CJK 标点孤行、拉伸；另发现 `validate.py` 在 GBK 下崩、预览依赖 LibreOffice |
+| 官方 `pptx` skill 未装（本机 `~/.dsh`/`~/.claude`/`~/.codex` 均无 `skills/pptx`） | 只做分工指向：结构性编辑归它；本仓不假装有 `validate.py` 闸门，未装时结构性编辑走人工 |
 | 同文档 §6.6：PowerPoint COM 导出 PNG | 本机已装 Office，COM 预览成功，中文渲染正常；可替代 LibreOffice |
 | `scripts/update_pptx_images.py`、`fit_pptx_frames.py` | 已有"改图不毁版式""按真实比例重排图片框"两块能力，属于页片侧，可保留并归入新的 PPT 章节 |
 | 官方 `pptx` skill（anthropics/skills） | 生成/编辑/校验/QA 的权威做法；本 skill **不复写** OOXML 手术，只引用它 |
@@ -62,7 +62,7 @@ deck.pptx      --render_pptx_png.py--> preview/*.png（目视）
 
 - 自变量：是否启用透明公式、是否跑 `deck_check`、文本框宽度/字号；
 - 因变量：`deck_check` 的 error/warning 数、目视缺陷数、pytest 结果；
-- 控制：同一份 v3 页片（`sk_05/ppt-skill-test/ex01_v3.pptx`）作为回归样本。
+- 控制：同一份页片（`assets/deck/gen_deck.js` 生成，`pytest` 的端到端用例即回归样本）。
 
 ## 指标
 

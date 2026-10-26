@@ -59,6 +59,7 @@ def load_rules(path: str | Path | None = None) -> dict:
         "words": list(data.get("words") or []),
         "allow_context": dict(data.get("allow_context") or {}),
         "patterns": [re.compile(p) for p in (data.get("patterns") or [])],
+        "colloquial": list(data.get("colloquial") or []),
         "ai_patterns": [re.compile(p) for p in (data.get("ai_patterns") or [])],
         "verdict_markers": list(data.get("verdict_markers") or []),
     }
@@ -80,6 +81,14 @@ def _pattern_hit(text: str, patterns) -> tuple[str, str] | None:
         match = pattern.search(text)
         if match:
             return pattern.pattern, match.group(0)
+    return None
+
+
+def _colloquial_hit(text: str, rules: dict) -> str | None:
+    """学术语体：把工程口语换成规范表述（掉点→可用率下降，补不回→无法恢复）。"""
+    for word in rules.get("colloquial") or []:
+        if word in text:
+            return word
     return None
 
 
@@ -194,7 +203,7 @@ def _load_markdown(path: Path):
     return pages
 
 
-def check_pages(pages, rules=None, max_title=30, max_sentence=60, max_bullets=5,
+def check_pages(pages, rules=None, max_title=16, max_sentence=60, max_bullets=5,
                 max_bullet=40, max_notes=120) -> Report:
     rules = rules or load_rules()
     report = Report(path="", pages=len(pages))
@@ -213,6 +222,10 @@ def check_pages(pages, rules=None, max_title=30, max_sentence=60, max_bullets=5,
             phrase = _pattern_hit(title, rules["ai_patterns"])
             if phrase:
                 add("warning", "ai-phrase", f"标题句式「{phrase[1][:20]}」：{title[:30]}")
+            slang = _colloquial_hit(title, rules)
+            if slang:
+                add("warning", "colloquial",
+                    f"标题口语表述「{slang}」：换规范表述（掉点→可用率下降、补不回→无法恢复）")
 
             norm = _norm(title)
             topic = False
@@ -237,6 +250,9 @@ def check_pages(pages, rules=None, max_title=30, max_sentence=60, max_bullets=5,
             phrase = _pattern_hit(text, rules["ai_patterns"])
             if phrase:
                 add("warning", "ai-phrase", f"{where}句式「{phrase[1][:20]}」：{text[:24]}")
+            slang = _colloquial_hit(text, rules)
+            if slang:
+                add("warning", "colloquial", f"{where}口语表述「{slang}」：换规范表述")
             pattern = _pattern_hit(text, rules["patterns"])
             if pattern:
                 add("error", "banned-phrase", f"{where}套话开头「{pattern[1][:20]}」：{text[:24]}")
@@ -287,7 +303,8 @@ def main(argv=None) -> int:
     parser.add_argument("path", help=".pptx 或 .md")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--rules", default=str(RULES_PATH), help="词表 JSON")
-    parser.add_argument("--max-title", type=int, default=30)
+    parser.add_argument("--max-title", type=int, default=16,
+                        help="页标题上限（汉字数，默认 16：一句结论、一行；超了拆页）")
     parser.add_argument("--max-sentence", type=int, default=60)
     parser.add_argument("--max-bullets", type=int, default=5)
     parser.add_argument("--max-bullet", type=int, default=40)

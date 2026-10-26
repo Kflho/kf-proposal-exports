@@ -16,7 +16,7 @@
 
 | 步 | 做什么 | 产出 | 卡点 |
 | --- | --- | --- | --- |
-| 1 页计划 | 每页一句话结论（action title）+ 支撑证据（图/公式/表）+ 口播 | `deck-plan.md`（页号、标题、版面、素材、口播） | 标题写名词短语 = 返工（要写成结论） |
+| 1 页计划 | 每页一句结论（action title，**≤16 汉字、一行**）+ 支撑证据（图/公式/表）+ 口播；论文输入先按 `external-deck.md` 选路 | `deck-plan.md`（页号、标题、版面、素材、口播） | 标题写名词短语 = 返工（要写成结论） |
 | 2 定令牌 | 选浅色/深色、字号档、边距；从 `assets/deck/gen_deck.js` 拷模板 | `gen_deck.js` 里的常量段 | 跳过这步会一页一个样 |
 | 3 备素材 | 公式 → `formula_png.py`；图 → 本 skill 的 SVG 导出或 MATLAB 出的 PNG（MATLAB 图按 `matlab-figures.md` 出）；表格 → 原生表格 | `assets/…png` + `sizes.json` | 公式白底不透明 → 浅色卡片上露白块 |
 | 4 生成 | `node gen_deck.js` → `deck.pptx` | pptx + 每页 notes | 中文标点孤行、下标写成 `u_r` |
@@ -31,8 +31,8 @@ python scripts/formula_png.py assets/deck/formulas.example.json --out assets/dec
 # ② 生成页片（先 npm i pptxgenjs；模板里改内容）
 node assets/deck/gen_deck.js --out out/项目汇报.pptx
 
-# ③ 静态自检：几何/比例/备注/占位符/文字溢出
-python scripts/deck_check.py out/项目汇报.pptx --strict --require-notes
+# ③ 交付闸门：字体落实 → 静态检查 → 文字检查 → 外部审计
+python scripts/deck_gate.py out/项目汇报.pptx --strict --require-notes --scale 54,33,18,12
 
 # ④ 预览（PowerPoint COM）
 python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
@@ -49,9 +49,9 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
 
 | 令牌 | 值 |
 | --- | --- |
-| 中文字体 | `Microsoft YaHei`（Windows 自带；换机器回退 PingFang SC / Source Han Sans SC） |
-| 字号 | 封面 40 / 页标题 30 / 小标题 22 / 正文 16 / 要点 14–16 / 图注 10–12 / 页码 10 |
-| 行距 | 1.35–1.5 倍（中文字面比西文满，1.2 会挤） |
+| 中文字体 | 标题 **黑体 SimHei**、正文 **宋体 SimSun**；西文/数字 **Times New Roman**（`deck_fonts.py` 写进 run 的 `a:ea`/`a:latin`，换机器不走系统回退） |
+| 字号 | 只四档：**54** 封面与唯一大数字 / **33** 页标题 / **18** 正文·要点·表格 / **12** 图注·来源·页码 |
+| 行距 | 标题 1.15 / 正文 1.4（中文字面比西文满，1.2 会挤） |
 | 浅色令牌 | 底 `#FFFFFF`；文字 `#1F2937`；主色 `#1E2761`；强调 `#E8A33D`；弱化 `#6B7A90`；卡片底 `#F4F7FC` |
 | 深色令牌 | 底 `#1E2761`；主文字 `#FFFFFF`；次文字 `#CADCFC`；强调 `#E8A33D` |
 | 结构 | 深—浅—深（封面/收尾深色，内容浅色）或全深色；不要浅深交替 |
@@ -88,6 +88,7 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
 | 层 | 检查 | 通过判据 |
 | --- | --- | --- |
 | 静态 | `deck_check.py` | 0 error；warning 逐条能解释 |
+| 字体 | `deck_fonts.py`（gate 里自动跑） | 标题 SimHei / 正文 SimSun / 西文 Times New Roman，0 个 run 待改 |
 | 文件 | 官方 `validate.py`（可选，装好 pptx skill 时） | `All validations PASSED` |
 | 渲染 | `render_pptx_png.py` | 每页 PNG 都生成 |
 | 目视 | 逐页看（可疑处放大 2 倍） | 无溢出/重叠/低对比/图注错位 |
