@@ -44,7 +44,7 @@ CAPABILITIES: list[Capability] = [
     Capability("配图-SVG 渲染", "scripts/render_svg.py", "SKILL.md", None),
     Capability("配图-文字清单", "scripts/audit_text.py", "SKILL.md", None),
     Capability("配图-SVG→PDF", "scripts/svg_to_pdf.py", "references/external-calls.md", "test_svg_to_pdf"),
-    Capability("配图-从内容生成", "scripts/layout_flow.py", "SKILL.md", None),
+    Capability("配图-从内容生成", "scripts/layout_flow.py", "SKILL.md", "test_layout_flow"),
     Capability("页片-公式 PNG", "scripts/formula_png.py", "references/ppt-deck.md", "test_formula_png"),
     Capability("页片-静态自检+令牌", "scripts/deck_check.py", "references/ppt-deck.md",
                "test_deck_check", gate="deck_check"),
@@ -68,7 +68,6 @@ CAPABILITIES: list[Capability] = [
 EXPECTED_GAPS = {
     "配图-SVG 渲染",
     "配图-文字清单",
-    "配图-从内容生成",
     "MATLAB 出图封装",
 }
 

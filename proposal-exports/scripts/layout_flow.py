@@ -86,6 +86,7 @@ def build(cfg):
             need = n * cfg['FS_BODY'] * cfg['LH'] + 2 * pad_v
         else:
             r['avail'] = avail
+            r['label_fs'] = cfg['FS_LABEL']   # verify/generate 都要用；不设会 KeyError
             r['wrapped'] = [wrap_dp(t, cfg['FS_BODY'], avail) for t in r['text']]
             n = max(len(w) for w in r['wrapped'])
             need = (cfg['FS_LABEL'] * cfg['LH'] + cfg['GAP_LABEL']
