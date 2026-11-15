@@ -282,12 +282,42 @@ def comment_lines(path: Path) -> list[tuple[int, str]]:
     return out
 
 
+def glossary_aliases(root: Path, config: dict) -> dict[str, str]:
+    """从项目术语表读出「禁用别名 → 唯一叫法」。"""
+    rel = str(config.get('glossary') or '')
+    if not rel:
+        return {}
+    path = root / rel
+    if not path.is_file():
+        return {}
+    aliases: dict[str, str] = {}
+    for line in path.read_text(encoding='utf-8', errors='replace').splitlines():
+        stripped = line.strip()
+        if not stripped.startswith('|'):
+            continue
+        cells = [cell.strip() for cell in stripped.strip('|').split('|')]
+        if len(cells) < 3:
+            continue
+        canonical = cells[1].strip('*` ')
+        banned = cells[2]
+        if not canonical or canonical.startswith('---') or canonical.startswith(':') or '保留' in banned:
+            continue
+        for alias in re.split(r'[、,，]', banned):
+            alias = alias.strip('*` ')
+            if (len(alias) >= 2 and re.search(r'[\u4e00-\u9fff]', alias)
+                    and not alias.startswith('—')):
+                aliases[alias] = canonical
+    return aliases
+
+
 def scan(root: Path, tests: Path | None, config: dict,
          comments: bool = False) -> tuple[list[dict], dict[str, dict]]:
     findings: list[dict] = []
     terms: dict[str, dict] = {}
     allow = config['allow']
     gloss = glossary_text(root, config)
+    aliases = glossary_aliases(root, config)
+    glossary_rel = str(config.get('glossary') or '')
 
     def check(text: str, file: str, line: int, where: str) -> None:
         # 注释是开发文字：R1–R4（界面读法）不适用，只查 R7–R9
@@ -373,6 +403,24 @@ def scan(root: Path, tests: Path | None, config: dict,
                     continue
                 line = path.read_text(encoding='utf-8', errors='replace')[:match.start()].count('\n') + 1
                 check(desc, rel, line, '设置说明')
+        if aliases and rel != glossary_rel:
+            text = path.read_text(encoding='utf-8', errors='replace')
+            seen_alias: set[tuple[str, int]] = set()
+            for alias, canonical in aliases.items():
+                if alias in allow:
+                    continue
+                for match in re.finditer(re.escape(alias), text):
+                    line = text[:match.start()].count('\n') + 1
+                    key = (alias, line)
+                    if key in seen_alias:
+                        continue
+                    seen_alias.add(key)
+                    findings.append({
+                        'file': rel, 'line': line, 'where': '文字', 'rule': 'R14',
+                        'title': '用了术语表里的禁用别名', 'severity': 'error',
+                        'text': alias, 'matched': alias,
+                        'advice': f'改成「{canonical}」',
+                    })
 
     if tests and tests.is_dir():
         for current, dirs, files in os.walk(tests):

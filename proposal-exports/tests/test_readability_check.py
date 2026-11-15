@@ -147,6 +147,35 @@ def test_elliptical_predicate_is_reported(tmp_path: Path) -> None:
     assert any(item["rule"] == "R13" for item in findings)
 
 
+def test_glossary_alias_is_reported(tmp_path: Path) -> None:
+    write(tmp_path, "readability.json", '{"glossary": "术语表.md", "allow": []}')
+    write(
+        tmp_path,
+        "术语表.md",
+        "| 概念 | 唯一叫法 | 禁用别名 | 定义 |\n| --- | --- | --- | --- |\n"
+        "| 搬运文件 | **同步包** | 留包、包 | 一个文件 |\n"
+        "| 镜像 | **镜像** | —（技术词，保留） | 覆盖 |\n",
+    )
+    write(tmp_path, "src/a.ts", "new Notice('留包失败。');\n")
+    findings, _ = rc.scan(tmp_path, None, rc.load_config(tmp_path))
+    hit = next(item for item in findings if item["rule"] == "R14")
+    assert hit["matched"] == "留包"
+    assert "同步包" in hit["advice"]
+
+
+def test_glossary_file_itself_is_not_flagged(tmp_path: Path) -> None:
+    write(tmp_path, "readability.json", '{"glossary": "术语表.md", "allow": []}')
+    write(
+        tmp_path,
+        "术语表.md",
+        "| 概念 | 唯一叫法 | 禁用别名 | 定义 |\n| --- | --- | --- | --- |\n"
+        "| 搬运文件 | **同步包** | 留包、包 | 一个文件 |\n"
+        "| 镜像 | **镜像** | —（技术词，保留） | 覆盖 |\n",
+    )
+    findings, _ = rc.scan(tmp_path, None, rc.load_config(tmp_path))
+    assert not any(item["rule"] == "R14" for item in findings)
+
+
 def test_reworded_setting_echo_is_reported(tmp_path: Path) -> None:
     write(tmp_path, "src/settings.ts", "name: '整理时转换图片格式',\n\t\t\t\t\tdesc: '整理图片时转换格式。',\n")
     findings, _ = scan(tmp_path)

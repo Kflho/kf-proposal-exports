@@ -73,7 +73,11 @@ RULES = [
      '删掉，或换成具体下一步'),
 ]
 
-SKIP_DIRS = {'.git', '__pycache__', 'temp', 'tests', '.pytest_cache', 'dev'}
+SKIP_DIRS = {
+    '.git', '__pycache__', 'temp', 'tests', '.pytest_cache', 'dev',
+    'node_modules', 'dist', 'build', 'data', 'exports', '.venv', 'venv',
+    '.mypy_cache', '.ruff_cache', 'technical_solution_docs', 'research',
+}
 TECH_ALLOW = {
     '链路': re.compile(r'(下载|网络|远程|数据|全|这条|处理|调用|音频|视频|字幕|端到端)链路|链路(层|不可用|正常|中断)'),
     '闭环': re.compile(r'(三步|流程|业务|反馈|控制|自动|速度|电流|位置|姿态)闭环|'
@@ -238,13 +242,21 @@ def scan(root: Path, include_exports: bool = False) -> list[dict]:
     for path, line, text in _python_strings(root):
         rel = path.relative_to(root).as_posix()
         findings.extend(_scan_text(text, rel, line - 1))
-    return findings
+    deduped, seen = [], set()
+    for item in findings:
+        key = (item['file'], item['line'], item['rule'], item['text'])
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument('--json', action='store_true')
+    parser.add_argument('--warnings', action='store_true', help='同时打印 warning（默认只打印 error）')
     parser.add_argument('--exports', action='store_true',
                         help='scan bin/exports text + report image/caption/number/orphan checks')
     args = parser.parse_args(argv)
@@ -254,12 +266,13 @@ def main(argv=None) -> int:
         print(json.dumps({'humanizer': HUMANIZER, 'findings': findings,
                           'errors': len(errors)}, ensure_ascii=False, indent=2))
     else:
-        for item in findings:
+        shown = findings if args.warnings else errors
+        for item in shown:
             print(f"{item['file']}:{item['line']} [{item['severity']}] "
                   f"{item['rule']} {item['title']}: {item['text']!r}")
             print(f"  -> {item['advice']}")
         print(f'{len(errors)} error(s), {len(findings) - len(errors)} '
-              f'warning(s) — {HUMANIZER}')
+              f'warning(s) — {HUMANIZER}（warning 用 --warnings 查看）')
     return 1 if errors else 0
 
 

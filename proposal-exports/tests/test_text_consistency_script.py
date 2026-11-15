@@ -21,6 +21,24 @@ def _project(tmp_path: Path):
     return exports, figures
 
 
+def test_scan_skips_dependencies_and_history(tmp_path: Path) -> None:
+    for rel in ("node_modules", "bin/reference_docs/technical_solution_docs"):
+        folder = tmp_path / rel
+        folder.mkdir(parents=True)
+        (folder / "a.md").write_text("随着时代的发展，问题自然会解决。\n", encoding="utf-8")
+    assert MOD.scan(tmp_path) == []
+
+
+def test_default_output_hides_warnings(tmp_path: Path, capsys) -> None:
+    (tmp_path / "README.md").write_text("这不是更细，而是更啰嗦。\n", encoding="utf-8")
+    assert MOD.main(["--root", str(tmp_path)]) == 0
+    out = capsys.readouterr().out
+    assert "A1" not in out
+    MOD.main(["--root", str(tmp_path), "--warnings"])
+    out = capsys.readouterr().out
+    assert "A1" in out
+
+
 def _rules(findings):
     return {item["rule"] for item in findings}
 
