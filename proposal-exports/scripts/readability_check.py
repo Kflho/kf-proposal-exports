@@ -222,8 +222,15 @@ def duplicate_sections(path: Path) -> list[tuple[int, str, str]]:
 SETTING = re.compile(r"name:\s*'([^'\n]{2,40})'[\s\S]{0,240}?desc:\s*'([^'\n]{2,200})'")
 
 
+ECHO_FILLER = set('的时一并由本在了是会可把被与和也就都要用到从及或称开时候之间是否')
+
+def _chars(text: str) -> set[str]:
+    text = re.sub(r'[A-Za-z0-9]+', '', text)
+    return {char for char in text if char not in ECHO_FILLER}
+
+
 def setting_echoes(path: Path) -> list[tuple[int, str, str]]:
-    """设置项：说明只是把名字再说一遍（去掉标点后互相包含）。"""
+    """设置项：说明只是把名字换了个说法（包含，或字面重合度高且没多出信息）。"""
     text = path.read_text(encoding='utf-8', errors='replace')
     out = []
     for match in SETTING.finditer(text):
@@ -232,7 +239,20 @@ def setting_echoes(path: Path) -> list[tuple[int, str, str]]:
         clean_desc = _clean_text(desc)
         if len(clean_name) < 3:
             continue
-        if clean_name in clean_desc or clean_desc in clean_name:
+        echo = clean_name in clean_desc or clean_desc in clean_name
+        if not echo:
+            name_grams = _bigrams(clean_name)
+            desc_grams = _bigrams(clean_desc)
+            if name_grams and len(clean_desc) <= len(clean_name) * 1.8:
+                shared = len(name_grams & desc_grams) / len(name_grams)
+                echo = shared >= 0.55
+        if not echo:
+            name_chars = _chars(name)
+            desc_chars = _chars(desc)
+            if name_chars and desc_chars and len(clean_desc) <= len(clean_name) * 2.2:
+                shared = len(name_chars & desc_chars) / len(name_chars | desc_chars)
+                echo = shared >= 0.55
+        if echo:
             line = text[:match.start()].count('\n') + 1
             out.append((line, name, desc))
     return out
@@ -324,7 +344,7 @@ def scan(root: Path, tests: Path | None, config: dict,
                     'severity': 'error',
                     'text': f'{name} / {desc[:70]}',
                     'matched': name,
-                    'advice': '说明写名字里没有的：默认值、影响范围、副作用',
+                    'advice': '名字已讲清楚就删掉说明；要写就写默认值、影响范围、副作用',
                 })
 
     if tests and tests.is_dir():

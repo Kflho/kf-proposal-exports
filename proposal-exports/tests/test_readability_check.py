@@ -127,3 +127,15 @@ def test_clean_setting_is_not_reported(tmp_path: Path) -> None:
     write(tmp_path, "src/settings.ts", "name: '保留签名',\n\t\t\t\t\tdesc: '默认关闭；开启后保留楼中楼的签名。',\n")
     findings, _ = scan(tmp_path)
     assert not any(item["rule"] == "R11" for item in findings)
+
+
+def test_setting_without_description_is_allowed(tmp_path: Path) -> None:
+    write(tmp_path, "src/settings.ts", "name: '显示用户名',\n\t\t\t\t\tcontrol: { type: 'toggle' },\n")
+    findings, _ = scan(tmp_path)
+    assert not any(item["rule"] == "R11" for item in findings)
+
+
+def test_reworded_setting_echo_is_reported(tmp_path: Path) -> None:
+    write(tmp_path, "src/settings.ts", "name: '整理时转换图片格式',\n\t\t\t\t\tdesc: '整理图片时转换格式。',\n")
+    findings, _ = scan(tmp_path)
+    assert any(item["rule"] == "R11" for item in findings)
