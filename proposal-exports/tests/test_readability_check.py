@@ -190,3 +190,9 @@ def test_docs_body_scan_is_optional(tmp_path: Path) -> None:
     hit = next(item for item in findings if item["rule"] == "R12")
     assert hit["where"] == "文档"
     assert hit["severity"] == "warning"
+
+
+def test_readme_dev_content_is_reported(tmp_path: Path) -> None:
+    write(tmp_path, "README.md", "# 标题\n\nInternal: test/a.test.ts 用户实测通过。\n")
+    findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": "", "skip": []}, docs=True)
+    assert any(item["rule"] == "R15" for item in findings)

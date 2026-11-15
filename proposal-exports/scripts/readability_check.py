@@ -72,6 +72,13 @@ PROSE_RULES = [
      '补上主语与动作：原图会被删除 / 文件不会被改动'),
 ]
 
+# 用户文档里的开发记录（README 专用）：实现细节、测试路径、日期、踩坑史
+README_DEV_RULES = [
+    ('R15', '把开发记录写进用户文档',
+     r'(\bInternal:|\btest/[\w./-]+|\b20\d{2}-\d{1,2}\b|用户(报|要求|实测|反馈)|实测|踩坑|回归|规则登记表|rule registry)',
+     '移到 AGENTS.md / CLAUDE.md 或 dev 日志；README 只留用户要做的操作与结果'),
+]
+
 # 开发文字（注释 / 用例名）专有的规则；注释里只报 warning
 DEV_RULES = [
     ('R8', '压缩成对仗短语',
@@ -197,6 +204,11 @@ def markdown_sections(path: Path) -> list[tuple[int, str, str]]:
         if paragraph:
             out.append((index + 1, match.group(2).strip(), ' '.join(paragraph)))
     return out
+
+
+def _in_code_span(text: str, index: int) -> bool:
+    """这个位置是否落在行内代码里（示例日期、命令不算开发记录）。"""
+    return text[:index].count('`') % 2 == 1
 
 
 def markdown_prose(path: Path) -> list[tuple[int, str]]:
@@ -414,6 +426,17 @@ def scan(root: Path, tests: Path | None, config: dict,
             if docs:
                 for line, text in markdown_prose(path):
                     check(text, rel, line, '文档')
+                    if path.name.lower() == 'readme.md':
+                        for rule_id, title, pattern, advice in README_DEV_RULES:
+                            match = re.search(pattern, text)
+                            if not match or _in_code_span(text, match.start()):
+                                continue
+                            findings.append({
+                                'file': rel, 'line': line, 'where': 'README', 'rule': rule_id,
+                                'title': title, 'severity': 'warning', 'text': text[:100],
+                                'matched': match.group(0), 'advice': advice,
+                            })
+                            break
         else:
             for line, text in ui_strings(path):
                 check(text, rel, line, '界面')
