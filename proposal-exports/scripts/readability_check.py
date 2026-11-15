@@ -46,7 +46,7 @@ STRING = re.compile(r'([\'"`])([^\'"`\n]{0,300}[\u4e00-\u9fff][^\'"`\n]{0,300})\
 # 逐条报的规则：(id, 标题, 正则, 级别, 建议)
 RULES = [
     ('R1', '指代开头，脱离上下文读不懂',
-     r'^\s*(这个|那个|它|它们|其|该|此|上面|下面|上一条|下一条|这一条|那一条|这条|那条|'
+     r'^\s*(这个|那个|它|它们|其(?!他)|该|此|上面|下面|上一条|下一条|这一条|那一条|这条|那条|'
      r'此处|这里|这边|那边|刚才|之前的|上次的|前述)',
      'error', '写出具体对象：哪台电脑、哪个窗口、哪份包'),
     ('R2', '用方位词指界面位置',
@@ -199,6 +199,34 @@ def markdown_sections(path: Path) -> list[tuple[int, str, str]]:
     return out
 
 
+def markdown_prose(path: Path) -> list[tuple[int, str]]:
+    """正文段落（跳过标题、代码块、表格、HTML 注释与空行）。"""
+    lines = path.read_text(encoding='utf-8', errors='replace').splitlines()
+    out: list[tuple[int, str]] = []
+    fenced = False
+    in_comment = False
+    for number, line in enumerate(lines, 1):
+        stripped = line.strip()
+        if stripped.startswith('```'):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        if stripped.startswith('<!--'):
+            in_comment = True
+        if in_comment:
+            if '-->' in stripped:
+                in_comment = False
+            continue
+        if not stripped or stripped.startswith('#') or stripped.startswith('|'):
+            continue
+        text = re.sub(r'^(?:[-*+>]|\d+\.)\s+', '', stripped)
+        if len(text) < 4:
+            continue
+        out.append((number, text))
+    return out
+
+
 def duplicate_sections(path: Path) -> list[tuple[int, str, str]]:
     """标题与它下面第一段在说同一件事。
 
@@ -311,7 +339,7 @@ def glossary_aliases(root: Path, config: dict) -> dict[str, str]:
 
 
 def scan(root: Path, tests: Path | None, config: dict,
-         comments: bool = False) -> tuple[list[dict], dict[str, dict]]:
+         comments: bool = False, docs: bool = False) -> tuple[list[dict], dict[str, dict]]:
     findings: list[dict] = []
     terms: dict[str, dict] = {}
     allow = config['allow']
@@ -328,7 +356,9 @@ def scan(root: Path, tests: Path | None, config: dict,
                     continue
                 findings.append({
                     'file': file, 'line': line, 'where': where, 'rule': rule_id,
-                    'title': title, 'severity': severity, 'text': text[:100],
+                    'title': title,
+                    'severity': 'warning' if where in {'注释', '文档'} else severity,
+                    'text': text[:100],
                     'matched': match.group(0), 'advice': advice,
                 })
                 break
@@ -338,8 +368,9 @@ def scan(root: Path, tests: Path | None, config: dict,
                     continue
                 findings.append({
                     'file': file, 'line': line, 'where': where, 'rule': rule_id,
-                    'title': title, 'severity': 'error', 'text': text[:100],
-                    'matched': match.group(0), 'advice': advice,
+                    'title': title,
+                    'severity': 'warning' if where == '文档' else 'error',
+                    'text': text[:100], 'matched': match.group(0), 'advice': advice,
                 })
                 break
         # 开发文字：注释只查 R7 / R8（R9 的「这里」在注释里是正常指路）
@@ -352,7 +383,7 @@ def scan(root: Path, tests: Path | None, config: dict,
             findings.append({
                 'file': file, 'line': line, 'where': where, 'rule': rule_id,
                 'title': title,
-                'severity': 'warning' if where == '注释' else 'error',
+                'severity': 'warning' if where in {'注释', '文档'} else 'error',
                 'text': text[:100], 'matched': match.group(0), 'advice': advice,
             })
             break
@@ -380,6 +411,9 @@ def scan(root: Path, tests: Path | None, config: dict,
                     'matched': title,
                     'advice': '删掉复述的段落，或把段落改成证据、条件、例外',
                 })
+            if docs:
+                for line, text in markdown_prose(path):
+                    check(text, rel, line, '文档')
         else:
             for line, text in ui_strings(path):
                 check(text, rel, line, '界面')
@@ -440,6 +474,7 @@ def main(argv=None) -> int:
     parser.add_argument('--root', required=True, help='项目根')
     parser.add_argument('--tests', default='', help='测试仓目录（可选，扫测试用例名）')
     parser.add_argument('--comments', action='store_true', help='同时扫 .ts 注释（R7–R9，只报 warning）')
+    parser.add_argument('--docs', action='store_true', help='同时扫 Markdown 正文（README / 文档，只报 warning）')
     parser.add_argument('--dump', action='store_true', help='按 文件:行 导出全部界面文字与设置说明（人工抽查用）')
     parser.add_argument('--json', action='store_true')
     args = parser.parse_args(argv)
@@ -466,7 +501,7 @@ def main(argv=None) -> int:
                     line = path.read_text(encoding='utf-8', errors='replace')[:match.start()].count('\n') + 1
                     print(f'{rel}:{line}\t[{match.group(1)}] {match.group(2)}')
         return 0
-    findings, terms = scan(root, tests, config, args.comments)
+    findings, terms = scan(root, tests, config, args.comments, args.docs)
     errors = [item for item in findings if item['severity'] == 'error']
     ranked = sorted(terms.values(), key=lambda item: -item['count'])
 
