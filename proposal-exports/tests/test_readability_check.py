@@ -135,6 +135,18 @@ def test_setting_without_description_is_allowed(tmp_path: Path) -> None:
     assert not any(item["rule"] == "R11" for item in findings)
 
 
+def test_bare_demonstrative_is_reported(tmp_path: Path) -> None:
+    write(tmp_path, "src/a.ts", "new Notice('只排版刚粘贴的那一段。');\n")
+    findings, _ = scan(tmp_path)
+    assert any(item["rule"] == "R12" for item in findings)
+
+
+def test_elliptical_predicate_is_reported(tmp_path: Path) -> None:
+    write(tmp_path, "src/a.ts", "new Notice('原图不留。');\n")
+    findings, _ = scan(tmp_path)
+    assert any(item["rule"] == "R13" for item in findings)
+
+
 def test_reworded_setting_echo_is_reported(tmp_path: Path) -> None:
     write(tmp_path, "src/settings.ts", "name: '整理时转换图片格式',\n\t\t\t\t\tdesc: '整理图片时转换格式。',\n")
     findings, _ = scan(tmp_path)
