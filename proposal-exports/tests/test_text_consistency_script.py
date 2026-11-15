@@ -39,6 +39,13 @@ def test_default_output_hides_warnings(tmp_path: Path, capsys) -> None:
     assert "A1" in out
 
 
+def test_absolute_root_with_data_segment_is_scanned(tmp_path: Path) -> None:
+    root = tmp_path / "data" / "proj"
+    root.mkdir(parents=True)
+    (root / "README.md").write_text("这不是更细，而是更啰嗦。\n", encoding="utf-8")
+    assert MOD.scan(root), "绝对路径里的 data 段不该让整个项目被跳过"
+
+
 def _rules(findings):
     return {item["rule"] for item in findings}
 

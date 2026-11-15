@@ -114,10 +114,18 @@ def _scan_text(text: str, file: str, line: int = 0) -> list[dict]:
     return findings
 
 
+def _relative_parts(path: Path, root: Path) -> tuple[str, ...]:
+    """只看 root 之下的部分：绝对路径里的 `D:/data/...` 不该触发 data 跳过规则。"""
+    try:
+        return path.relative_to(root).parts
+    except ValueError:
+        return path.parts
+
+
 def _text_files(root: Path, suffixes: set[str]) -> list[Path]:
     files = []
     for path in root.rglob('*'):
-        if any(part in SKIP_DIRS for part in path.parts):
+        if any(part in SKIP_DIRS for part in _relative_parts(path, root)):
             continue
         if path.is_file() and path.suffix.lower() in suffixes:
             files.append(path)
@@ -127,7 +135,7 @@ def _text_files(root: Path, suffixes: set[str]) -> list[Path]:
 def _python_strings(root: Path) -> list[tuple[Path, int, str]]:
     strings = []
     for path in sorted(root.rglob('*.py')):
-        if (any(part in SKIP_DIRS for part in path.parts)
+        if (any(part in SKIP_DIRS for part in _relative_parts(path, root))
                 or path.name in {'text_review.py', 'text_consistency.py'}):
             continue
         try:
