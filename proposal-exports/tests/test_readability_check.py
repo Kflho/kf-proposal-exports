@@ -108,3 +108,22 @@ def test_leading_reference_in_comment_is_reported(tmp_path: Path) -> None:
     write(tmp_path, "src/a.ts", "new Notice('这里说明原因。');\n")
     findings, _ = scan(tmp_path)
     assert any(item["rule"] == "R9" for item in findings)
+
+
+def test_heading_repeated_by_first_paragraph(tmp_path: Path) -> None:
+    write(tmp_path, "README.md", "## 完整备份是基准\n\n完整备份是基准，更新包不改变它。\n")
+    findings, _ = scan(tmp_path)
+    assert any(item["rule"] == "R10" for item in findings)
+
+
+def test_setting_description_echo_is_error(tmp_path: Path) -> None:
+    write(tmp_path, "src/settings.ts", "name: '显示用户名',\n\t\t\t\t\tdesc: '聊天记录显示用户名。',\n")
+    findings, _ = scan(tmp_path)
+    hit = next(item for item in findings if item["rule"] == "R11")
+    assert hit["severity"] == "error"
+
+
+def test_clean_setting_is_not_reported(tmp_path: Path) -> None:
+    write(tmp_path, "src/settings.ts", "name: '保留签名',\n\t\t\t\t\tdesc: '默认关闭；开启后保留楼中楼的签名。',\n")
+    findings, _ = scan(tmp_path)
+    assert not any(item["rule"] == "R11" for item in findings)

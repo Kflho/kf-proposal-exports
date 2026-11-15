@@ -149,6 +149,95 @@ def headings(path: Path) -> list[tuple[int, str]]:
     return out
 
 
+def _clean_text(text: str) -> str:
+    text = re.sub(r'[`*_>#\-|]', '', text)
+    return re.sub(r'[\s\W_]+', '', text, flags=re.UNICODE)
+
+
+def _bigrams(text: str) -> set[str]:
+    return {text[index:index + 2] for index in range(len(text) - 1)}
+
+
+def markdown_sections(path: Path) -> list[tuple[int, str, str]]:
+    """(标题行号, 标题, 标题下第一段)；代码块里的 `#` 不算标题。"""
+    lines = path.read_text(encoding='utf-8', errors='replace').splitlines()
+    out = []
+    fenced = False
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith('```'):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        match = re.match(r'^(#{2,6})\s+(.+)$', line)
+        if not match:
+            continue
+        cursor = index + 1
+        while cursor < len(lines) and not lines[cursor].strip():
+            cursor += 1
+        paragraph = []
+        while cursor < len(lines):
+            body = lines[cursor].strip()
+            if not body or body.startswith('#') or body.startswith('```'):
+                break
+            paragraph.append(body)
+            cursor += 1
+        if paragraph:
+            out.append((index + 1, match.group(2).strip(), ' '.join(paragraph)))
+    return out
+
+
+def duplicate_sections(path: Path) -> list[tuple[int, str, str]]:
+    """标题与它下面第一段在说同一件事。
+
+    判据只看第一句：第一句里原样包含标题（去掉标点后），或者几乎就是标题的改写。
+    正文后面再解释机制、给条件，不算重复。
+    """
+    out = []
+    for line, title, paragraph in markdown_sections(path):
+        cjk = len(re.findall(r'[\u4e00-\u9fff]', title))
+        if cjk < 3 or cjk / max(1, len(title)) < 0.3:
+            continue
+        head = _clean_text(title)
+        if len(head) < 4:
+            continue
+        first = re.split(r'[。！？!?；;\n]', paragraph.strip())[0]
+        sentence = _clean_text(first)
+        if not sentence:
+            continue
+        if head in sentence:
+            out.append((line, title, paragraph))
+            continue
+        head_grams = _bigrams(head)
+        sentence_grams = _bigrams(sentence)
+        if not head_grams:
+            continue
+        shared = len(head_grams & sentence_grams) / len(head_grams)
+        if shared >= 0.9 and len(sentence) <= len(head) * 2.5:
+            out.append((line, title, paragraph))
+    return out
+
+
+SETTING = re.compile(r"name:\s*'([^'\n]{2,40})'[\s\S]{0,240}?desc:\s*'([^'\n]{2,200})'")
+
+
+def setting_echoes(path: Path) -> list[tuple[int, str, str]]:
+    """设置项：说明只是把名字再说一遍（去掉标点后互相包含）。"""
+    text = path.read_text(encoding='utf-8', errors='replace')
+    out = []
+    for match in SETTING.finditer(text):
+        name, desc = match.group(1), match.group(2)
+        clean_name = _clean_text(name)
+        clean_desc = _clean_text(desc)
+        if len(clean_name) < 3:
+            continue
+        if clean_name in clean_desc or clean_desc in clean_name:
+            line = text[:match.start()].count('\n') + 1
+            out.append((line, name, desc))
+    return out
+
+
 def comment_lines(path: Path) -> list[tuple[int, str]]:
     """`//` 与块注释续行（`* …`）里的中文；去掉注释记号，只用来查开发文字。"""
     out = []
@@ -211,12 +300,32 @@ def scan(root: Path, tests: Path | None, config: dict,
         if path.suffix == '.md':
             for line, text in headings(path):
                 check(text, rel, line, '标题')
+            for line, title, paragraph in duplicate_sections(path):
+                findings.append({
+                    'file': rel, 'line': line, 'where': '标题与首段', 'rule': 'R10',
+                    'title': '标题与下面第一段在说同一件事',
+                    'severity': 'warning',
+                    'text': f'{title} / {paragraph[:70]}',
+                    'matched': title,
+                    'advice': '删掉复述的段落，或把段落改成证据、条件、例外',
+                })
         else:
             for line, text in ui_strings(path):
                 check(text, rel, line, '界面')
             if comments:
                 for line, text in comment_lines(path):
                     check(text, rel, line, '注释')
+            for line, name, desc in setting_echoes(path):
+                if any(word in desc for word in config['allow']):
+                    continue
+                findings.append({
+                    'file': rel, 'line': line, 'where': '设置项', 'rule': 'R11',
+                    'title': '设置项的说明只是把名字又说了一遍',
+                    'severity': 'error',
+                    'text': f'{name} / {desc[:70]}',
+                    'matched': name,
+                    'advice': '说明写名字里没有的：默认值、影响范围、副作用',
+                })
 
     if tests and tests.is_dir():
         for current, dirs, files in os.walk(tests):
