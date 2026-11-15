@@ -80,3 +80,31 @@ def test_clean_text_has_no_finding(tmp_path: Path) -> None:
 
 def test_missing_root_exits_2(tmp_path: Path) -> None:
     assert rc.main(["--root", str(tmp_path / "nope")]) == 2
+
+
+def test_metaphor_verb_in_comment_is_warning(tmp_path: Path) -> None:
+    write(tmp_path, "src/a.ts", "// 测试守着这条规则。\n")
+    findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": ""}, comments=True)
+    hit = next(item for item in findings if item["rule"] == "R7")
+    assert hit["where"] == "注释"
+    assert hit["severity"] == "warning"
+
+
+def test_metaphor_verb_in_test_name_is_error(tmp_path: Path) -> None:
+    tests = tmp_path / "tests"
+    write(tests, "a.test.ts", "check('它守着这条规则', 1);\n")
+    findings, _ = rc.scan(tmp_path, tests, {"allow": [], "glossary": ""})
+    hit = next(item for item in findings if item["rule"] == "R7")
+    assert hit["severity"] == "error"
+
+
+def test_compressed_pair_phrase_is_reported(tmp_path: Path) -> None:
+    write(tmp_path, "src/a.ts", "// 只写在测什么、守在哪。\n")
+    findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": ""}, comments=True)
+    assert any(item["rule"] == "R8" for item in findings)
+
+
+def test_leading_reference_in_comment_is_reported(tmp_path: Path) -> None:
+    write(tmp_path, "src/a.ts", "new Notice('这里说明原因。');\n")
+    findings, _ = scan(tmp_path)
+    assert any(item["rule"] == "R9" for item in findings)

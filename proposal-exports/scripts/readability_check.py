@@ -61,6 +61,19 @@ RULES = [
      'error', '拆成完整句子：谁、在哪儿、写了什么'),
 ]
 
+# 开发文字（注释 / 用例名）专有的规则；注释里只报 warning
+DEV_RULES = [
+    ('R8', '压缩成对仗短语',
+     r'(在测什么|守在哪|测什么[，、,]|是什么[，、,].{0,12}为什么|怎么用[，、,].{0,12}怎么办)',
+     '拆成完整句子：验证什么行为、哪一处出错会让它失败'),
+    ('R9', '用前文指代开头',
+     r'^\s*(这里|上面|下面|这条|那条|这句|那句|该|此)',
+     '写出具体对象，让这一条单独也能读'),
+    ('R7', '比喻动词（守 / 兜底 / 挂在 / 吃进 / 塞进 / 落进…）',
+     r'(守(着|在|的是|住|了一|得住)|兜底|挂在|长在|吃进|吃掉|塞进|塞到|落进|落到|拽|不炸|崩了|炸了)',
+     '换成动作本身：验证 / 放回 / 标记为 / 写进 / 失败'),
+]
+
 # 术语表：不逐条报，按词统计（项目可以登记进 allow / glossary）
 ABBREV = ['重导', '留包', '推拉', '收包', '回礼', '落点', '收口', '接链', '白跑',
           '货架', '指纹', '兜底', '接不上', '对不上', '捞回来', '拷', '弄坏', '弄丢']
@@ -72,12 +85,16 @@ TEXT_EXT = {'.ts', '.tsx', '.md'}
 def load_config(root: Path) -> dict:
     file = root / 'readability.json'
     if not file.is_file():
-        return {'allow': [], 'glossary': ''}
+        return {'allow': [], 'glossary': '', 'skip': []}
     try:
         data = json.loads(file.read_text(encoding='utf-8'))
     except (OSError, json.JSONDecodeError):
-        return {'allow': [], 'glossary': ''}
-    return {'allow': list(data.get('allow') or []), 'glossary': str(data.get('glossary') or '')}
+        return {'allow': [], 'glossary': '', 'skip': []}
+    return {
+        'allow': list(data.get('allow') or []),
+        'glossary': str(data.get('glossary') or ''),
+        'skip': list(data.get('skip') or []),
+    }
 
 
 def glossary_text(root: Path, config: dict) -> str:
@@ -132,21 +149,51 @@ def headings(path: Path) -> list[tuple[int, str]]:
     return out
 
 
-def scan(root: Path, tests: Path | None, config: dict) -> tuple[list[dict], dict[str, dict]]:
+def comment_lines(path: Path) -> list[tuple[int, str]]:
+    """`//` 与块注释续行（`* …`）里的中文；去掉注释记号，只用来查开发文字。"""
+    out = []
+    for number, line in enumerate(path.read_text(encoding='utf-8', errors='replace').splitlines(), 1):
+        stripped = line.strip()
+        if not (stripped.startswith('//') or stripped.startswith('*') or stripped.startswith('/*')):
+            continue
+        text = re.sub(r'^(//+|/\*+|\*+)\s*', '', stripped)
+        if re.search(r'[\u4e00-\u9fff]', text):
+            out.append((number, text))
+    return out
+
+
+def scan(root: Path, tests: Path | None, config: dict,
+         comments: bool = False) -> tuple[list[dict], dict[str, dict]]:
     findings: list[dict] = []
     terms: dict[str, dict] = {}
     allow = config['allow']
     gloss = glossary_text(root, config)
 
     def check(text: str, file: str, line: int, where: str) -> None:
-        for rule_id, title, pattern, severity, advice in RULES:
+        # 注释是开发文字：R1–R4（界面读法）不适用，只查 R7–R9
+        if where != '注释':
+            for rule_id, title, pattern, severity, advice in RULES:
+                match = re.search(pattern, text)
+                if not match or any(word in text for word in allow):
+                    continue
+                findings.append({
+                    'file': file, 'line': line, 'where': where, 'rule': rule_id,
+                    'title': title, 'severity': severity, 'text': text[:100],
+                    'matched': match.group(0), 'advice': advice,
+                })
+                break
+        # 开发文字：注释只查 R7 / R8（R9 的「这里」在注释里是正常指路）
+        for rule_id, title, pattern, advice in DEV_RULES:
+            if where == '注释' and rule_id == 'R9':
+                continue
             match = re.search(pattern, text)
             if not match or any(word in text for word in allow):
                 continue
             findings.append({
                 'file': file, 'line': line, 'where': where, 'rule': rule_id,
-                'title': title, 'severity': severity, 'text': text[:100],
-                'matched': match.group(0), 'advice': advice,
+                'title': title,
+                'severity': 'warning' if where == '注释' else 'error',
+                'text': text[:100], 'matched': match.group(0), 'advice': advice,
             })
             break
         for word in ABBREV + JARGON:
@@ -159,12 +206,17 @@ def scan(root: Path, tests: Path | None, config: dict) -> tuple[list[dict], dict
 
     for path in walk(root):
         rel = path.relative_to(root).as_posix()
+        if any(rel.startswith(prefix) for prefix in config.get('skip') or []):
+            continue
         if path.suffix == '.md':
             for line, text in headings(path):
                 check(text, rel, line, '标题')
         else:
             for line, text in ui_strings(path):
                 check(text, rel, line, '界面')
+            if comments:
+                for line, text in comment_lines(path):
+                    check(text, rel, line, '注释')
 
     if tests and tests.is_dir():
         for current, dirs, files in os.walk(tests):
@@ -183,6 +235,7 @@ def main(argv=None) -> int:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--root', required=True, help='项目根')
     parser.add_argument('--tests', default='', help='测试仓目录（可选，扫测试用例名）')
+    parser.add_argument('--comments', action='store_true', help='同时扫 .ts 注释（R7–R9，只报 warning）')
     parser.add_argument('--json', action='store_true')
     args = parser.parse_args(argv)
 
@@ -196,7 +249,7 @@ def main(argv=None) -> int:
         return 2
 
     config = load_config(root)
-    findings, terms = scan(root, tests, config)
+    findings, terms = scan(root, tests, config, args.comments)
     errors = [item for item in findings if item['severity'] == 'error']
     ranked = sorted(terms.values(), key=lambda item: -item['count'])
 
