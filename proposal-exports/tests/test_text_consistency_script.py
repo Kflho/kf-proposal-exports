@@ -46,6 +46,21 @@ def test_absolute_root_with_data_segment_is_scanned(tmp_path: Path) -> None:
     assert MOD.scan(root), "绝对路径里的 data 段不该让整个项目被跳过"
 
 
+def test_single_dash_is_not_flagged(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("我们只改了标题——正文和附件都没动。\n", encoding="utf-8")
+    assert MOD.scan(tmp_path) == []
+
+
+def test_stacked_de_across_punctuation_is_not_flagged(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("用户的，反馈的，问题的。\n", encoding="utf-8")
+    assert not any(item["rule"] == "F26" for item in MOD.scan(tmp_path))
+
+
+def test_stacked_de_in_one_clause_is_flagged(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("这是一个十亿参数的开源小模型的微调的完整方案。\n", encoding="utf-8")
+    assert any(item["rule"] == "F26" for item in MOD.scan(tmp_path))
+
+
 def _rules(findings):
     return {item["rule"] for item in findings}
 

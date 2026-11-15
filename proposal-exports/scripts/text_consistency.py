@@ -41,8 +41,6 @@ RULES = [
      '没有真实反方时删掉'),
     ('B6', '强凑三段式', r'(首先[^。\n]{0,50}其次[^。\n]{0,50}(最后|第三))', 'warning',
      '顺序不是重点时改成普通叙述'),
-    ('B8', '破折号当万能连接', r'——', 'warning',
-     '同一篇出现多次时改成句号/逗号/冒号'),
     ('B9', '限定词堆叠', r'(可能|或许|也许|似乎|大概)[^。\n]{0,12}(可能|或许|也许|似乎|大概)',
      'warning', '保留一个真实的不确定程度'),
     ('C12', 'AI 高频词', r'(赋能|闭环|抓手|颗粒度|底层逻辑|顶层设计|生态位|范式|协同|沉淀|链路|心智|势能|护城河)',
@@ -63,7 +61,10 @@ RULES = [
      '标题后直接给信息，不要重复标题'),
     ('E25', '谈论上一稿', r'(上一版|这次修改|如前所述|前文提到)', 'warning',
      '交付稿不要留修订痕迹'),
-    ('F26', '层叠的“的”', r'[^。\n]{0,12}的[^。\n]{0,12}的[^。\n]{0,12}的', 'warning',
+    ('F26', '层叠的“的”',
+     r'[^。，；：！？、\n「」（）()"\'“”‘’*+−\-/|]{0,10}的'
+     r'[^。，；：！？、\n「」（）()"\'“”‘’*+−\-/|]{0,10}的'
+     r'[^。，；：！？、\n「」（）()"\'“”‘’*+−\-/|]{0,10}的', 'warning',
      '拆句或删掉冗余的'),
     ('F27', '进行＋动词', r'进行(了)?[\u4e00-\u9fff]{2}', 'warning',
      '直接用动词'),
@@ -101,6 +102,8 @@ def _scan_text(text: str, file: str, line: int = 0) -> list[dict]:
             line_text = text.splitlines()[line_no - line] if text.splitlines() else ''
             allow = TECH_ALLOW.get(match.group(0))
             if allow and allow.search(line_text):
+                continue
+            if rule_id == 'F26' and line_text.strip().startswith('|'):
                 continue
             findings.append({
                 'file': file,

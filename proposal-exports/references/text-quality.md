@@ -156,6 +156,8 @@
 机械部分：`readability_check.py`（R1–R14；R14 读项目 `术语表.md` 的「禁用别名」列，
 英文别名与单字跳过）与 `text_consistency.py`（去 AI 味；默认只打印 error，`--warnings` 看 warning；
 `node_modules` 与历史文档默认跳过）。`--dump` 导出全部界面文字，供人工抽查。
+破折号（B8）不进机械检查：技术文档里成对破折号多半是正常解释，留给人读；
+层叠「的」（F26）只查同一分句内、不含引号/运算符/表格的写法。
 
 ```bash
 python scripts/readability_check.py --root <项目> [--tests <测试仓>] [--json]
