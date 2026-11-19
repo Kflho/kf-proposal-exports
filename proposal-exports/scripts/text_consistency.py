@@ -94,6 +94,11 @@ EXPORT_TEXT = {'.md', '.mdx', '.txt', '.html', '.htm'}
 PYTHON = {'.py'}
 
 
+def strip_quotes(text: str) -> str:
+    """去掉引用块行：引文属于原文，不按本组文字判。"""
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith(">"))
+
+
 def _scan_text(text: str, file: str, line: int = 0) -> list[dict]:
     findings = []
     for rule_id, title, pattern, severity, advice in RULES:
@@ -238,7 +243,7 @@ def scan(root: Path, include_exports: bool = False) -> list[dict]:
                                           errors='replace')
                 except OSError:
                     continue
-                findings.extend(_scan_text(text, rel, 0))
+                findings.extend(_scan_text(strip_quotes(text), rel, 0))
             findings.extend(_scan_export_artifacts(exports, root))
         return findings
     for path in _text_files(root, MARKDOWN):
@@ -249,7 +254,7 @@ def scan(root: Path, include_exports: bool = False) -> list[dict]:
             text = path.read_text(encoding='utf-8-sig', errors='replace')
         except OSError:
             continue
-        findings.extend(_scan_text(text, rel, 0))
+        findings.extend(_scan_text(strip_quotes(text), rel, 0))
     for path, line, text in _python_strings(root):
         rel = path.relative_to(root).as_posix()
         findings.extend(_scan_text(text, rel, line - 1))

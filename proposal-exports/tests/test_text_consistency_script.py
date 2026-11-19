@@ -109,3 +109,9 @@ def test_figure_numbering(tmp_path: Path):
     )
     rules = _rules(MOD.scan(tmp_path, include_exports=True))
     assert "ART-FIG-NUM" in rules
+
+def test_quote_block_is_not_scanned(tmp_path: Path) -> None:
+    (tmp_path / "摘录.md").write_text(
+        "> 坚持以战略为先导、政策为抓手、法治为保障。\n\n本组自己的句子。\n", encoding="utf-8")
+    findings = MOD.scan(tmp_path)
+    assert not any(item["rule"] == "C12" for item in findings)
