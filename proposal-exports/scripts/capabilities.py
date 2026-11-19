@@ -61,6 +61,8 @@ CAPABILITIES: list[Capability] = [
     Capability("页片-重排图片框", "scripts/fit_pptx_frames.py", "SKILL.md", "test_pptx_edit"),
     Capability("文本-一致性", "scripts/text_consistency.py", "references/text-quality.md",
                "test_text_consistency"),
+    Capability("文本-笔记去重与引用", "scripts/note_dedup.py", "references/text-quality.md",
+               "test_note_dedup"),
     Capability("MATLAB 出图封装", "assets/matlab/export_figure.m", "references/matlab-figures.md", None),
 ]
 
