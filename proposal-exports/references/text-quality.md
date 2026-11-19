@@ -155,8 +155,8 @@
 4. `readability_check.py --root <项目> --dump` 导出清单（`文件:行<TAB>文字`），
    抽完一批再抽下一批，直到覆盖全部界面文字。
 
-机械部分：`readability_check.py`（R1–R14、R16；R14 读项目 `术语表.md` 的「禁用别名」列，
-英文别名与单字跳过；R16 报绝对路径与家目录写法；`--docs` 同时扫 Markdown 正文，README 也算开发文档）
+机械部分：`readability_check.py`（R1–R14、R16、R17；R14 读项目 `术语表.md` 的「禁用别名」列，
+英文别名与单字跳过；R16 报绝对路径与家目录写法，R17 报交付文档里的仓库路径（README / AGENTS / CLAUDE 例外）；`--docs` 同时扫 Markdown 正文，README 也算开发文档）
 与 `text_consistency.py`（去 AI 味；默认只打印 error，`--warnings` 看 warning；
 `node_modules` 与历史文档默认跳过）。`--dump` 导出全部界面文字，供人工抽查。
 破折号（B8）不进机械检查：技术文档里成对破折号多半是正常解释，留给人读；
