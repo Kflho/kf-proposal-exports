@@ -27,7 +27,7 @@
 1. **"没有报错"≠"没问题"**：几何自检只覆盖"压线/越界"，覆盖不了
    ① 视觉语言是否统一（对齐、锚点、字号档位、分隔线有无）② 语义是否正确（箭头表达的因果/并列）
    ③ 渲染环境差异（`tspan dy`）。
-2. **靠目视兜底不可靠**：净距 7px、锚点混用这类问题，人眼在缩略图上判不出来；
+2. **只做目视检查不可靠**：净距 7px、锚点混用这类问题，人眼在缩略图上判不出来；
    而"看着还行"的主观判断会产生漏检（第 6 条就是）。
 3. **改完必须重跑自检**：第 2、3 条都是"改完文案没重跑"。自检不是一次性动作，是每次改动的收尾步骤。
 4. **一个规则只写一处**：跨仓库/跨图的口径若两边各写一套，迟早漂移（已在本 skill 与
@@ -39,10 +39,10 @@
 
 | 教训 | 固化到哪 |
 | --- | --- |
-| 跨行拆独立 `<text>` | `SKILL.md` 硬规则 2 + `text-norms.md` §3 |
-| 连线只用正交折线 / 一对多用母线 / 并列不画箭头 / 数量不匹配用通栏 | `SKILL.md` 硬规则 13 + `figure-types.md` §5 |
-| **同类元素必须同一处理（锚点、字号、分隔线、标签对齐）** | `SKILL.md` 硬规则 14 + `figure-types.md` §6 + **新脚本 `check_consistency.py`** |
-| 每次改动后重跑全部自检 | `SKILL.md` 硬规则 11 + `verification.md` §1 |
+| 跨行拆独立 `<text>` | `SKILL.md` 规则 2 + `text-norms.md` §3 |
+| 连线只用正交折线 / 一对多用母线 / 并列不画箭头 / 数量不匹配用通栏 | `SKILL.md` 规则 13 + `figure-types.md` §5 |
+| **同类元素必须同一处理（锚点、字号、分隔线、标签对齐）** | `SKILL.md` 规则 14 + `figure-types.md` §6 + **新脚本 `check_consistency.py`** |
+| 每次改动后重跑全部自检 | `SKILL.md` 规则 11 + `verification.md` §1 |
 | 可疑区域裁切放大 + 换查看器复核 | `verification.md` §2、§4 |
 | 3D 三视图：三角色对齐规则（通栏段落左对齐 / 单元格内容居中 / 通栏并列项居中） | `figure-types.md` §6 |
 | 箭头只表达因果/对应；删掉后意思不变就是装饰 | `figure-types.md` §5.3 |
@@ -83,6 +83,6 @@
 | [Build beautiful diagrams with Claude Code](https://raw.githubusercontent.com/coleam00/cole-medin-knowledge-base/refs/heads/main/sources/build-beautiful-diagrams-with-claude-code-full-workflow.md#1) | 工作流笔记 | 同上，偏"生成"而非"规范校验" |
 
 **结论**：生态里"生成图"的 skill 很多（Mermaid / Excalidraw / HTML-SVG），
-但**没有把"中文申报材料的配图规范 + 可机器校验的一致性检查"做全的**——本 skill 的空位就在这里：
+但**没有把"中文申报材料的配图规范 + 可机器校验的一致性检查"做全的**——本 skill 要补的就是这块空缺：
 ① 三类结构图的固定版式；② 中文文字与符号记法；③ 指标表述与"不画大饼"；
 ④ **几何自检 + 一致性自检两套脚本**（这是别人都没做的部分）。

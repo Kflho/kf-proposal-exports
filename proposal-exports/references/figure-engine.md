@@ -86,7 +86,7 @@ mmdc -i 流程.mmd -o 流程.png --size 1600x900
 
 样例见 `references/design-notes/bench/route_mermaid.mmd`。竖版输出、长句断行密，不要直接进页片。
 
-**Graphviz 的写法**（只给存量图参考，完整踩坑见 `references/graphviz-usage.md`）：`rankdir` / `rank=same` 分层，
+**Graphviz 的写法**（只给存量图参考，完整失败记录见 `references/graphviz-usage.md`）：`rankdir` / `rank=same` 分层，
 `subgraph cluster_x` 表并列，
 边上 `label=` 自动避让；中文断行仍用 `scripts/gv_figure.py`（内部 `_wrap_dp.py` 做 DP 断行）。
 装了 Graphviz 才能用这条路：`winget install Graphviz.Graphviz`。

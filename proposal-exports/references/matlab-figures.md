@@ -17,7 +17,7 @@ MATLAB 项目用共享库 `matlab-project-utils`，不在每个脚本里重复�
 
 库根用 `addpath(genpath('matlab-project-utils'))` 加入路径；模块清单与最小调用示例见该库
 `README.md`（`calculations`、`initialization`、`plots`、`visualizations`、`simulink`）。
-画图与排版分开的约定也在那份 README 里。
+画图与排版分开的约定也写在该库的 `README.md` 里。
 
 ## 2 封装：export_figure.m
 

@@ -1,7 +1,7 @@
 # 设计记录：页片的审美方向（taste-skill 实跑）
 
 > 类型：审美决策留痕　｜　日期：2026-10-26　｜　状态：已定，待落令牌与检查
-> 输入：taste-skill（上游 `Leonxlnx/taste-skill`，本地 `~/.dsh/skills/taste-skill`，入口
+> 输入：taste-skill（上游 `Leonxlnx/taste-skill`，本地安装路径见下面的命令，入口
 > `skills/taste-skill/SKILL.md`；v2.1.5，上游 commit 12af471）。
 > 证据：`dev/taste/sheet-one-motif.md`、`dev/taste/sheet-type-only.md`（本机跑出的 direction sheet，gitignored）。
 

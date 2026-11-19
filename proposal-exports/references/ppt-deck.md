@@ -121,5 +121,5 @@ python scripts/render_pptx_png.py out/项目汇报.pptx --out out/preview
 | 读别人给的 deck（提文字、看页序） | 官方 `pptx` skill（`markitdown`、`thumbnail.py`） |
 | 原生图表（`addChart`） | 本 skill 的 `gen_deck.js` 里直接调 pptxgenjs |
 
-**不要**在本 skill 里重写 OOXML 手术：`update_pptx_images.py` / `fit_pptx_frames.py` 只做"换图/重排框"，
-其余编辑交给官方 skill。
+**不要**在本 skill 里重写 OOXML 结构性编辑：`update_pptx_images.py` / `fit_pptx_frames.py` 只做"换图/重排框"，
+其他编辑交给官方 `pptx` skill。

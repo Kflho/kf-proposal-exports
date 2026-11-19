@@ -1,6 +1,6 @@
 # 校验流程与脚本用法
 
-> 铁律：**机器自检 + 目视验收，两者都过才算完成**。只跑脚本会漏语义问题；只看图会漏 7px 级几何问题。
+> 交付判据：**机器自检与目视验收都通过才算完成**。只跑脚本会漏语义问题；只看图会漏 7px 级几何问题。
 
 ## 0. 环境
 
@@ -84,7 +84,7 @@ python scripts/render_svg.py 图1.svg --png out/zoom.png --crop "300 540 600 60"
 `references/external-calls.md` §2。判读：
 
 - `FIX BEFORE DELIVERY`（exit 1）→ 必须改，不得交付；
-- `REVIEW REQUIRED` → 逐条目视并在自检记录里写理由；
+- `REVIEW REQUIRED` → 逐条目视，把理由写进自检记录；
 - `NOT AUDITABLE`（exit 2）→ **不得当成通过**（依赖缺失 / 无文字 / 无法解析）。
 
 `check_overlap.py` 只是源码级预检（快、能当场提示），交付以渲染后的 `PASS` 为准。

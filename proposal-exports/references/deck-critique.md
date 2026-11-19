@@ -6,7 +6,7 @@
 
 ## 接入点 1：定令牌之前（决策）
 
-拿 `taste-skill` 的 `draw.mjs` 抽三个方向，选一个并写一行理由，落到
+拿 `taste-skill` 的 `draw.mjs` 抽三个方向，选一个并写一行理由，写进
 `references/design-notes/`（已有实例：`deck-aesthetics.md`，含 seed 与重画登记）。
 **不写这一步就不改令牌**——否则审美只是默认值。
 
@@ -50,7 +50,7 @@ python scripts/deck_critique.py out/deck.pptx --md out/deck_critique.md \
 ## 和 deck_gate 的关系
 
 `deck_gate` 的步骤是：`fonts → deck_check → text_check → critique → external`。
-critique 挂在这里的意义是**每次生成都会跑**，而不是"想起来才看一眼"；它对不上模板时按
+把 critique 放进闸门的理由是**每次生成都会跑**，而不是"想起来才看一眼"；它与模板的默认版式冲突时按
 REVIEW 报，不阻断交付，但要有结论。
 
 ## 已知边界

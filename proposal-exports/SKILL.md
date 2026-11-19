@@ -38,11 +38,11 @@ metadata:
 
 | 层 | 内容 | 何时加载 |
 | --- | --- | --- |
-| **常驻（持续激活）** | 本文件：触发、画布与令牌、两条工作流、硬规则、脚本表 | 每次会话 |
+| **常驻（持续激活）** | 本文件：触发、画布与令牌、两条工作流、规则、脚本表 | 每次会话 |
 | **选择性（阶段触发）** | `references/`：画图取 [figure-types](references/figure-types.md)；页片取 [ppt-deck](references/ppt-deck.md)；文字取 [text-quality](references/text-quality.md)/[text-norms](references/text-norms.md)；外部能力取 [external-deck](references/external-deck.md)；生成器/回灌取 [deck-generator](references/deck-generator.md)；模板取 [deck-template](references/deck-template.md)；审美取 [deck-critique](references/deck-critique.md)；目视取 [verification](references/verification.md)；MATLAB 取 [matlab-figures](references/matlab-figures.md) | 流程走到那一步才读 |
 | **交付前一次** | `deck_gate.py` 一条命令（字体 → 静态 → 文字 → 审美 → 外部审计）+ 预览 PNG | 闸门统一调用 |
 
-判断方法：先看这一步的判据在哪份 reference，只读那一份；读不到再查笔记，不靠猜。
+判断方法：先看这一步的判据在哪份 reference，只读对应那份文档；读不到再查笔记，不靠猜。
 
 > 图片排版调整：**先调版式，再调文案**；版式定了跑 check_overlap.py / check_symbols.py，最后目视。
 > 画布、设计语言、引擎选型见 [references/figure-engine.md](references/figure-engine.md)。
@@ -61,7 +61,7 @@ taste-skill 只接两步：定令牌前抽三个方向并记录（`design-notes/
 - 要为申报书/方案/答辩画图或配图（总体框架、技术路线、研究计划、指标体系、进度甘特、组织架构）
 - 要检查已有配图：文字压线、重叠、越界、错乱、与实际不符
 - 要核对**图 ↔ 正文 ↔ 技术方案**三方是否一致（数字、术语、称谓、限定条件）
-- 要把导师/模板给的示例图落到自己的图上
+- 要把导师/模板给的示例图套用到自己的图上
 - 要把图导出/嵌入 PPT、Word，或转 PNG 做汇报
 - 要做汇报/答辩/组会**页片**：把讲稿落成 PPT、补标题与口播、把图/公式排进去
 - 要检查**页片或报告的文字**：标题像话题、要点太多、句子太长、AI 腔、口播超长
@@ -71,7 +71,7 @@ taste-skill 只接两步：定令牌前抽三个方向并记录（`design-notes/
 
 ## 面向用户的界面文字
 
-面向用户的界面文字（弹窗/状态栏/提示）只写当前状态或要求操作，规则见 `references/text-quality.md`「用户交互文字」一节。
+弹窗、状态栏与提示只写当前状态或要求操作，规则见 `references/text-quality.md`「用户交互文字」一节。
 
 ## 不触发
 
@@ -104,9 +104,9 @@ taste-skill 只接两步：定令牌前抽三个方向并记录（`design-notes/
 
 > 若图是给**他人**（导师/总体组/评审）看的：第 1 步要先把结构发出去确认，再动手画。
 
-## 硬规则
+## 规则
 
-19 条硬规则已下沉：[references/hard-rules.md](references/hard-rules.md)（违反即返工；先读它再画/再做页片）。
+19 条配图与页片规则已下沉：[references/rules.md](references/rules.md)（违反即返工；先读它再画/再做页片）。
 
 > 三类图版式（框架 / 路线 / 计划矩阵）与连线规范见 [references/figure-types.md](references/figure-types.md)。
 

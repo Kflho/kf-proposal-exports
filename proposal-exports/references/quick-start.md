@@ -1,6 +1,6 @@
 # Quick Start、依赖与输出格式
 
-> 从 SKILL.md 下沉；首次使用或安装环境时读这一份。
+> 从 SKILL.md 下沉；首次使用或安装环境时读本文件。
 
 ## Quick Start
 
@@ -97,6 +97,6 @@ python scripts/check_symbols.py out/route.svg
 > PPT 里会被拉伸，须先把渲染尺寸对齐——`render_svg.py` 的窗口按 `viewBox × scale` 取整，
 > 与旧图差几个像素是常见的，例如 `viewBox 878` 出 1756 而旧图是 1760）。
 
-> **评审要改图时，转"原生对象"而不是换图**：调用 `~/.dsh/tools/svg-native-pptx/powerpoint_native.py`
+> **评审要改图时，转"原生对象"而不是换图**：调用 `svg-native-pptx` 的 `powerpoint_native.py`
 > 把 SVG 转成原生形状 + 原生文本框的 PPTX（PowerPoint 出实际预览对照）；装了 Illustrator 才可走 `.ai`。
-> 命令见 `references/external-calls.md`；坑：文本别放全角空格 U+3000（会拆成逐字框）、输出目录必须不存在。
+> 路径与命令见 `references/external-calls.md`；注意事项：文本别放全角空格 U+3000（会拆成逐字框）、输出目录必须不存在。

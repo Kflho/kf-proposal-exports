@@ -41,11 +41,11 @@ python "$USERPROFILE/.dsh/tools/svg-native-pptx/illustrator_native.py" \
 产物：`editable.pptx` + `display/powerpoint.png`（PowerPoint 实际渲染）+ `display/index.html`（对照页）。
 验收看两处：`report.json` 的 `mode == native_paths` 且 `raster_pictures == 0`；对照页目视。
 
-坑：
+注意事项：
 
 - 文本里有**全角空格 U+3000** → 会被拆成逐字文本框（改用普通空格或拆成两个 `<text>`）；
 - 输出目录**必须不存在**，否则报 `WinError 183`；
-- PowerPoint 换行与浏览器不同，SVG 不压线的段落进 PPT 可能变两行——以实际预览为准。
+- PowerPoint 换行与浏览器不同，SVG 里不压线的段落，进 PPT 后可能变成两行——以实际预览为准。
 
-第三方工具装在 `~/.dsh/tools/svg-native-pptx/`（MIT，未修改，来源见该目录 `SOURCE.md`），
+第三方工具装在命令里的 `svg-native-pptx/` 目录（MIT，未修改，来源见该目录的 `SOURCE.md`），
 不在本 skill 包内。

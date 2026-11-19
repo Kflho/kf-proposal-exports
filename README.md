@@ -39,12 +39,12 @@ python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 
 **1. 画申报结构图**：三类版式（总体框架 / 技术路线 / 研究计划矩阵）见 `references/figure-types.md`。
 起手拷 `assets/template.svg`，只改文案与坐标；画完跑 5 个检查脚本，再渲染看图。
-版式与文字规则在 `SKILL.md` 的硬规则 1–15。
+版式与文字规则在 `SKILL.md` 的规则 1–15。
 
 **2. 把讲稿做成 PPT**：先写页计划（每页一句结论 + 证据 + 口播），再套 `assets/deck/gen_deck.js` 的
 版式函数；公式走 `formula_png.py`；生成后跑 `deck_check.py` + `text_check.py` + 预览。
 细节见 `references/ppt-deck.md`，文案规则见 `references/text-quality.md`。
-按任务书验收的课程/实验汇报（标题切研究目标、结论放下方结论行）见硬规则 16 的例外。
+按任务书验收的课程/实验汇报（标题切研究目标、结论放下方结论行）见规则 16 的例外。
 
 **3. 改已有页片**：换图用 `scripts/update_pptx_images.py`（版式逐字节不动）；
 图片被拉伸用 `scripts/fit_pptx_frames.py`；结构性编辑（加页/删页/改 XML）走官方 `pptx` skill。
@@ -82,7 +82,7 @@ python -m pytest -q          # 106 项（20 个模块）：公式/页片/文字/
 
 | 文档 | 内容 |
 | --- | --- |
-| [`proposal-exports/SKILL.md`](proposal-exports/SKILL.md) | 入口：触发、两条工作流、硬规则、脚本表 |
+| [`proposal-exports/SKILL.md`](proposal-exports/SKILL.md) | 入口：触发、两条工作流、规则、脚本表 |
 | [`references/figure-types.md`](proposal-exports/references/figure-types.md) | 三类图版式、连线规范、设计系统 |
 | [`references/ppt-deck.md`](proposal-exports/references/ppt-deck.md) | 页片五步流程、令牌、五条本地纪律、质检 |
 | [`references/external-deck.md`](proposal-exports/references/external-deck.md) | 页片外部能力：何时调 `nature-paper2ppt` / `academic-ppt`、调用契约、回退 |

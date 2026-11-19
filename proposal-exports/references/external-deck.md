@@ -38,7 +38,7 @@ git -C <目标目录> sparse-checkout set skills/nature-paper2ppt skills/nature-
 | 产物 | `output/final_presentation_cn.pptx`、`output/qa_report.md`、`output/assets/figures/`、`output/asset_manifest.md` |
 | 回来必查 | 它自己的 `qa_report.md`（high 级问题=0）+ 本仓 `deck_check.py` + `text_check.py` + 预览逐页目视 |
 
-它的设计/排版规则（页面密度、版式族、反模板、对齐、中文去套话）见其 `references/design-and-layout.md`；
+`nature-paper2ppt` 的设计/排版规则（页面密度、版式族、反模板、对齐、中文去套话）见该 skill 的 `references/design-and-layout.md`；
 本仓 `references/ppt-deck.md` 只引用、不重写。它的审计脚本 `scripts/audit_pptx_quality.py`
 （纯 python-pptx 读 OOXML：出界、文字过载、图片裁剪、小图、近身对齐、AI 模板短语）由
 `scripts/deck_gate.py` 自动接上。
@@ -61,13 +61,13 @@ pip install python-pptx matplotlib seaborn pymupdf Pillow Pygments   # 可选：
 | 产物 | `<name>.pptx`、`<name>_figures/`、`<name>_matplotlib_code/`、`<name>_log.txt` |
 | 回来必查 | 页数是否合时长、数字是否都能在正文找到出处、图是否按真实比例入槽、本仓三项检查 |
 
-它的口播模板（说什么 / 要点 / 时长 / 过渡 / 预判提问）与 Q&A 五类问题，是本仓没有的能力：
+`academic-ppt` 的口播模板（说什么 / 要点 / 时长 / 过渡 / 预判提问）与 Q&A 五类问题，是本仓没有的能力：
 要口播稿时直接用它的模板，不在本仓另写一套。
 
 ## 4 官方 `pptx` skill（未装，只作回退说明）
 
-本机 `~/.dsh`、`~/.claude`、`~/.codex` 均无 `skills/pptx`，所以"跑 `validate.py`"这条**目前不可执行**。
-它的能力面（`html2pptx.js` 把 HTML 转原生 pptx；`thumbnail.py` / `inventory.py` / `rearrange.py` /
+本机的 agent 工具目录（`.dsh`、`.claude`、`.codex`）都没有 `skills/pptx`，所以目前无法执行"跑 `validate.py`"。
+官方 `pptx` skill 的能力面（`html2pptx.js` 把 HTML 转原生 pptx；`thumbnail.py` / `inventory.py` / `rearrange.py` /
 `replace.py`；OOXML schema + `validate.py`）与本仓的分工：**结构性编辑与 schema 校验归它**，
 本仓只做换图与自检。装好后按 `add_slide.py` / `clean.py` / `validate.py` 的原命令调用；
 未装时结构性编辑走人工，不假装有闸门。

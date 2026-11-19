@@ -56,7 +56,7 @@ python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 1. **中文字体用中文族名**：`a:ea` 写 `SimHei`/`SimSun` 在部分 Office 里不解析，会静默回退成宋体
    （标题黑体直接丢）。写 `黑体` / `宋体`。`deck_fonts.py` 默认已改。
 2. **外部模板的边距不要套 0.5in**：模板标题常在 0.3in；`deck_check --margin 0.3` 按模板来。
-3. **复制页要先深拷再清空**：清掉样例页后源页就没了；`deck_template.py` 在清空前把源形状复制到内存。
+3. **复制页要先深拷贝再清空**：清掉样例页后源页就没了；`deck_template.py` 在清空前把源形状复制到内存。
 
 ## 限制
 

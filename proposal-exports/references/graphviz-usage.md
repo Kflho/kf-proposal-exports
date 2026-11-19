@@ -1,8 +1,8 @@
-# Graphviz 正确用法（含踩坑记录）
+# Graphviz 正确用法（含错误记录）
 
 > 依据官方文档：[Node Shapes / HTML-Like Labels](https://graphviz.org/doc/info/shapes.html)、
 > [Attributes](https://graphviz.org/doc/info/attrs.html)、[dot 布局](https://graphviz.org/docs/layouts/dot/)、
-> [DOT 语言](https://graphviz.org/doc/info/lang.html)。本文件只记**会踩坑**的部分。
+> [DOT 语言](https://graphviz.org/doc/info/lang.html)。本文件只记**容易出错**的部分。
 
 ## 0. 一句话原则
 
@@ -24,7 +24,7 @@ n [shape=plaintext, margin=0, label=<
   </TABLE>>];
 ```
 
-规则（都是踩过的坑）：
+规则（都来自实际失败）：
 
 | 项 | 规则 |
 | --- | --- |
@@ -84,7 +84,7 @@ SVG 的 `width/height` 默认带 `pt`；有些工具（含本 skill 早期的 `r
 5. 单位是否分清了英寸/点？
 6. 出图后跑 `check_overlap.py`，并**亲眼看渲染图**。
 
-## 5. 本项目事故记录（供后人避坑）
+## 5. 本项目事故记录（供后续参考）
 
 | 事故 | 根因 |
 | --- | --- |

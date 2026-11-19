@@ -43,5 +43,5 @@
 
 ## 建议
 
-- 这条补丁对 `proposal-exports`、`paper-experiment` 都适用，不只画图；
+- 本补丁对 `proposal-exports`、`paper-experiment` 都适用，不只画图；
 - 是否合并进 kf，由用户决定；本 skill 先在 `diagram-engine-decision.md` 里按这个协议做 R2。

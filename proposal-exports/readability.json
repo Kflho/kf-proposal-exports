@@ -1,0 +1,8 @@
+{
+  "skip": [
+    "references/text-quality.md"
+  ],
+  "allow": [
+    "塞进框宽"
+  ]
+}
