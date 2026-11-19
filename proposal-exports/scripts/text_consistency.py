@@ -78,6 +78,8 @@ SKIP_DIRS = {
     '.git', '__pycache__', 'temp', 'tests', '.pytest_cache', 'dev',
     'node_modules', 'dist', 'build', 'data', 'exports', '.venv', 'venv',
     '.mypy_cache', '.ruff_cache', 'technical_solution_docs', 'research',
+    # 本地调研快照（别的 skill / 网页的原始拷贝，不发版）：其中的文字不是本 skill 的
+    '.research',
 }
 TECH_ALLOW = {
     '链路': re.compile(r'(下载|网络|远程|数据|全|这条|处理|调用|音频|视频|字幕|端到端)链路|链路(层|不可用|正常|中断)'),
@@ -86,9 +88,12 @@ TECH_ALLOW = {
                        r'直流增益|性能|动态|回路|控制|误差|响应|稳定|稳态|阻尼|'
                        r'零点|带宽|频域|时域|内部模态)|闭环\s*\$?A\s*\+\s*BK'),
     '完美': re.compile(r'完美(正确|匹配|对齐|同步)'),
+    # 「协同」单用是 AI 高频词；与开发/检查/规范这类词组成复合词时是专业说法
+    '协同': re.compile(r'协同(开发|工作|编辑|通信|分工|规范|检查|调试|评审)'),
     '——': re.compile(r'xx——序号|——序号'),
 }
-EXEMPT_FILES = {'references/text-review.md'}
+# 规则表本身要引用禁用词做例子（「营销腔：一键、无缝、彻底、完美、领先」），不按内容判
+EXEMPT_FILES = {'references/text-review.md', 'references/text-quality.md'}
 MARKDOWN = {'.md', '.mdx'}
 EXPORT_TEXT = {'.md', '.mdx', '.txt', '.html', '.htm'}
 PYTHON = {'.py'}

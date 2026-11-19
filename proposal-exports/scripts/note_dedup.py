@@ -4,7 +4,7 @@
 
 判据出处：data note 的「去除内容重复」（一个信息只记在一个地方 / 引用要写全 /
 引用本身不要重复 / 标题能讲清楚不要另起一段）。readability_check.py 只管单份
-文档内部与跨文件的段落重复，这份补上引用链路与跨文件的同题并存。
+文档内部与跨文件的段落重复，这份补上引用能否落地、以及跨文件的同题并存。
 
 用法:
     python scripts/note_dedup.py --root <笔记目录> [--vault <解析用的库根>] [--json]
@@ -424,7 +424,7 @@ def report(findings: list[dict], root: Path, hidden: int = 0) -> str:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description='笔记的去除重复检查（引用链路 + 跨文件同题）')
+    parser = argparse.ArgumentParser(description='笔记的去除重复检查（引用能否落地 + 跨文件同题）')
     parser.add_argument('--root', required=True, help='要检查的笔记目录')
     parser.add_argument('--vault', default='', help='解析引用用的库根，默认同 --root')
     parser.add_argument('--strict', action='store_true',
