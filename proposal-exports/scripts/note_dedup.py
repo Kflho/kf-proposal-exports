@@ -17,6 +17,7 @@ import argparse
 import json
 import re
 import sys
+from difflib import SequenceMatcher
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -111,8 +112,24 @@ def headings_with_body(path: Path) -> list[tuple[int, int, str, bool]]:
             if is_reference_line(stripped):
                 continue
             body.append(stripped)
-        out.append((number, level, title, bool(body)))
+        out.append((number, level, title, _body_key(body)))
     return out
+
+
+def _body_key(lines: list[str]) -> str:
+    """小节正文的归一化文本：同名标题要不要报，看正文重不重复。"""
+    text = ''.join(lines)
+    return re.sub(r'[\s`*_|>#\-—–]+', '', text)
+
+
+def bodies_duplicate(a: str, b: str) -> bool:
+    """两节正文是不是同一批话：短的一段被长的包含，或整段高度相似。"""
+    short, long = (a, b) if len(a) <= len(b) else (b, a)
+    if len(short) < 8:
+        return False
+    if short in long:
+        return True
+    return SequenceMatcher(None, a, b).ratio() >= 0.75
 
 
 def vault_index(vault: Path) -> dict[str, Path]:
@@ -225,7 +242,7 @@ def check(root: Path, vault: Path) -> list[dict]:
     index = vault_index(vault)
     heads_cache: dict[Path, list[tuple[int, int, str, bool]]] = {}
     lines_by_file: dict[str, list[tuple[str, int]]] = {}
-    same_heading: dict[str, list[tuple[str, int, bool]]] = {}
+    same_heading: dict[str, list[tuple[str, int, str]]] = {}
     global_heads: dict[str, tuple[str, int]] | None = None
 
     for path in walk(root):
@@ -293,10 +310,10 @@ def check(root: Path, vault: Path) -> list[dict]:
                 matched=target,
                 advice='同一处只留一处引用，其余合并；离得远的分开引用不算重复'))
 
-        for number, _level, title, has_body in heads:
+        for number, _level, title, body_text in heads:
             if len(title) < 4 or title in N6_SKIP:
                 continue
-            same_heading.setdefault(title, []).append((rel, number, has_body))
+            same_heading.setdefault(title, []).append((rel, number, body_text))
 
         for number, line in enumerate(body.splitlines(), 1):
             stripped = line.strip()
@@ -348,33 +365,39 @@ def check(root: Path, vault: Path) -> list[dict]:
                 advice='只留一处，另一处写成引用（引用 xx 相关部分）'))
 
     for title, places in same_heading.items():
-        with_body = [(rel, number) for rel, number, has_body in places if has_body]
-        # 同一份笔记里同名标题出现多次：多半是复制段落留下的
-        per_file: dict[str, list[int]] = {}
-        for rel, number in with_body:
-            per_file.setdefault(rel, []).append(number)
-        for rel, numbers in per_file.items():
-            if len(numbers) < 2:
-                continue
-            findings.append(dict(
-                file=rel, line=numbers[1], rule='N7', severity='warning',
-                title=f'同一份笔记里「{title}」出现了 {len(numbers)} 次',
-                text='、'.join(f'{rel}:{number}' for number in numbers),
-                matched=title,
-                advice='保留一处，其余改成子标题；重复的整段删掉或合并'))
-        files = {rel for rel, _ in with_body}
+        entries = [(rel, number, body) for rel, number, body in places if body]
+        # 同一份笔记里同名标题：只有正文重复才算问题，各写各的阶段就留着
+        per_file: dict[str, list[tuple[int, str]]] = {}
+        for rel, number, body in entries:
+            per_file.setdefault(rel, []).append((number, body))
+        for rel, items in per_file.items():
+            for index in range(1, len(items)):
+                number, body = items[index]
+                twin = next((other for _num, other in items[:index]
+                             if bodies_duplicate(body, other)), None)
+                if twin is None:
+                    continue
+                findings.append(dict(
+                    file=rel, line=number, rule='N7', severity='warning',
+                    title=f'同一份笔记里「{title}」的正文写了两遍',
+                    text=f'{rel}:{number} 与同标题的另一节内容相同',
+                    matched=title,
+                    advice='保留一处，另一处改成引用或只写本阶段的差异'))
+        files = {rel for rel, _, _ in entries}
         if len(files) < 2:
             continue
-        where = '、'.join(f'{rel}:{number}' for rel, number in with_body)
-        first_rel = with_body[0][0]
-        for rel, number in with_body:
-            if rel == first_rel:
+        seen: list[tuple[str, int, str]] = []
+        for rel, number, body in entries:
+            twin = next((other for _rel, _num, other in seen
+                         if bodies_duplicate(body, other)), None)
+            if twin is None:
+                seen.append((rel, number, body))
                 continue
             findings.append(dict(
                 file=rel, line=number, rule='N6', severity='warning',
-                title=f'「{title}」在两份文件里各有正文',
-                text=where, matched=title,
-                advice='两份写的是不同阶段就各自留下；相同就合并到一处，另一处引用'))
+                title=f'「{title}」的正文在两份笔记里各写了一遍',
+                text=f'{rel}:{number} 与另一份笔记的同名节内容相同', matched=title,
+                advice='保留一处，另一处写成引用'))
 
     findings.sort(key=lambda item: (item['rule'], item['file'], item['line']))
     return findings
@@ -430,4 +453,6 @@ def main(argv=None) -> int:
 
 if __name__ == '__main__':
     raise SystemExit(main())
+
+
 

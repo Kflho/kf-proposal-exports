@@ -118,16 +118,27 @@ def test_pure_reference_lines_do_not_count_as_duplication(tmp_path):
     assert 'N2' not in rules(findings)
 
 
-def test_same_heading_in_two_files_is_reported(tmp_path):
-    write(tmp_path, 'project note.md', '## 去除重复\n1. 作用：提高效率\n2. 内容：功能与内容\n')
-    write(tmp_path, 'template note.md', '## 去除重复\n1. 拆分模板\n2. 迁移模板\n')
+def test_same_heading_same_body_in_two_files_is_reported(tmp_path):
+    body = '## 去除重复\n1. 作用：提高效率\n2. 内容：功能与内容\n'
+    write(tmp_path, 'project note.md', body)
+    write(tmp_path, 'template note.md', body)
     findings = note_dedup.check(tmp_path, tmp_path)
     assert 'N6' in rules(findings)
 
 
-def test_same_heading_twice_in_one_file_is_reported(tmp_path):
+def test_same_heading_with_different_bodies_is_fine(tmp_path):
     write(tmp_path, 'template note.md',
-          '## 实例建立流程\n1. 按照框架模板建立对应\n\n## 实例建立流程\n1. 按步骤建实例\n')
+          '## 实例建立流程\n1. 写分类模板\n2. 按分类模板整理文件夹\n\n'
+          '## 实例建立流程\n1. 按照框架模板建立对应\n')
+    write(tmp_path, 'project note.md', '## 实例建立流程\n1. 先写任务书再拆子任务\n')
+    findings = note_dedup.check(tmp_path, tmp_path)
+    assert 'N7' not in rules(findings)
+    assert 'N6' not in rules(findings)
+
+
+def test_same_heading_twice_with_same_body_is_reported(tmp_path):
+    body = '## 实例建立流程\n1. 按照框架模板建立对应\n2. 按步骤填充内容\n'
+    write(tmp_path, 'template note.md', body + '\n' + body)
     findings = note_dedup.check(tmp_path, tmp_path)
     assert 'N7' in rules(findings)
 
