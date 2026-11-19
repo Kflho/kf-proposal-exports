@@ -65,6 +65,7 @@ taste-skill 只接两步：定令牌前抽三个方向并记录（`design-notes/
 - 要把图导出/嵌入 PPT、Word，或转 PNG 做汇报
 - 要做汇报/答辩/组会**页片**：把讲稿落成 PPT、补标题与口播、把图/公式排进去
 - 要检查**页片或报告的文字**：标题像话题、要点太多、句子太长、AI 腔、口播超长
+- 写**任务书 / 项目文档 / 大纲 / 说明**的文字：标题与文件名读不懂、句子压缩、夹行话，按 `references/text-quality.md`「语言风格检查」逐句改
 - 写申报书正文 / 技术方案 / 项目笔记，或梳理「研究内容、目标、创新点、技术方案」的边界
 - 要出 **MATLAB 数据图**、统一字体/线宽/图例，或核对论文/报告的图片产物（PNG、600 dpi、双语路径、标题单行）
 
@@ -141,6 +142,7 @@ taste-skill 只接两步：定令牌前抽三个方向并记录（`design-notes/
 | 做或改页片、套模板、维护生成器 | [ppt-deck](references/ppt-deck.md) / [deck-template](references/deck-template.md) / [deck-generator](references/deck-generator.md) | pptx + `deck_gate` |
 | 评估审美、写评审理由 | [deck-critique](references/deck-critique.md)（记录在 `design-notes/deck-aesthetics`） | `*_critique.md` |
 | 写申报书 / 方案 / 报告文字 | [project-content](references/project-content.md) + [text-quality](references/text-quality.md) + [text-norms](references/text-norms.md) | 段落 |
+| 写或改任务书 / 项目文档 / 大纲 / 说明 | [text-quality](references/text-quality.md)「语言风格检查」 | 文档 |
 | 交付前自检 | [verification](references/verification.md) + [quality](references/quality.md) + [quick-start](references/quick-start.md) | 打勾清单 |
 | 外部能力（数据图/审计/原生 PPT） | [external-calls](references/external-calls.md) + [external-deck](references/external-deck.md) | 调用 |
 
