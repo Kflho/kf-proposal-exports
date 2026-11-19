@@ -51,7 +51,7 @@ python scripts/deck_gate.py out/deck.pptx --strict --require-notes --margin 0.3
 python scripts/render_pptx_png.py out/deck.pptx --out out/preview
 ```
 
-## 三条硬经验（都是实测）
+## 三条实测经验
 
 1. **中文字体用中文族名**：`a:ea` 写 `SimHei`/`SimSun` 在部分 Office 里不解析，会静默回退成宋体
    （标题黑体直接丢）。写 `黑体` / `宋体`。`deck_fonts.py` 默认已改。
