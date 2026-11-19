@@ -126,7 +126,7 @@ taste-skill 只接两步：定令牌前抽三个方向并记录（`design-notes/
 | --- | --- |
 | 配图 | `scripts/check_overlap.py`、`scripts/check_symbols.py`、`scripts/check_connectors.py`、`scripts/check_consistency.py`、`scripts/check_spacing.py`、`scripts/render_svg.py`、`scripts/audit_text.py`、`scripts/svg_to_pdf.py` |
 | 页片 | `scripts/formula_png.py`、`scripts/deck_check.py`、`scripts/text_check.py`、`scripts/deck_fonts.py`、`scripts/deck_gate.py`、`scripts/deck_spec.py`、`scripts/deck_template.py`、`scripts/deck_critique.py`、`scripts/render_pptx_png.py`、`scripts/update_pptx_images.py`、`scripts/fit_pptx_frames.py` |
-| 文本 | `scripts/text_consistency.py`、`scripts/readability_check.py` |
+| 文本 | `scripts/text_consistency.py`、`scripts/readability_check.py`、`scripts/note_dedup.py` |
 
 命令与参数见 [references/quick-start.md](references/quick-start.md)；交付前跑 `deck_gate.py`。
 
