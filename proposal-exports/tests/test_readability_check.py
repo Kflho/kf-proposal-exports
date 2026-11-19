@@ -209,3 +209,19 @@ def test_readme_repo_path_is_not_flagged(tmp_path: Path) -> None:
     write(tmp_path, "README.md", "# 项目\n\n材料放在 bin/reference_docs/references/ 下。\n")
     findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": "", "skip": []}, docs=True)
     assert not any(item["rule"] == "R17" for item in findings)
+
+def test_same_paragraph_across_files_is_reported(tmp_path: Path) -> None:
+    body = "本节说明三类材料的用法，文献原文摘原文标出处，政策文本逐条比对表述差异，公开案例给四重意蕴做佐证，其余从略。"
+    write(tmp_path, "bin/reference_docs/大纲.md", "# 大纲\n\n" + body + "\n")
+    write(tmp_path, "bin/reference_docs/术语表.md", "# 术语表\n\n" + body + "\n")
+    findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": "", "skip": []}, docs=True)
+    hits = [item for item in findings if item["rule"] == "R18"]
+    assert hits and hits[0]["severity"] == "warning"
+
+
+def test_short_or_repeated_inside_one_file_is_not_reported(tmp_path: Path) -> None:
+    body = "本节说明三类材料的用法，文献原文摘原文标出处，政策文本逐条比对表述差异，公开案例给四重意蕴做佐证。"
+    write(tmp_path, "a.md", "# 甲\n\n" + body + "\n\n" + body + "\n")
+    write(tmp_path, "b.md", "# 乙\n\n短句。\n")
+    findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": "", "skip": []}, docs=True)
+    assert not any(item["rule"] == "R18" for item in findings)

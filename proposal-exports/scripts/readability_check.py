@@ -116,6 +116,20 @@ TEXT_EXT = {'.ts', '.tsx', '.md'}
 # 这几份文档的职责就是讲目录结构，里面出现路径是正常内容
 DOC_PATH_EXEMPT = {'readme.md', 'agents.md', 'claude.md'}
 
+# 跨文件重复段落：去掉空白与标点后比较，短句不参与（表头、引用格式之类会撞车）
+DUP_MIN_CHARS = 40
+
+
+def _paragraph_key(text: str) -> str | None:
+    stripped = text.strip()
+    if stripped.startswith(('#', '|', '>', '```')):
+        return None
+    plain = re.sub(r'[\s`*>|]+', '', stripped)
+    plain = re.sub(r'^[-+]\s*', '', plain)
+    if len(plain) < DUP_MIN_CHARS:
+        return None
+    return plain
+
 
 def load_config(root: Path) -> dict:
     file = root / 'readability.json'
@@ -447,6 +461,9 @@ def scan(root: Path, tests: Path | None, config: dict,
             if len(item['examples']) < 3:
                 item['examples'].append({'file': file, 'line': line, 'text': text[:80]})
 
+    # 跨文件重复段落：同一段文字出现在两份文件里，说明功能没拆开
+    seen_paragraphs: dict[str, tuple[str, int]] = {}
+
     for path in walk(root):
         rel = path.relative_to(root).as_posix()
         if any(rel.startswith(prefix) for prefix in config.get('skip') or []):
@@ -466,6 +483,19 @@ def scan(root: Path, tests: Path | None, config: dict,
             if docs:
                 for line, text in markdown_prose(path):
                     check(text, rel, line, '文档')
+                    key = _paragraph_key(text)
+                    if key is not None:
+                        first = seen_paragraphs.get(key)
+                        if first is None:
+                            seen_paragraphs[key] = (rel, line)
+                        elif first[0] != rel:
+                            findings.append({
+                                'file': rel, 'line': line, 'where': '文档', 'rule': 'R18',
+                                'title': '同一段文字出现在两份文件里',
+                                'severity': 'warning',
+                                'text': text[:100], 'matched': first[0],
+                                'advice': '只留一处，另一处引用；两份文件的功能没有拆开',
+                            })
                     if path.name.lower() == 'readme.md':
                         for rule_id, title, pattern, advice in README_DEV_RULES:
                             match = re.search(pattern, text)
