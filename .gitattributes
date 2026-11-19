@@ -1,0 +1,13 @@
+# 统一按 LF 检出：避免 Windows 上 CRLF 与 BOM 反复进库（check_files 会报错）
+* text=auto eol=lf
+
+# 二进制文件不做换行转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.pptx binary
+*.zip binary
