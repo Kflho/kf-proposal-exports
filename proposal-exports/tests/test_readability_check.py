@@ -196,3 +196,16 @@ def test_readme_dev_content_is_reported(tmp_path: Path) -> None:
     write(tmp_path, "README.md", "# 标题\n\nInternal: test/a.test.ts 用户实测通过。\n")
     findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": "", "skip": []}, docs=True)
     assert any(item["rule"] == "R15" for item in findings)
+
+def test_doc_repo_path_is_reported(tmp_path: Path) -> None:
+    write(tmp_path, "bin/reference_docs/材料.md", "# 材料\n\n原文放在 bin/reference_docs/references/ 下。\n")
+    findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": "", "skip": []}, docs=True)
+    hit = next(item for item in findings if item["rule"] == "R17")
+    assert hit["severity"] == "warning"
+    assert hit["where"] == "文档"
+
+
+def test_readme_repo_path_is_not_flagged(tmp_path: Path) -> None:
+    write(tmp_path, "README.md", "# 项目\n\n材料放在 bin/reference_docs/references/ 下。\n")
+    findings, _ = rc.scan(tmp_path, None, {"allow": [], "glossary": "", "skip": []}, docs=True)
+    assert not any(item["rule"] == "R17" for item in findings)

@@ -99,12 +99,22 @@ CONTEXT_RULES = [
      '改用仓库内的相对路径；读者没有你机器上的目录'),
 ]
 
+# 交付文档里写仓库路径：读者手里只有这一份文件，按路径找不到东西
+DOC_PATH_RULES = [
+    ('R17', '文档里写了仓库内的路径',
+     r'(?<![\w/\\])(?:bin|data|dev|src|lib)/[A-Za-z0-9_\-./\u4e00-\u9fff]*',
+     '写文件名与来源（「《可引用的材料》第二节」），路径只留在 README、AGENTS 与脚本注释里'),
+]
+
 # 术语表：不逐条报，按词统计（项目可以登记进 allow / glossary）
 ABBREV = ['重导', '留包', '推拉', '收包', '回礼', '落点', '收口', '接链', '白跑',
           '货架', '指纹', '兜底', '接不上', '对不上', '捞回来', '拷', '弄坏', '弄丢']
 JARGON = ['状态编号', '基准', '世代', '完整副本', '更新包', '差量包', '同步包']
 
 TEXT_EXT = {'.ts', '.tsx', '.md'}
+
+# 这几份文档的职责就是讲目录结构，里面出现路径是正常内容
+DOC_PATH_EXEMPT = {'readme.md', 'agents.md', 'claude.md'}
 
 
 def load_config(root: Path) -> dict:
@@ -403,6 +413,18 @@ def scan(root: Path, tests: Path | None, config: dict,
                     'text': text[:100], 'matched': match.group(0), 'advice': advice,
                 })
                 break
+            # 仓库文档（README / AGENTS / CLAUDE）说明目录结构，路径是内容本身
+            if where == '文档' and Path(file).name.lower() not in DOC_PATH_EXEMPT:
+                for rule_id, title, pattern, advice in DOC_PATH_RULES:
+                    match = re.search(pattern, text)
+                    if not match:
+                        continue
+                    findings.append({
+                        'file': file, 'line': line, 'where': where, 'rule': rule_id,
+                        'title': title, 'severity': 'warning',
+                        'text': text[:100], 'matched': match.group(0), 'advice': advice,
+                    })
+                    break
         # 开发文字：注释只查 R7 / R8（R9 的「这里」在注释里是正常指路）
         for rule_id, title, pattern, advice in DEV_RULES:
             if where == '注释' and rule_id == 'R9':
