@@ -1,4 +1,4 @@
-﻿// gen_deck.js — proposal-exports 的页片起手模板（pptxgenjs）
+// gen_deck.js — proposal-exports 的页片起手模板（pptxgenjs）
 //
 // 用法：
 //   1) npm i pptxgenjs（一次）

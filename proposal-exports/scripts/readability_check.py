@@ -92,6 +92,13 @@ DEV_RULES = [
      '换成动作本身：验证 / 放回 / 标记为 / 写进 / 失败'),
 ]
 
+# 只有作者本机才有的上下文：绝对路径、家目录、盘符
+CONTEXT_RULES = [
+    ('R16', '写本机绝对路径或只有作者才有的上下文',
+     r'(?<![A-Za-z0-9])(?:[A-Za-z]:[\\/]|/home/|/Users/|/mnt/|~/|\\\\[^\\\s]+\\[^\\\s]+)',
+     '改用仓库内的相对路径；读者没有你机器上的目录'),
+]
+
 # 术语表：不逐条报，按词统计（项目可以登记进 allow / glossary）
 ABBREV = ['重导', '留包', '推拉', '收包', '回礼', '落点', '收口', '接链', '白跑',
           '货架', '指纹', '兜底', '接不上', '对不上', '捞回来', '拷', '弄坏', '弄丢']
@@ -377,6 +384,17 @@ def scan(root: Path, tests: Path | None, config: dict,
             for rule_id, title, pattern, advice in PROSE_RULES:
                 match = re.search(pattern, text)
                 if not match or any(word in text for word in allow):
+                    continue
+                findings.append({
+                    'file': file, 'line': line, 'where': where, 'rule': rule_id,
+                    'title': title,
+                    'severity': 'warning' if where == '文档' else 'error',
+                    'text': text[:100], 'matched': match.group(0), 'advice': advice,
+                })
+                break
+            for rule_id, title, pattern, advice in CONTEXT_RULES:
+                match = re.search(pattern, text)
+                if not match:
                     continue
                 findings.append({
                     'file': file, 'line': line, 'where': where, 'rule': rule_id,
